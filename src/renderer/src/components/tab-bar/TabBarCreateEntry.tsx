@@ -78,7 +78,8 @@ function TabBarCreateEntrySession({
   const tabResults = useTabCreateEntrySearchResults({
     enabled: menuOpen && !terminalQueryMode,
     query,
-    worktreeId
+    worktreeId,
+    retainedResultId: pinnedOptionId
   })
   const shouldResolveAbsolutePaths =
     menuOpen && !terminalQueryMode && isTabEntryAbsolutePathLike(query.trim())
