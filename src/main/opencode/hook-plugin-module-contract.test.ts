@@ -16,22 +16,25 @@ vi.mock('electron', () => ({
 
 import { _internals } from './hook-service'
 
-/**
- * OpenCode loads a plugin file either through a named factory export or through the
- * module default export. The default-export loader rejects the module outright unless
- * the default is an object exposing `server()` — verified against opencode 1.18.18,
- * which logs `failed to load plugin … must default export an object with server()` for
- * a default of `{ id, setup }` and accepts `{ id, server }`. These tests execute the
- * generated module so the shipped file is checked against both loaders, not a substring.
- */
+/** Executes the generated module against the V1 and V2 plugin contracts. */
 describe('OpenCode status plugin module contract', () => {
   type PluginHooks = {
     event: (input: { event: unknown }) => Promise<void>
     dispose?: () => Promise<void>
   }
   type PluginModule = {
-    default?: { id?: unknown; server?: (ctx: unknown) => Promise<PluginHooks> }
+    default?: {
+      id?: unknown
+      server?: (ctx: unknown) => Promise<PluginHooks>
+      setup?: (ctx: V2PluginContext) => Promise<PluginCleanup | void> | PluginCleanup | void
+    }
     OrcaOpenCodeStatusPlugin?: (ctx: unknown) => Promise<PluginHooks>
+  }
+  type PluginCleanup = () => Promise<void> | void
+  type V2PluginContext = {
+    location: { directory: string; workspaceID?: string }
+    event: { subscribe: (options: { signal: AbortSignal }) => AsyncIterable<unknown> }
+    session: { get: (...args: unknown[]) => Promise<unknown> }
   }
 
   // Why: the plugin resolves hook coords from the endpoint file first and only then from
@@ -82,21 +85,21 @@ describe('OpenCode status plugin module contract', () => {
     return (await import(pathToFileURL(pluginPath).href)) as PluginModule
   }
 
-  it('exposes a default export carrying a string id and a callable server()', async () => {
+  it('exposes a default export for both OpenCode plugin APIs', async () => {
     const module = await loadPluginModule()
 
     expect(module.default).toBeTypeOf('object')
     expect(typeof module.default?.id).toBe('string')
     expect(module.default?.id).toBe('orca-opencode-status')
+    expect(module.default?.setup).toBeTypeOf('function')
     expect(module.default?.server).toBeTypeOf('function')
   })
 
-  it('rejects the shape OpenCode refuses: a default export without server()', async () => {
+  it('keeps both required default entrypoints', async () => {
     const module = await loadPluginModule()
 
-    // Why: pins the specific reason the loader fails a module — `setup` alone is not
-    // accepted, so a default export must never regress to it.
     expect(module.default).not.toBeUndefined()
+    expect(Object.hasOwn(module.default ?? {}, 'setup')).toBe(true)
     expect(Object.hasOwn(module.default ?? {}, 'server')).toBe(true)
   })
 
@@ -150,5 +153,38 @@ describe('OpenCode status plugin module contract', () => {
       paneKey: 'tab-1:leaf-1',
       payload: { hook_event_name: 'SessionBusy' }
     })
+  })
+
+  it('adapts V2 events and direct session responses for the current location', async () => {
+    process.env.ORCA_PANE_KEY = 'tab-1:leaf-1'
+    const posts: { url: string; body: unknown }[] = []
+    globalThis.fetch = vi.fn(async (input: unknown, init?: { body?: unknown }) => {
+      posts.push({ url: String(input), body: JSON.parse(String(init?.body ?? '{}')) })
+      return { ok: true } as Response
+    }) as unknown as typeof globalThis.fetch
+
+    async function* events(): AsyncIterable<unknown> {
+      const data = { sessionID: 'ses_root', status: { type: 'busy' } }
+      yield { type: 'session.status', location: { directory: '/other' }, data }
+      yield { type: 'session.status', location: { directory: '/workspace' }, data }
+    }
+
+    const module = await loadPluginModule()
+    const cleanup = await module.default?.setup?.({
+      location: { directory: '/workspace' },
+      event: { subscribe: () => events() },
+      session: { get: async () => ({ id: 'ses_root', parentID: undefined }) }
+    })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    const busyPosts = posts.filter((post) => {
+      const body = post.body as { payload?: { hook_event_name?: string } }
+      return post.url.includes('/hook/opencode') && body.payload?.hook_event_name === 'SessionBusy'
+    })
+    expect(busyPosts).toHaveLength(1)
+
+    if (typeof cleanup === 'function') {
+      await cleanup()
+    }
   })
 })
