@@ -2,13 +2,14 @@ import type { AgentSessionJournalIdentity } from '../../../shared/agent-session-
 import type { AgentSessionExecutionLocation } from '../../../shared/agent-session-record'
 import type { StructuredAgentSessionAdapter } from './structured-agent-session-adapter'
 
-type RoutedAgent = 'claude' | 'codex'
+type RoutedAdapters = Record<'claude' | 'codex', StructuredAgentSessionAdapter> &
+  Partial<Record<'opencode2', StructuredAgentSessionAdapter>>
 
 export class StructuredAgentSessionAdapterRouter implements StructuredAgentSessionAdapter {
   private readonly owners = new Map<string, StructuredAgentSessionAdapter>()
 
   constructor(
-    private readonly adapters: Record<RoutedAgent, StructuredAgentSessionAdapter>,
+    private readonly adapters: RoutedAdapters,
     private readonly closeAdapters: () => Promise<void>
   ) {}
 
@@ -155,6 +156,8 @@ export class StructuredAgentSessionAdapterRouter implements StructuredAgentSessi
   }
 
   private adapterForAgent(agent: string): StructuredAgentSessionAdapter | null {
-    return agent === 'claude' || agent === 'codex' ? this.adapters[agent] : null
+    return agent === 'claude' || agent === 'codex' || agent === 'opencode2'
+      ? (this.adapters[agent] ?? null)
+      : null
   }
 }

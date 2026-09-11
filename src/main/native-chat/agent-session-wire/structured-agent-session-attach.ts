@@ -148,7 +148,9 @@ export function journalIdentityFor(
             sessionId: head.handle.sessionId,
             leafUuid: head.handle.leafUuid
           }
-        : (params.providerHandle ?? { kind: 'opaque', agent: params.agent, value: 'pending' })
+        : head?.handle.provider === 'opencode2'
+          ? { kind: 'opaque', agent: 'opencode2', value: head.handle.sessionId }
+          : (params.providerHandle ?? { kind: 'opaque', agent: params.agent, value: 'pending' })
   return {
     sessionId: record.sessionId,
     workspaceId: params.location.workspaceId,

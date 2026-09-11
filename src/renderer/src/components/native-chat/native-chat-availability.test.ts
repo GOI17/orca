@@ -131,6 +131,16 @@ describe('canToggleNativeChat', () => {
     }
   )
 
+  it('keeps OpenCode 2 on its structured Chat UI path', () => {
+    expect(
+      canToggleNativeChat({
+        experimentalNativeChatEnabled: true,
+        contentType: 'terminal',
+        launchAgent: 'opencode2'
+      })
+    ).toBe(false)
+  })
+
   it('accepts Grok when resolved from the title', () => {
     expect(
       canToggleNativeChat({

@@ -4,6 +4,7 @@ import { OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript } from './orca-r
 import { getStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
 import { replaceConversationInSnapshot } from './structured-conversation-tab-replacement'
 import type { ConversationReplacement } from '../native-chat/agent-session-wire/structured-conversation-command'
+import type { AgentSessionHandleProvider } from '../../shared/agent-session-provider-handle'
 import { collectSavedStructuredAgentSessionIds } from './saved-structured-agent-session-restoration'
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import type {
@@ -90,7 +91,7 @@ export class OrcaRuntimeWithRestoreStructuredAgentSessionTabsOnce extends OrcaRu
   async publishStructuredAgentSessionTab(input: {
     workspaceId: string
     sessionId: string
-    agent: 'claude' | 'codex'
+    agent: AgentSessionHandleProvider
     activate: boolean
     notify?: boolean
     replacesSessionId?: string

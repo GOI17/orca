@@ -20,6 +20,9 @@ export async function handoffStructuredSessionToNative(
   const sessionId = params.envelope.sessionId
   const operationId = params.envelope.clientOperationId
   let record = context.requireRecord(sessionId)
+  if (record.provider === 'opencode2') {
+    throw new Error('OpenCode 2 terminal handoff is not available yet.')
+  }
   let owner = context.owner(sessionId)
   let transcriptPath = owner?.transcriptPath
   if (!retry || record.lease.handoffStage === 'preparing' || record.lease.handoffStage === null) {
@@ -146,6 +149,9 @@ export async function handoffStructuredSessionToNative(
     stage: record.lease.handoffStage,
     operationId: record.lease.handoffOperationId
   })
+  if (record.provider === 'opencode2') {
+    throw new Error('OpenCode 2 terminal handoff is not available yet.')
+  }
   await deps.transport?.revealNativeSession?.({
     workspaceId: record.location.workspaceId,
     sessionId,

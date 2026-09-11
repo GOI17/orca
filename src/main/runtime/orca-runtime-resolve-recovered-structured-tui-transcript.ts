@@ -57,7 +57,7 @@ export class OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript extends Orca
 
   async getStructuredAgentSessionCreateSupport(
     worktreeSelector: string,
-    agent: 'claude' | 'codex'
+    agent: 'claude' | 'codex' | 'opencode2'
   ): Promise<{ supported: boolean; reason?: 'agent' | 'remote' | 'wsl' }> {
     const location = await this.resolveStructuredAgentSessionLocation(worktreeSelector)
     return resolveStructuredAgentSessionCreateSupport({
@@ -66,7 +66,9 @@ export class OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript extends Orca
       adapterSupportsCreate:
         agent === 'claude'
           ? supportsClaudeStructuredLocation(location)
-          : supportsCodexStructuredLocation(location),
+          : agent === 'codex'
+            ? supportsCodexStructuredLocation(location)
+            : location.executionHostId === LOCAL_EXECUTION_HOST_ID && !location.wslDistro,
       getSettings: () => this.requireStore().getSettings()
     })
   }
@@ -125,7 +127,7 @@ export class OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript extends Orca
   async resolveStructuredAgentSessionCreateIntent(input: {
     envelope: { sessionId: string; clientOperationId: string }
     worktree: string
-    agent: 'claude' | 'codex'
+    agent: 'claude' | 'codex' | 'opencode2'
     callerKey?: string
     resumeFrom?: { providerSessionId: string }
   }): Promise<AgentSessionAttachParams> {
@@ -144,6 +146,16 @@ export class OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript extends Orca
         )
       })
     }
+    if (input.agent === 'opencode2') {
+      if (input.resumeFrom) {
+        throw new Error('OpenCode 2 history adoption is not available yet.')
+      }
+      return this.resolveStructuredAgentSessionIntent(
+        input,
+        ({ launchEnv }) =>
+          launchEnv.OPENCODE_CONFIG_DIR?.trim() || join(homedir(), '.config', 'opencode')
+      )
+    }
     return this.resolveStructuredAgentSessionIntent(input, async ({ workspacePath, launchEnv }) => {
       // A create has no process yet, so the current selection is what it must follow.
       const preparedHome = await this.prepareCodexStructuredLaunchFn?.({ workspacePath, launchEnv })
@@ -160,7 +172,7 @@ export class OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript extends Orca
     input: {
       envelope: { sessionId: string; clientOperationId: string }
       worktree: string
-      agent: 'claude' | 'codex'
+      agent: 'claude' | 'codex' | 'opencode2'
       callerKey?: string
       resumeFrom?: { providerSessionId: string }
     },
@@ -227,7 +239,12 @@ export class OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript extends Orca
       provider: input.agent,
       agent: input.agent,
       accountHome: {
-        variable: input.agent === 'claude' ? 'CLAUDE_CONFIG_DIR' : 'CODEX_HOME',
+        variable:
+          input.agent === 'claude'
+            ? 'CLAUDE_CONFIG_DIR'
+            : input.agent === 'codex'
+              ? 'CODEX_HOME'
+              : 'OPENCODE_CONFIG_DIR',
         path: adoption ? adoption.accountHomePath : selectedAccountHomePath
       },
       ...(options ? { options } : {}),

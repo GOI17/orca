@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isNativeChatSupportedAgent,
   nativeChatRequiresLocalTranscript,
+  nativeChatRequiresStructuredSession,
   resolveNativeChatTranscriptAgent,
   shouldStepNativeChatAskAnswer
 } from './native-chat-agent-support'
@@ -26,10 +27,19 @@ describe('isNativeChatSupportedAgent', () => {
   it('recognizes the parseable agents and rejects unknown / nullish input', () => {
     expect(isNativeChatSupportedAgent('claude')).toBe(true)
     expect(isNativeChatSupportedAgent('openclaude')).toBe(true)
+    expect(isNativeChatSupportedAgent('opencode2')).toBe(true)
     expect(isNativeChatSupportedAgent('omp')).toBe(true)
     expect(isNativeChatSupportedAgent('cursor')).toBe(false)
     expect(isNativeChatSupportedAgent(null)).toBe(false)
     expect(isNativeChatSupportedAgent(undefined)).toBe(false)
+  })
+})
+
+describe('nativeChatRequiresStructuredSession', () => {
+  it('keeps OpenCode 2 off the transcript-backed terminal path', () => {
+    expect(nativeChatRequiresStructuredSession('opencode2')).toBe(true)
+    expect(nativeChatRequiresStructuredSession('opencode')).toBe(false)
+    expect(nativeChatRequiresStructuredSession('codex')).toBe(false)
   })
 })
 

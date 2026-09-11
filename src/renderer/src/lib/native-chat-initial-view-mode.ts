@@ -5,7 +5,8 @@ import type { TuiAgent } from '../../../shared/tui-agent'
 import { canMirrorLaunchDraftToNativeChat } from '@/lib/native-chat-launch-draft-mirrorability'
 import {
   isNativeChatSupportedAgent,
-  nativeChatRequiresLocalTranscript
+  nativeChatRequiresLocalTranscript,
+  nativeChatRequiresStructuredSession
 } from '@/lib/native-chat-supported-agent'
 
 export type NativeChatLaunchPromptDelivery = 'auto-submit' | 'draft' | 'submit-after-ready'
@@ -32,6 +33,9 @@ export function decideInitialAgentTabViewMode(args: {
     return undefined
   }
   if (!isNativeChatSupportedAgent(args.agent)) {
+    return undefined
+  }
+  if (nativeChatRequiresStructuredSession(args.agent)) {
     return undefined
   }
   if (

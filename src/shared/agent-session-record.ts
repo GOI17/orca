@@ -1,5 +1,6 @@
 import { isAgentSessionRewindRecord, type AgentSessionRewindRecord } from './agent-session-rewind'
 import { isAgentSessionConversationName } from './agent-session-conversation-name'
+import { isAgentSessionAccountHome } from './agent-session-account-home'
 /**
  * Durable agent-session record and its single-writer lease.
  *
@@ -14,6 +15,7 @@ import {
   type AgentSessionConversationCommandRecord
 } from './agent-session-conversation-command'
 import {
+  isAgentSessionHandleProvider,
   isAgentSessionProviderHandleChain,
   type AgentSessionHandleProvider,
   type AgentSessionProviderHandleLink
@@ -38,7 +40,7 @@ export type AgentSessionExecutionLocation = {
 
 /** Account root pinned at launch by the account selector, so a resume cannot drift to another login. */
 export type AgentSessionAccountHome = {
-  variable: 'CLAUDE_CONFIG_DIR' | 'CODEX_HOME'
+  variable: 'CLAUDE_CONFIG_DIR' | 'CODEX_HOME' | 'OPENCODE_CONFIG_DIR'
   /** Host-resolved absolute path in the execution host's own path syntax. */
   path: string
 }
@@ -149,7 +151,6 @@ export type AgentSessionOptionsReplacement = {
 }
 
 const MAX_ID_LENGTH = 512
-const MAX_PATH_LENGTH = 4096
 const MAX_LAUNCH_ENV_ENTRIES = 256
 const MAX_LAUNCH_ENV_VALUE_LENGTH = 65_536
 const MAX_LAUNCH_ARGS = 256
@@ -217,17 +218,6 @@ export function isAgentSessionProcessIdentity(
       (Number.isSafeInteger(identity.processStartTimeMs) &&
         (identity.processStartTimeMs as number) >= 0)) &&
     isBoundedString(identity.spawnToken, MAX_ID_LENGTH)
-  )
-}
-
-function isAgentSessionAccountHome(value: unknown): value is AgentSessionAccountHome {
-  if (typeof value !== 'object' || value === null) {
-    return false
-  }
-  const home = value as Partial<AgentSessionAccountHome>
-  return (
-    (home.variable === 'CLAUDE_CONFIG_DIR' || home.variable === 'CODEX_HOME') &&
-    isBoundedString(home.path, MAX_PATH_LENGTH)
   )
 }
 
@@ -341,7 +331,7 @@ export function isAgentSessionRecord(value: unknown): value is AgentSessionRecor
     record.schemaVersion === AGENT_SESSION_RECORD_SCHEMA_VERSION &&
     isAgentSessionId(record.sessionId) &&
     isAgentSessionExecutionLocation(record.location) &&
-    (record.provider === 'claude' || record.provider === 'codex') &&
+    isAgentSessionHandleProvider(record.provider) &&
     isAgentSessionProviderHandleChain(record.providerHandleChain) &&
     isAgentSessionAccountHome(record.accountHome) &&
     (record.options === undefined || isAgentSessionOptions(record.options)) &&

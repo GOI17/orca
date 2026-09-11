@@ -8,6 +8,7 @@ export const NATIVE_CHAT_SUPPORTED_AGENT_LIST: readonly TuiAgent[] = [
   'claude',
   'openclaude',
   'codex',
+  'opencode2',
   'grok',
   'omp'
 ]
@@ -18,6 +19,10 @@ export const NATIVE_CHAT_SUPPORTED_AGENTS: ReadonlySet<string> = new Set(
 
 export function isNativeChatSupportedAgent(agent: string | null | undefined): boolean {
   return agent != null && NATIVE_CHAT_SUPPORTED_AGENTS.has(agent)
+}
+
+export function nativeChatRequiresStructuredSession(agent: string | null | undefined): boolean {
+  return agent === 'opencode2'
 }
 
 /** Agents whose hook discloses no transcript path (`extractAgentProviderSession`),

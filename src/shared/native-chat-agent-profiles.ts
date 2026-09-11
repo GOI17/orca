@@ -31,6 +31,10 @@ const NATIVE_CHAT_AGENT_PROFILES: Partial<Record<AgentType, NativeChatAgentProfi
     skillSourceOwner: 'claude',
     expandsSlashCommandsFromText: true
   },
+  opencode2: {
+    skillPrefix: '/',
+    skillSourceOwner: 'opencode2'
+  },
   grok: {
     skillPrefix: '/',
     skillSourceOwner: 'grok'
