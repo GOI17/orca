@@ -39,6 +39,10 @@ import { resolveLoginShellEnvironment } from '../startup/login-shell-environment
 import { recordAgentSessionProviderHandle } from './agent-session-provider-handle-transition'
 import type { ClaudeStructuredAuthPolicy } from '../claude-accounts/claude-structured-auth-policy'
 import { createStructuredClaudeRuntimeAdapter } from './structured-claude-runtime-adapter'
+import {
+  OpenCode2StructuredSessionAdapter,
+  type OpenCode2StructuredSessionAdapterDeps
+} from '../opencode2/opencode2-structured-session-adapter'
 
 /** Sibling of the journal tree rather than inside it: one file adjudicates every
  *  session's lease, while a journal is per session. */
@@ -63,15 +67,18 @@ export type StructuredAgentSessionRuntimeDeps = {
   resolveWorkspacePath: (workspaceId: string) => Promise<string>
   resolveCodexCommand?: (options?: { pathEnv?: string | null; homePath?: string }) => string
   resolveClaudeCommand?: () => string
+  resolveOpenCode2Command?: () => string
   /** Provider transports are overridden only to drive the runtime against scripted children. */
   openCodexConnection?: CodexStructuredSessionAdapterDeps['openConnection']
   openClaudeConnection?: ClaudeStructuredSessionAdapterDeps['openConnection']
+  openOpenCode2Connection?: OpenCode2StructuredSessionAdapterDeps['openConnection']
   /** Scripted app-servers carry fake pids the real start-time read cannot answer for. */
   readProcessStartTime?: CodexStructuredSessionAdapterDeps['readProcessStartTime']
   resolveLaunchArgs?: (provider: AgentSessionRecord['provider']) => Promise<string[]> | string[]
   resolveLaunchEnv?: () => Promise<NodeJS.ProcessEnv>
   resolveLaunchEnvOverlay?: () => Promise<Record<string, string>> | Record<string, string>
   resolveClaudeLaunchEnv?: () => Promise<Record<string, string>> | Record<string, string>
+  resolveOpenCode2LaunchEnv?: () => Promise<Record<string, string>> | Record<string, string>
   /** Required, and asserted at install time — an absent policy must not degrade to a guess. */
   resolveClaudeAuthPolicy: () => Promise<ClaudeStructuredAuthPolicy> | ClaudeStructuredAuthPolicy
   /** Raw settings getter; the reader that fails closed around it is built here, in checked code. */
@@ -281,9 +288,37 @@ async function install(deps: StructuredAgentSessionRuntimeDeps): Promise<Install
       ...(deps.openClaudeConnection ? { openClaudeConnection: deps.openClaudeConnection } : {}),
       ...(deps.readProcessStartTime ? { readProcessStartTime: deps.readProcessStartTime } : {})
     })
-    const adapter = new StructuredAgentSessionAdapterRouter({ codex, claude }, async () => {
-      await Promise.all([codex.closeAll(), claude.closeAll()])
+    const opencode2 = new OpenCode2StructuredSessionAdapter({
+      resolveLaunch: async ({ identity }) => {
+        const configuredArgs = (await deps.resolveLaunchArgs?.('opencode2')) ?? []
+        return {
+          command: deps.resolveOpenCode2Command?.() ?? 'opencode2',
+          cwd: await deps.resolveWorkspacePath(identity.workspaceId),
+          autoApprove: configuredArgs.includes('--auto'),
+          env: {
+            ...(await bootEnvironment),
+            ...(await deps.resolveOpenCode2LaunchEnv?.())
+          }
+        }
+      },
+      onEvent: (event) => {
+        recoveryChain = recoveryChain.then(async () => {
+          try {
+            await host?.handleAdapterEvent(event)
+          } catch (error) {
+            deps.onError?.({ scope: `structured-agent-session-exit:${event.sessionId}`, error })
+          }
+        })
+      },
+      ...(deps.openOpenCode2Connection ? { openConnection: deps.openOpenCode2Connection } : {}),
+      ...(deps.readProcessStartTime ? { readProcessStartTime: deps.readProcessStartTime } : {})
     })
+    const adapter = new StructuredAgentSessionAdapterRouter(
+      { codex, claude, opencode2 },
+      async () => {
+        await Promise.all([codex.closeAll(), claude.closeAll(), opencode2.closeAll()])
+      }
+    )
     host = new StructuredAgentSessionHost({
       store,
       adapter,

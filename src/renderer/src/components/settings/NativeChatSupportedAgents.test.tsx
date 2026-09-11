@@ -16,6 +16,7 @@ const EXPECTED_SUPPORTED_AGENTS = [
   'claude',
   'openclaude',
   'codex',
+  'opencode2',
   'grok',
   'omp'
 ] as const satisfies readonly TuiAgent[]
@@ -58,7 +59,7 @@ describe('NativeChatSupportedAgents', () => {
     }
   })
 
-  it('omits agents native chat cannot render, including OpenCode', () => {
+  it('omits agents native chat cannot render, including OpenCode 1', () => {
     const rendered = getRenderedChips().map((chip) => chip.agent)
 
     for (const entry of getAgentCatalog()) {

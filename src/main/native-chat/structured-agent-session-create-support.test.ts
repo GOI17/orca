@@ -70,6 +70,12 @@ describe('resolveStructuredAgentSessionCreateSupport', () => {
     expect(support({ agent: 'codex', getSettings: () => WSL_ONLY })).toEqual({ supported: true })
   })
 
+  it('leaves OpenCode 2 to the adapter answer without applying Claude account policy', () => {
+    expect(support({ agent: 'opencode2', getSettings: () => WSL_ONLY })).toEqual({
+      supported: true
+    })
+  })
+
   it.each([
     ['remote', { ...LOCAL, executionHostId: 'ssh:host-a' }, 'remote'],
     ['wsl workspace', { ...LOCAL, wslDistro: 'Ubuntu' }, 'wsl'],

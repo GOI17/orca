@@ -1,24 +1,24 @@
 /**
  * Durable provider handle chain for an agent session.
  *
- * Handles are keyed per provider because the two structured lanes disagree about what
- * identifies a conversation. Claude's session id is the identity root and its leaf uuid is a
- * branch cursor; Codex's thread id is the whole key. Resumes extend the chain, forks start a new
- * identity root, and the chain records which is which so a fork is never presented as a resume.
+ * Handles are keyed per provider because structured lanes disagree about what identifies a
+ * conversation. Claude includes a branch cursor; Codex and OpenCode 2 use one thread/session id.
+ * Resumes extend the chain, forks start a new identity root, and the chain records which is which.
  */
 
-export const AGENT_SESSION_PROVIDER_HANDLE_PROVIDERS = ['claude', 'codex'] as const
+export const AGENT_SESSION_PROVIDER_HANDLE_PROVIDERS = ['claude', 'codex', 'opencode2'] as const
 
 export type AgentSessionHandleProvider = (typeof AGENT_SESSION_PROVIDER_HANDLE_PROVIDERS)[number]
 
 /** Runtime guard for persisted/remote provider metadata. Unknown values must not impersonate Codex. */
 export function isAgentSessionHandleProvider(value: unknown): value is AgentSessionHandleProvider {
-  return value === 'claude' || value === 'codex'
+  return value === 'claude' || value === 'codex' || value === 'opencode2'
 }
 
 export type AgentSessionProviderHandle =
   | { provider: 'claude'; sessionId: string; leafUuid: string | null }
   | { provider: 'codex'; threadId: string }
+  | { provider: 'opencode2'; sessionId: string }
 
 export type AgentSessionProviderHandleOrigin = 'created' | 'adopted' | 'resumed' | 'forked'
 
@@ -62,14 +62,18 @@ export function isAgentSessionProviderHandle(value: unknown): value is AgentSess
       (handle.leafUuid === null || isHandleField(handle.leafUuid))
     )
   }
-  return handle.provider === 'codex' && isHandleField(handle.threadId)
+  if (handle.provider === 'codex') {
+    return isHandleField(handle.threadId)
+  }
+  return handle.provider === 'opencode2' && isHandleField(handle.sessionId)
 }
 
 /** Stable string identity for one handle. Two handles with the same key name the same writer target. */
 export function agentSessionProviderHandleKey(handle: AgentSessionProviderHandle): string {
-  return handle.provider === 'claude'
-    ? `claude:${JSON.stringify([handle.sessionId, handle.leafUuid])}`
-    : `codex:${JSON.stringify(handle.threadId)}`
+  if (handle.provider === 'claude') {
+    return `claude:${JSON.stringify([handle.sessionId, handle.leafUuid])}`
+  }
+  return `${handle.provider}:${JSON.stringify(handle.provider === 'codex' ? handle.threadId : handle.sessionId)}`
 }
 
 /**
@@ -77,9 +81,10 @@ export function agentSessionProviderHandleKey(handle: AgentSessionProviderHandle
  * whatever the provider called it.
  */
 export function agentSessionProviderHandleRoot(handle: AgentSessionProviderHandle): string {
-  return handle.provider === 'claude'
-    ? `claude:${JSON.stringify(handle.sessionId)}`
-    : `codex:${JSON.stringify(handle.threadId)}`
+  if (handle.provider === 'claude') {
+    return `claude:${JSON.stringify(handle.sessionId)}`
+  }
+  return `${handle.provider}:${JSON.stringify(handle.provider === 'codex' ? handle.threadId : handle.sessionId)}`
 }
 
 export function agentSessionProviderHandlesEqual(

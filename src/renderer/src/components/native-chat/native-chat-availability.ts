@@ -3,7 +3,8 @@ import type { TuiAgent } from '../../../../shared/tui-agent'
 import type { AgentType } from '../../../../shared/agent-status-types'
 import {
   isNativeChatSupportedAgent,
-  nativeChatRequiresLocalTranscript
+  nativeChatRequiresLocalTranscript,
+  nativeChatRequiresStructuredSession
 } from '@/lib/native-chat-supported-agent'
 
 export { isNativeChatSupportedAgent }
@@ -50,6 +51,9 @@ export function canToggleNativeChat(input: NativeChatAvailabilityInput): boolean
     return true
   }
   const agent = input.detectedAgent ?? input.launchAgent ?? input.resolvedAgent
+  if (nativeChatRequiresStructuredSession(agent)) {
+    return false
+  }
   if (
     nativeChatRequiresLocalTranscript(agent) &&
     input.nativeChatTranscriptIsLocalReadable !== true

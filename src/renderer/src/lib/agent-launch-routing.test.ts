@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../shared/protocol-version'
+import {
+  OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
+  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
+} from '../../../shared/protocol-version'
 import {
   hasExplicitTuiAgentArgs,
   hasExplicitTuiLaunchCustomization,
@@ -56,6 +59,19 @@ describe('resolveAgentLaunchRoute', () => {
     expect(route({ launchText: 'explain this change', promptDelivery: 'auto-submit' })).toBe(
       'structured-native-chat'
     )
+  })
+
+  it('routes OpenCode 2 only when the host advertises its structured provider', () => {
+    expect(
+      route({
+        agent: 'opencode2',
+        hostCapabilities: [
+          STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
+          OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
+        ]
+      })
+    ).toBe('structured-native-chat')
+    expect(route({ agent: 'opencode2' })).toBe('terminal-tui')
   })
 
   it('routes editable drafts to the structured chat composer', () => {

@@ -167,6 +167,9 @@ async function importTuiHistory(
   if (!record || !head) {
     throw new Error('agent_session_identity_required')
   }
+  if (record.provider === 'opencode2' || head.handle.provider === 'opencode2') {
+    throw new Error('OpenCode 2 terminal handoff is not available yet.')
+  }
   const options = structuredTuiTranscriptImportOptions(record, input.transcriptPath)
   const providerSessionId =
     head.handle.provider === 'claude' ? head.handle.sessionId : head.handle.threadId

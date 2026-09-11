@@ -1,5 +1,6 @@
 import type { AgentSessionOwnerProbe } from '../../../shared/agent-session-lease-adjudication'
 import type { AgentSessionProviderHandleLink } from '../../../shared/agent-session-provider-handle'
+import type { AgentSessionHandleProvider } from '../../../shared/agent-session-provider-handle'
 import type { AgentSessionRecord } from '../../../shared/agent-session-record'
 import type { AgentSessionStatusSummary } from '../../../shared/agent-session-wire'
 import type { AgentSessionRecordStore } from '../../runtime/agent-session-record-store'
@@ -19,7 +20,7 @@ export type StructuredAgentSessionCaller = { callerKey: string }
 export type StructuredAgentSessionReveal = {
   sessionId: string
   workspaceId: string
-  agent: 'claude' | 'codex'
+  agent: AgentSessionHandleProvider
   readable: boolean
 }
 

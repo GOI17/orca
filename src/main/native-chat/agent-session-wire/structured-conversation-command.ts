@@ -19,6 +19,7 @@ import type { StructuredAgentSessionMutationContext } from './structured-agent-s
 import type { StructuredAgentSessionCaller } from './structured-agent-session-host-types'
 import type { StructuredAgentSessionHost } from './structured-agent-session-host'
 import { conversationCommandBlocked } from './structured-conversation-command-admission'
+import type { AgentSessionHandleProvider } from '../../../shared/agent-session-provider-handle'
 
 export type ConversationCommandParams = {
   envelope: AgentSessionMutationEnvelope
@@ -28,7 +29,7 @@ export type ConversationReplacement = {
   sourceSessionId: string
   sessionId: string
   workspaceId: string
-  agent: 'claude' | 'codex'
+  agent: AgentSessionHandleProvider
 }
 
 export function runStructuredConversationCommand(

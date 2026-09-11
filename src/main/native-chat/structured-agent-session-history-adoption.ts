@@ -62,6 +62,9 @@ export function findCommittedStructuredAgentSessionAdoptionReplay(input: {
   if (providerSessionId !== input.providerSessionId) {
     return null
   }
+  if (adopted.handle.provider === 'opencode2') {
+    return null
+  }
   return {
     record,
     providerHandle:

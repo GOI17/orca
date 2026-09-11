@@ -108,7 +108,7 @@ export const CreateIntentParams = z
   .object({
     envelope: MutationEnvelope,
     worktree: Identifier('Invalid worktree selector'),
-    agent: z.enum(['claude', 'codex']),
+    agent: z.enum(['claude', 'codex', 'opencode2']),
     resumeFrom: ResumeSource.optional()
   })
   .strict()
@@ -118,7 +118,7 @@ export const CreateParams = z.union([AttachParams, CreateIntentParams])
 export const CreateSupportParams = z
   .object({
     worktree: Identifier('Invalid worktree selector'),
-    agent: z.enum(['claude', 'codex'])
+    agent: z.enum(['claude', 'codex', 'opencode2'])
   })
   .strict()
 

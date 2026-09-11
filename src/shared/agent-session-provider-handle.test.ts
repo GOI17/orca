@@ -35,6 +35,7 @@ describe('handle identity', () => {
   it('rejects unknown persisted provider names instead of defaulting to Codex', () => {
     expect(isAgentSessionHandleProvider('codex')).toBe(true)
     expect(isAgentSessionHandleProvider('claude')).toBe(true)
+    expect(isAgentSessionHandleProvider('opencode2')).toBe(true)
     expect(isAgentSessionHandleProvider('gemini')).toBe(false)
     expect(isAgentSessionHandleProvider(undefined)).toBe(false)
   })
@@ -56,6 +57,16 @@ describe('handle identity', () => {
     expect(
       agentSessionProviderHandlesEqual(codex, { provider: 'codex', threadId: 'thread-2' })
     ).toBe(false)
+  })
+
+  it('keys an OpenCode 2 handle by session id alone', () => {
+    const handle: AgentSessionProviderHandle = {
+      provider: 'opencode2',
+      sessionId: 'ses_one'
+    }
+    expect(agentSessionProviderHandleKey(handle)).toBe('opencode2:"ses_one"')
+    expect(agentSessionProviderHandleRoot(handle)).toBe('opencode2:"ses_one"')
+    expect(isAgentSessionProviderHandle(handle)).toBe(true)
   })
 
   it('distinguishes a null leaf from an empty-string leaf and rejects malformed handles', () => {

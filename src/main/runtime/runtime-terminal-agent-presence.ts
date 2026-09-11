@@ -134,7 +134,10 @@ export class RuntimeTerminalAgentPresence {
       updatedAt: pty.managementTitleAt
     })
     const markerTitle = leafTitle ?? ptyTitle
-    if (isOpenCodeNativeTitle(markerTitle) && pty.launchAgent === 'opencode') {
+    if (
+      isOpenCodeNativeTitle(markerTitle) &&
+      (pty.launchAgent === 'opencode' || pty.launchAgent === 'opencode2')
+    ) {
       return true
     }
     const waitText = buildTerminalWaitText(pty.tailBuffer, pty.tailPartialLine, pty.preview)

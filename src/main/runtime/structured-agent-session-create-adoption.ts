@@ -73,7 +73,12 @@ export async function resolveStructuredAgentSessionAdoptionForCreate(input: {
         agent: input.agent,
         providerSessionId: input.providerSessionId,
         selfSessionId: input.selfSessionId,
-        ownership: listStructuredProviderSessionOwnership(input.host.deps.store.listRecords())
+        ownership: listStructuredProviderSessionOwnership(
+          input.host.deps.store.listRecords()
+        ).filter(
+          (owner): owner is typeof owner & { provider: 'claude' | 'codex' } =>
+            owner.provider === 'claude' || owner.provider === 'codex'
+        )
       })
     : null
   if (conflict) {

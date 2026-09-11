@@ -14,6 +14,7 @@ export const SYNTHETIC_AGENT_TITLE_AGENTS = [
   'codex',
   'cursor',
   'opencode',
+  'opencode2',
   'pi',
   'omp',
   'droid',
@@ -39,7 +40,15 @@ export const SYNTHETIC_AGENT_TITLE_PROFILES: Record<string, SyntheticAgentTitleP
     workingLabel: 'OpenCode',
     permissionLabel: 'OpenCode - action required',
     idleLabel: 'OpenCode ready',
+    titleIdentityGroup: 'opencode-compatible',
     // Why: OpenCode owns semantic OSC session titles; hook status must not replace them.
+    synthesizeTerminalTitle: false
+  },
+  opencode2: {
+    workingLabel: 'OpenCode 2',
+    permissionLabel: 'OpenCode 2 - action required',
+    idleLabel: 'OpenCode 2 ready',
+    titleIdentityGroup: 'opencode-compatible',
     synthesizeTerminalTitle: false
   },
   pi: {

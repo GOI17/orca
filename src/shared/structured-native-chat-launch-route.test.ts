@@ -4,7 +4,10 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from './protocol-version'
+import {
+  OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
+  STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
+} from './protocol-version'
 import {
   agentTabsDefaultToNativeChat,
   prefersStructuredNativeChatByDefault,
@@ -22,7 +25,10 @@ function support(overrides: Partial<StructuredNativeChatSupportInput> = {}) {
   return resolveStructuredNativeChatSupport({
     agent: 'claude',
     executionHostId: 'local',
-    hostCapabilities: [STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY],
+    hostCapabilities: [
+      STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
+      OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
+    ],
     workspaceKind: 'git-worktree',
     ...overrides
   })
@@ -52,8 +58,17 @@ describe('the settings default', () => {
 })
 
 describe('per-launch structured feasibility', () => {
-  it.each(['claude', 'codex'] as const)('supports a local %s launch', (agent) => {
+  it.each(['claude', 'codex', 'opencode2'] as const)('supports a local %s launch', (agent) => {
     expect(support({ agent })).toEqual({ supported: true })
+  })
+
+  it('requires the provider-specific OpenCode 2 host capability', () => {
+    expect(
+      support({
+        agent: 'opencode2',
+        hostCapabilities: [STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY]
+      })
+    ).toEqual({ supported: false, blocker: 'runtime-capability' })
   })
 
   it.each([
@@ -74,7 +89,7 @@ describe('per-launch structured feasibility', () => {
 
   // The client cannot see whether the host can read a provider child's start time, so neither
   // provider is refused here on platform; agentSession.createSupport answers that at create time.
-  it.each(['claude', 'codex'] as const)(
+  it.each(['claude', 'codex', 'opencode2'] as const)(
     'leaves a Windows %s launch to the executing host',
     (agent) => {
       expect(support({ agent })).toEqual({ supported: true })
