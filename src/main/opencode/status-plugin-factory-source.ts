@@ -213,6 +213,7 @@ export function getStatusPluginFactorySource(options: { emitSessionStart: boolea
     '};',
     '',
     'async function setupV2(ctx) {',
+    '  if (!ctx?.event?.subscribe) return;',
     '  const controller = new AbortController();',
     '  const hooks = await OrcaOpenCodeStatusPlugin({ client: ctx });',
     '  const subscription = (async () => {',

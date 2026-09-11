@@ -103,6 +103,12 @@ describe('OpenCode status plugin module contract', () => {
     expect(Object.hasOwn(module.default ?? {}, 'server')).toBe(true)
   })
 
+  it('ignores setup calls from contexts without the V2 event API', async () => {
+    const module = await loadPluginModule()
+
+    await expect(module.default?.setup?.({} as V2PluginContext)).resolves.toBeUndefined()
+  })
+
   it('keeps the named factory export so the factory-based loader still resolves', async () => {
     const module = await loadPluginModule()
 
