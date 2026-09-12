@@ -44,6 +44,13 @@ export type OpenCode2Command = {
   description?: string
 }
 
+export type OpenCode2Skill = {
+  id: string
+  name: string
+  description?: string
+  slash?: boolean
+}
+
 export type OpenCode2ActiveSessions = Record<string, { type: 'running' }>
 
 export type OpenCode2MessageContent = {

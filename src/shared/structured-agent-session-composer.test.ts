@@ -77,6 +77,11 @@ describe('structuredSlashCommands', () => {
       'compact'
     ])
   })
+  it('uses OpenCode 2 command names for its supported host actions', () => {
+    expect(
+      structuredSlashCommands(['clear', 'compact'], 'opencode2').map((command) => command.name)
+    ).toEqual(['models', 'thinking', 'new', 'clear', 'compact'])
+  })
 })
 
 describe('isStructuredAgentSessionComposerCommand', () => {
@@ -140,6 +145,40 @@ describe('dispatchStructuredAgentSessionComposerCommand', () => {
       })
     ).toMatchObject({ handled: true, accepted: false })
     expect(runConversationCommand).not.toHaveBeenCalled()
+  })
+
+  it('maps OpenCode 2 command aliases onto structured chat actions', async () => {
+    const invokeAction = vi.fn(async () => true)
+    const runConversationCommand = vi.fn(async () => ({ accepted: true, error: null }))
+    await expect(
+      dispatchStructuredAgentSessionComposerCommand('/models', {
+        agent: 'opencode2',
+        snapshot: [
+          {
+            id: 'model',
+            label: 'Model',
+            category: 'model',
+            kind: { type: 'select', choices: [{ value: 'provider/model', label: 'Model' }] },
+            valueSource: 'reported',
+            transport: 'agent-session',
+            settable: true
+          }
+        ],
+        invokeAction,
+        setOption: async () => true,
+        conversationCommands: ['clear'],
+        runConversationCommand
+      })
+    ).resolves.toMatchObject({ handled: true, accepted: true })
+    expect(invokeAction).toHaveBeenCalledWith('model')
+
+    await dispatchStructuredAgentSessionComposerCommand('/new', {
+      ...controller,
+      agent: 'opencode2',
+      conversationCommands: ['clear'],
+      runConversationCommand
+    })
+    expect(runConversationCommand).toHaveBeenCalledWith('clear')
   })
 })
 
