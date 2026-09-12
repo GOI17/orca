@@ -59,6 +59,25 @@ describe('StructuredAgentSessionAdapterRouter.closeSession', () => {
   })
 })
 
+describe('StructuredAgentSessionAdapterRouter.readOptions', () => {
+  it('reports no options when the owning provider has no options surface', async () => {
+    const claude = adapterOf(vi.fn(async () => true))
+    const codex = adapterOf(vi.fn(async () => false))
+    const opencode2 = adapterOf(vi.fn(async () => true))
+    const router = new StructuredAgentSessionAdapterRouter(
+      { claude, codex, opencode2 },
+      async () => {}
+    )
+    await router.acquire({
+      identity: { sessionId: 'session-1', agent: 'opencode2' } as never,
+      fence: 1,
+      spawnToken: 'spawn-1'
+    })
+
+    await expect(router.readOptions({ sessionId: 'session-1', fence: 1 })).resolves.toBeUndefined()
+  })
+})
+
 describe('StructuredAgentSessionAdapterRouter optional lifecycle methods', () => {
   it.each([
     ['forceCloseSession', 'forceCloseSession'],

@@ -156,6 +156,9 @@ export function readStructuredAgentSessionOptions(
       throw new Error('structured_agent_session_options_unsupported')
     }
     const options = await context.deps.adapter.readOptions({ sessionId, fence: session.fence })
+    if (!options) {
+      throw new Error('structured_agent_session_options_unsupported')
+    }
     return {
       ...options,
       rewind:
