@@ -22,6 +22,12 @@ const CONVERSATION_COMMANDS: readonly SlashCommandSuggestion[] = [
   { name: 'compact', description: 'Compact conversation context' }
 ]
 
+const OPENCODE2_COMMAND_ALIASES: readonly SlashCommandSuggestion[] = [
+  { name: 'models', description: 'Choose the model' },
+  { name: 'thinking', description: 'Choose the model variant' },
+  { name: 'new', description: 'Start a fresh conversation' }
+]
+
 /** Session options remain available on hosts predating conversation commands. */
 export const STRUCTURED_AGENT_SESSION_SLASH_COMMANDS: readonly SlashCommandSuggestion[] = [
   MODEL_COMMAND,
@@ -62,7 +68,9 @@ export function structuredSlashCommands(
   agent?: AgentType | null
 ): readonly SlashCommandSuggestion[] {
   const hostOwned = [
-    ...STRUCTURED_AGENT_SESSION_SLASH_COMMANDS,
+    ...(agent === 'opencode2'
+      ? OPENCODE2_COMMAND_ALIASES
+      : STRUCTURED_AGENT_SESSION_SLASH_COMMANDS),
     ...CONVERSATION_COMMANDS.filter((entry) =>
       commands.includes(entry.name as AgentSessionConversationCommand)
     )
@@ -84,6 +92,7 @@ export function structuredSlashCommands(
 function structuredRecognizedCommands(agent: AgentType): readonly SlashCommandSuggestion[] {
   return [
     ...STRUCTURED_AGENT_SESSION_SLASH_COMMANDS,
+    ...(agent === 'opencode2' ? OPENCODE2_COMMAND_ALIASES : []),
     ...CONVERSATION_COMMANDS,
     ...getHostClaimedNativeChatCommands(agent)
   ]
@@ -118,12 +127,18 @@ export async function dispatchStructuredAgentSessionComposerCommand(
   if (!command || !isStructuredAgentSessionComposerCommand(text, controller.agent)) {
     return { handled: false, accepted: false, error: null }
   }
-  if (command.name === 'clear' || command.name === 'compact') {
+  const commandName =
+    controller.agent === 'opencode2'
+      ? (({ models: 'model', thinking: 'effort', new: 'clear' } as const)[
+          command.name as 'models' | 'thinking' | 'new'
+        ] ?? command.name)
+      : command.name
+  if (commandName === 'clear' || commandName === 'compact') {
     if (command.argument) {
       return { handled: true, accepted: false, error: `Use /${command.name} without arguments.` }
     }
     if (
-      !controller.conversationCommands?.includes(command.name) ||
+      !controller.conversationCommands?.includes(commandName) ||
       !controller.runConversationCommand
     ) {
       return {
@@ -132,21 +147,21 @@ export async function dispatchStructuredAgentSessionComposerCommand(
         error: `/${command.name} is not supported by this chat host.`
       }
     }
-    return { handled: true, ...(await controller.runConversationCommand(command.name)) }
+    return { handled: true, ...(await controller.runConversationCommand(commandName)) }
   }
-  if (command.name !== 'model' && command.name !== 'effort') {
+  if (commandName !== 'model' && commandName !== 'effort') {
     return unavailable(command.name)
   }
-  const descriptor = controller.snapshot.find((entry) => entry.id === command.name)
+  const descriptor = controller.snapshot.find((entry) => entry.id === commandName)
   if (!descriptor || descriptor.kind.type !== 'select') {
     return {
       handled: true,
       accepted: true,
-      error: `${command.name === 'model' ? 'Models' : 'Reasoning effort'} are unavailable for this chat session.`
+      error: `${commandName === 'model' ? 'Models' : 'Reasoning effort'} are unavailable for this chat session.`
     }
   }
   if (!command.argument) {
-    const opened = await controller.invokeAction(command.name)
+    const opened = await controller.invokeAction(commandName)
     return {
       handled: true,
       accepted: opened,
@@ -164,7 +179,7 @@ export async function dispatchStructuredAgentSessionComposerCommand(
       error: `${command.argument} is not an available ${command.name} for this chat session.`
     }
   }
-  const applied = await controller.setOption(command.name, choice.value)
+  const applied = await controller.setOption(commandName, choice.value)
   return {
     handled: true,
     accepted: applied,

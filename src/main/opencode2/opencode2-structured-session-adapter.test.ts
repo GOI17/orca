@@ -14,13 +14,19 @@ const IDENTITY: AgentSessionJournalIdentity = {
   providerHandle: { kind: 'opaque', agent: 'opencode2', value: 'pending' }
 }
 
-function harness(commands: { name: string; description?: string }[] = []) {
+function harness(
+  commands: { name: string; description?: string }[] = [],
+  skills: { id: string; name: string; description?: string; slash?: boolean }[] = []
+) {
   const requests: { method: string; path: string; body?: unknown }[] = []
   const client: OpenCode2HttpClient = {
     get: (async (path: string) => {
       requests.push({ method: 'GET', path })
       if (path === '/api/command') {
         return commands
+      }
+      if (path === '/api/skill') {
+        return skills
       }
       if (path === '/api/session/active') {
         return {}
@@ -146,6 +152,38 @@ describe('OpenCode2StructuredSessionAdapter', () => {
       method: 'POST',
       path: '/api/session/ses_provider/command',
       body: { command: 'review', text: 'branch' }
+    })
+    await adapter.closeAll()
+  })
+
+  it('publishes and attaches slash-enabled OpenCode 2 skills', async () => {
+    const { adapter, requests, sink } = harness(
+      [],
+      [{ id: 'report', name: 'Report', description: 'Report a bug', slash: true }]
+    )
+    await adapter.acquire({ identity: IDENTITY, fence: 1, spawnToken: 'token', events: sink })
+
+    expect(adapter.readCommands?.(IDENTITY.sessionId)).toEqual([
+      { name: 'report', kind: 'skill', description: 'Report a bug' }
+    ])
+    await adapter.dispatch({
+      sessionId: IDENTITY.sessionId,
+      clientMessageId: 'client-skill',
+      body: {
+        kind: 'message',
+        role: 'user',
+        blocks: [{ type: 'text', text: '/report crash details' }]
+      },
+      fence: 1
+    })
+    expect(requests).toContainEqual({
+      method: 'POST',
+      path: '/api/session/ses_provider/prompt',
+      body: {
+        text: 'crash details',
+        skills: [{ id: 'report' }],
+        metadata: { orcaClientMessageId: 'client-skill' }
+      }
     })
     await adapter.closeAll()
   })

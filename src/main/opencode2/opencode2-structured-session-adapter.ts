@@ -18,7 +18,8 @@ import type { AgentSessionSlashCommand } from '../../shared/agent-session-wire'
 import { OpenCode2JournalTranslator } from './opencode2-journal-translation'
 import { OpenCode2SessionMonitor } from './opencode2-session-monitor'
 import {
-  parseOpenCode2SessionCommand,
+  parseOpenCode2SessionAction,
+  type OpenCode2SessionCommandCatalog,
   readOpenCode2SessionCommands
 } from './opencode2-session-commands'
 import { readOpenCode2SessionOptions, setOpenCode2SessionOption } from './opencode2-session-options'
@@ -57,7 +58,7 @@ type OpenCode2Session = {
   acquisitionGeneration: string
   requestedClose: boolean
   monitor: OpenCode2SessionMonitor
-  commands: AgentSessionSlashCommand[]
+  commands: OpenCode2SessionCommandCatalog
 }
 
 const DEFAULT_POLL_INTERVAL_MS = 2_000
@@ -156,10 +157,17 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
     if (!text.trim()) {
       return { state: 'rejected', reason: 'OpenCode 2 requires a text prompt.' }
     }
-    const command = parseOpenCode2SessionCommand(text, session.commands)
+    const action = parseOpenCode2SessionAction(text, session.commands)
+    const path = `/api/session/${encodeURIComponent(session.providerSessionId)}`
     await session.connection.client.post(
-      `/api/session/${encodeURIComponent(session.providerSessionId)}/${command ? 'command' : 'prompt'}`,
-      command ?? { text, metadata: { orcaClientMessageId: input.clientMessageId } }
+      `${path}/${action?.kind === 'command' ? 'command' : 'prompt'}`,
+      action?.kind === 'command'
+        ? { command: action.command, text: action.text }
+        : {
+            text: action?.text ?? text,
+            ...(action?.kind === 'skill' ? { skills: [{ id: action.skill }] } : {}),
+            metadata: { orcaClientMessageId: input.clientMessageId }
+          }
     )
     await session.monitor.refresh()
     return {
@@ -204,7 +212,7 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
   }
 
   readCommands = (sessionId: string): AgentSessionSlashCommand[] | undefined =>
-    this.sessions.get(sessionId)?.commands
+    this.sessions.get(sessionId)?.commands.entries
 
   readOptions = (input: { sessionId: string; fence: number }) => {
     const session = this.session(input.sessionId)

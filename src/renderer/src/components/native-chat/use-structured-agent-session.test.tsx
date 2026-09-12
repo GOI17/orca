@@ -177,6 +177,13 @@ describe('useStructuredAgentSession options', () => {
   })
 
   it('hydrates OpenCode 2 model options from the provider response', async () => {
+    mocks.call.mockImplementation((_target, method) =>
+      method === 'agentSession.options'
+        ? Promise.resolve(OPTIONS)
+        : method === 'agentSession.commands'
+          ? Promise.resolve({ commands: [{ name: 'review', kind: 'command' }] })
+          : Promise.resolve(null)
+    )
     const { result } = renderHook(() =>
       useStructuredAgentSession({
         sessionId: 'session-1',
@@ -191,6 +198,9 @@ describe('useStructuredAgentSession options', () => {
       settable: true,
       kind: { currentValue: 'gpt-live' }
     })
+    await waitFor(() =>
+      expect(result.current.sessionCommands).toEqual([{ name: 'review', kind: 'command' }])
+    )
   })
 
   it('applies provider-reconciled values after a model change', async () => {

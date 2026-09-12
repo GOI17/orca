@@ -83,6 +83,29 @@ describe('composer catalog authority', () => {
       sessionSkillNames: []
     })
   })
+
+  it('combines OpenCode 2 host controls with its reported project commands', () => {
+    const reported = [
+      { name: 'init', kind: 'command' as const },
+      { name: 'report', kind: 'skill' as const }
+    ]
+    const { result } = renderHook(() =>
+      useNativeChatComposerCatalog('opencode2', {
+        ...transport(reported),
+        conversationCommands: ['clear', 'compact']
+      })
+    )
+
+    expect(result.current.agentCommands.map(({ name }) => name)).toEqual([
+      'models',
+      'thinking',
+      'new',
+      'clear',
+      'compact',
+      'init'
+    ])
+    expect(result.current.sessionSkillNames).toEqual(['report'])
+  })
 })
 
 it('Enter completes a known pre-init skill while still dispatching a built-in command', () => {

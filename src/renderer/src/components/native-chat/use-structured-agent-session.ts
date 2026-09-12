@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as conversationCommands from './structured-conversation-command-send'
 import type {
+  AgentSessionCommandsResult,
   AgentSessionOptionResult,
   AgentSessionOptionsResult,
-  AgentSessionPromptResult
+  AgentSessionPromptResult,
+  AgentSessionSlashCommand
 } from '../../../../shared/agent-session-wire'
 import { useStructuredAgentSessionOutbox } from './use-structured-agent-session-outbox'
 import { useStructuredAgentSessionMutate } from './use-structured-agent-session-mutate'
@@ -59,6 +61,10 @@ export function useStructuredAgentSession(args: {
     sessionId: string
     commands: readonly AgentSessionConversationCommand[]
   } | null>(null)
+  const [openCode2Commands, setOpenCode2Commands] = useState<{
+    sessionId: string
+    commands: AgentSessionSlashCommand[]
+  } | null>(null)
   const commandPending = useRef(false)
   const [optionState, setOptionState] = useState(() =>
     createStructuredAgentSessionOptionState(agent)
@@ -81,6 +87,25 @@ export function useStructuredAgentSession(args: {
     activeOptionRecordRef.current = next.record
     setOptionState(next)
   }, [agent, sessionId, state.fence])
+
+  useEffect(() => {
+    if (!isVisible || agent !== 'opencode2' || state.commands != null) {
+      return
+    }
+    let stale = false
+    void callStructuredAgentSession<AgentSessionCommandsResult>(target, 'agentSession.commands', {
+      sessionId
+    })
+      .then((result) => {
+        if (!stale && result.commands) {
+          setOpenCode2Commands({ sessionId, commands: result.commands })
+        }
+      })
+      .catch(() => {})
+    return () => {
+      stale = true
+    }
+  }, [agent, isVisible, sessionId, state.commands, state.fence, target])
 
   // Refresh options each turn to confirm which model the provider actually selected.
   const turnId = activeStructuredAgentSessionTurnId(state.items)
@@ -237,7 +262,9 @@ export function useStructuredAgentSession(args: {
       ),
     optionSnapshot,
     optionSurface,
-    sessionCommands: state.commands ?? undefined,
+    sessionCommands:
+      state.commands ??
+      (openCode2Commands?.sessionId === sessionId ? openCode2Commands.commands : undefined),
     setStructuredOption
   }
 }
