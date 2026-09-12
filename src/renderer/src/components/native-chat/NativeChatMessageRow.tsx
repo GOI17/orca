@@ -19,6 +19,7 @@ import {
 } from './NativeChatTranscriptChrome'
 import type { NativeChatDiffReveal } from './native-chat-turn-diffs'
 import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client'
+import { NativeChatReasoning } from './NativeChatReasoning'
 
 /** One message: its prose first, then a collapsible run folding all of the
  *  turn's tool activity. Monochrome per STYLEGUIDE: user prompts read as a
@@ -105,6 +106,19 @@ export const MessageRow = memo(function MessageRow({
     )
   }
 
+  if (isReasoning) {
+    return (
+      <div ref={rowRef} className="max-w-full">
+        <NativeChatReasoning
+          markdown={markdown}
+          active={activeTurnIsWorking === true}
+          onLinkClick={onLinkClick}
+          allowFileUriLinks={allowFileUriLinks}
+        />
+      </div>
+    )
+  }
+
   if (isUser) {
     return (
       <div ref={rowRef} className="group relative flex flex-col items-end gap-0.5">
@@ -151,7 +165,7 @@ export const MessageRow = memo(function MessageRow({
     )
   }
 
-  // Plain assistant prose is the copyable unit; reasoning/system asides stay
+  // Plain assistant prose is the copyable unit; system asides stay
   // chrome-free. Controls reveal on hover/keyboard focus and stay visible on touch.
   const showControls = !isReasoning && !isSystem && markdown.length > 0
 
@@ -160,8 +174,6 @@ export const MessageRow = memo(function MessageRow({
       ref={rowRef}
       className={cn(
         'group relative max-w-full select-text text-sm leading-relaxed text-foreground',
-        // Reasoning is the agent thinking aloud — quieter, italic, like an aside.
-        isReasoning && 'border-l-2 border-border/60 pl-3 italic text-muted-foreground',
         isSystem && 'text-xs text-muted-foreground'
       )}
     >
