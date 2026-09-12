@@ -3,19 +3,29 @@ import type {
   AgentJournalMessageItem,
   AgentSessionJournalIdentity
 } from '../../shared/agent-session-journal-types'
-import type { AgentSessionProviderHandleLink } from '../../shared/agent-session-provider-handle'
 import type { AgentSessionExecutionLocation } from '../../shared/agent-session-record'
 import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import { readProcessStartTimeMs } from '../runtime/agent-session-process-identity-probe'
 import type {
   AgentSessionAcquisition,
   AgentSessionDispatchOutcome,
+  StructuredAgentSessionSetOptionInput,
   StructuredAgentSessionAcquireInput,
   StructuredAgentSessionAdapter,
   StructuredAgentSessionLifecycleEvent
 } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
+import type { AgentSessionSlashCommand } from '../../shared/agent-session-wire'
 import { OpenCode2JournalTranslator } from './opencode2-journal-translation'
 import { OpenCode2SessionMonitor } from './opencode2-session-monitor'
+import {
+  parseOpenCode2SessionCommand,
+  readOpenCode2SessionCommands
+} from './opencode2-session-commands'
+import { readOpenCode2SessionOptions, setOpenCode2SessionOption } from './opencode2-session-options'
+import {
+  openCode2ProviderHandleLink,
+  openOpenCode2ProviderSession
+} from './opencode2-session-acquisition'
 import {
   openOpenCode2ServerConnection,
   type OpenCode2ServerConnection
@@ -47,6 +57,7 @@ type OpenCode2Session = {
   acquisitionGeneration: string
   requestedClose: boolean
   monitor: OpenCode2SessionMonitor
+  commands: AgentSessionSlashCommand[]
 }
 
 const DEFAULT_POLL_INTERVAL_MS = 2_000
@@ -77,11 +88,11 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
       }
     )
     try {
-      const providerSessionId = await this.openProviderSession(
-        connection,
-        input.identity,
-        launch.cwd
-      )
+      await connection.client.post('/api/plugin/await-activation')
+      const [{ providerSessionId, resumed }, commands] = await Promise.all([
+        openOpenCode2ProviderSession(connection, input.identity, launch.cwd),
+        readOpenCode2SessionCommands(connection.client)
+      ])
       const translator = new OpenCode2JournalTranslator(
         connection.client,
         providerSessionId,
@@ -106,7 +117,8 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
           connection.client,
           translator,
           this.deps.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS
-        )
+        ),
+        commands
       }
       this.sessions.set(input.identity.sessionId, session)
       session.monitor.start()
@@ -117,12 +129,11 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
           processStartTimeMs,
           spawnToken: input.spawnToken
         },
-        link: this.providerHandleLink(
+        link: openCode2ProviderHandleLink(
           providerSessionId,
           input,
-          input.identity.providerHandle.kind === 'opaque' &&
-            input.identity.providerHandle.agent === 'opencode2' &&
-            input.identity.providerHandle.value !== 'pending'
+          resumed,
+          this.deps.now?.() ?? Date.now()
         ),
         acquisitionGeneration
       }
@@ -145,9 +156,10 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
     if (!text.trim()) {
       return { state: 'rejected', reason: 'OpenCode 2 requires a text prompt.' }
     }
+    const command = parseOpenCode2SessionCommand(text, session.commands)
     await session.connection.client.post(
-      `/api/session/${encodeURIComponent(session.providerSessionId)}/prompt`,
-      { text, metadata: { orcaClientMessageId: input.clientMessageId } }
+      `/api/session/${encodeURIComponent(session.providerSessionId)}/${command ? 'command' : 'prompt'}`,
+      command ?? { text, metadata: { orcaClientMessageId: input.clientMessageId } }
     )
     await session.monitor.refresh()
     return {
@@ -191,8 +203,22 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
     await this.session(input.sessionId).translator.answer(input.itemId, input.optionId)
   }
 
-  setOption = async (): Promise<Readonly<Record<string, string>>> => {
-    throw new Error('OpenCode 2 session options are not available yet.')
+  readCommands = (sessionId: string): AgentSessionSlashCommand[] | undefined =>
+    this.sessions.get(sessionId)?.commands
+
+  readOptions = (input: { sessionId: string; fence: number }) => {
+    const session = this.session(input.sessionId)
+    return readOpenCode2SessionOptions(session.connection.client, session.providerSessionId)
+  }
+
+  setOption = (input: StructuredAgentSessionSetOptionInput) => {
+    const session = this.session(input.sessionId)
+    return setOpenCode2SessionOption({
+      client: session.connection.client,
+      providerSessionId: session.providerSessionId,
+      key: input.key,
+      value: input.value
+    })
   }
 
   historyFilePath = async (): Promise<null> => null
@@ -210,27 +236,6 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
     if (results.some((stopped) => !stopped)) {
       throw new Error('One or more OpenCode 2 servers could not be stopped.')
     }
-  }
-
-  private async openProviderSession(
-    connection: OpenCode2ServerConnection,
-    identity: AgentSessionJournalIdentity,
-    cwd: string
-  ): Promise<string> {
-    const existing =
-      identity.providerHandle.kind === 'opaque' && identity.providerHandle.agent === 'opencode2'
-        ? identity.providerHandle.value
-        : null
-    if (existing && existing !== 'pending') {
-      const session = await connection.client.get<{ id: string }>(
-        `/api/session/${encodeURIComponent(existing)}`
-      )
-      return session.id
-    }
-    const session = await connection.client.post<{ id: string }>('/api/session', {
-      location: { directory: cwd }
-    })
-    return session.id
   }
 
   private async close(sessionId: string, requested: boolean): Promise<boolean> {
@@ -273,20 +278,6 @@ export class OpenCode2StructuredSessionAdapter implements StructuredAgentSession
       throw new Error(`OpenCode 2 server start time for pid ${pid} could not be read.`)
     }
     return value
-  }
-
-  private providerHandleLink(
-    providerSessionId: string,
-    input: StructuredAgentSessionAcquireInput,
-    resumed: boolean
-  ): AgentSessionProviderHandleLink {
-    return {
-      linkId: `opencode2-${input.fence}-${providerSessionId}`.slice(0, 128),
-      handle: { provider: 'opencode2', sessionId: providerSessionId },
-      origin: resumed ? 'resumed' : 'created',
-      mintedAtFence: input.fence,
-      observedAt: this.deps.now?.() ?? Date.now()
-    }
   }
 
   private session(sessionId: string): OpenCode2Session {

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import '@testing-library/jest-dom/vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { NativeChatMessage } from '../../../../shared/native-chat-types'
 import { MessageRow } from './NativeChatMessageRow'
@@ -69,8 +69,36 @@ describe('MessageRow control visibility', () => {
     expect(screen.queryAllByRole('button')).toHaveLength(role === 'assistant' ? 2 : 0)
   })
 
-  it.each(['reasoning', 'system'] as const)('preserves chrome-free %s rows', (role) => {
-    renderMessage(role)
+  it('renders reasoning as a Thoughts disclosure', () => {
+    renderMessage('reasoning')
+    const trigger = screen.getByRole('button', { name: 'Thoughts' })
+    expect(trigger).toHaveAttribute('data-state', 'closed')
+    fireEvent.click(trigger)
+    expect(screen.getByText('Message text')).toBeVisible()
+  })
+
+  it('keeps active reasoning visible', () => {
+    render(
+      <MessageRow
+        message={{
+          id: 'reasoning',
+          role: 'reasoning',
+          timestamp: 0,
+          source: 'transcript',
+          blocks: [{ type: 'text', text: 'Working through it' }]
+        }}
+        expandSignal={false}
+        activeTurnIsWorking
+        onScrollMessageToTop={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: 'Thoughts' })).toHaveAttribute('data-state', 'open')
+    expect(screen.getByText('Working through it')).toBeVisible()
+  })
+
+  it('preserves chrome-free system rows', () => {
+    renderMessage('system')
     expect(screen.queryByRole('time')).toBeNull()
     expect(screen.queryByRole('button')).toBeNull()
   })

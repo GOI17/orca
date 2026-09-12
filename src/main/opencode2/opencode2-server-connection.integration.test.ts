@@ -43,6 +43,21 @@ describe.runIf(process.env.ORCA_TEST_OPENCODE2 === '1')('OpenCode 2 real server'
       })
       expect(acquired.link.handle).toMatchObject({ provider: 'opencode2' })
       expect(acquired.process.processStartTimeMs).not.toBeNull()
+      const options = await adapter.readOptions?.({
+        sessionId: 'opencode2_real_binary_test',
+        fence: 1
+      })
+      expect(options?.models.length).toBeGreaterThan(0)
+      expect(options?.current.model).toBeTruthy()
+      await expect(
+        adapter.setOption({
+          sessionId: 'opencode2_real_binary_test',
+          fence: 1,
+          key: 'model',
+          value: options!.current.model
+        })
+      ).resolves.toMatchObject({ model: options!.current.model })
+      expect(adapter.readCommands?.('opencode2_real_binary_test')).toBeDefined()
     } finally {
       await expect(adapter.closeAll()).resolves.toBeUndefined()
     }

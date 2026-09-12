@@ -14,11 +14,17 @@ const IDENTITY: AgentSessionJournalIdentity = {
   providerHandle: { kind: 'opaque', agent: 'opencode2', value: 'pending' }
 }
 
-function harness() {
+function harness(commands: { name: string; description?: string }[] = []) {
   const requests: { method: string; path: string; body?: unknown }[] = []
   const client: OpenCode2HttpClient = {
     get: (async (path: string) => {
       requests.push({ method: 'GET', path })
+      if (path === '/api/command') {
+        return commands
+      }
+      if (path === '/api/session/active') {
+        return {}
+      }
       return []
     }) as OpenCode2HttpClient['get'],
     getEnvelope: (async () => ({
@@ -115,6 +121,31 @@ describe('OpenCode2StructuredSessionAdapter', () => {
       method: 'POST',
       path: '/api/session/ses_provider/prompt',
       body: { text: 'Fix it', metadata: { orcaClientMessageId: 'client-message' } }
+    })
+    await adapter.closeAll()
+  })
+
+  it('publishes and executes OpenCode 2 provider commands', async () => {
+    const { adapter, requests, sink } = harness([{ name: 'review', description: 'Review changes' }])
+    await adapter.acquire({ identity: IDENTITY, fence: 1, spawnToken: 'token', events: sink })
+
+    expect(adapter.readCommands?.(IDENTITY.sessionId)).toEqual([
+      { name: 'review', kind: 'command', description: 'Review changes' }
+    ])
+    await adapter.dispatch({
+      sessionId: IDENTITY.sessionId,
+      clientMessageId: 'client-command',
+      body: {
+        kind: 'message',
+        role: 'user',
+        blocks: [{ type: 'text', text: '/review branch' }]
+      },
+      fence: 1
+    })
+    expect(requests).toContainEqual({
+      method: 'POST',
+      path: '/api/session/ses_provider/command',
+      body: { command: 'review', text: 'branch' }
     })
     await adapter.closeAll()
   })

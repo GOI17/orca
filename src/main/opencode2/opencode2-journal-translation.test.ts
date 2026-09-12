@@ -36,6 +36,7 @@ function harness() {
       ]
     }
   ]
+  let active = false
   const client: OpenCode2HttpClient = {
     get: vi.fn(async (path: string) => {
       if (path.includes('/message?')) {
@@ -50,6 +51,9 @@ function harness() {
             resources: ['README.md']
           }
         ]
+      }
+      if (path === '/api/session/active') {
+        return active ? { 'ses-provider': { type: 'running' } } : {}
       }
       return [
         {
@@ -79,7 +83,7 @@ function harness() {
     appendTombstone: () => {},
     publish: vi.fn()
   }
-  return { client, items, post, sink }
+  return { client, items, messages, post, setActive: (value: boolean) => (active = value), sink }
 }
 
 describe('OpenCode2JournalTranslator', () => {
@@ -107,6 +111,44 @@ describe('OpenCode2JournalTranslator', () => {
       name: 'read',
       state: 'completed'
     })
+    expect(items).toContainEqual(
+      expect.objectContaining({
+        body: expect.objectContaining({ kind: 'message', role: 'reasoning' })
+      })
+    )
+  })
+
+  it('projects active execution before the first assistant message arrives', async () => {
+    const { client, items, messages, setActive, sink } = harness()
+    messages.splice(1)
+    setActive(true)
+    const translator = new OpenCode2JournalTranslator(client, 'ses-provider', sink)
+
+    await translator.refresh()
+    expect(items.findLast((item) => item.body.kind === 'turn')?.body).toMatchObject({
+      kind: 'turn',
+      state: 'running'
+    })
+
+    setActive(false)
+    await translator.refresh()
+    expect(items.findLast((item) => item.body.kind === 'turn')?.body).toMatchObject({
+      kind: 'turn',
+      state: 'completed'
+    })
+  })
+
+  it('keeps the latest assistant turn running while OpenCode reports it active', async () => {
+    const { client, items, setActive, sink } = harness()
+    setActive(true)
+    const translator = new OpenCode2JournalTranslator(client, 'ses-provider', sink)
+
+    await translator.refresh()
+
+    expect(
+      items.findLast((item) => item.body.kind === 'turn' && item.body.turnId === 'msg-assistant')
+        ?.body
+    ).toMatchObject({ kind: 'turn', state: 'running' })
   })
 
   it('routes prompt answers to the matching OpenCode 2 endpoint', async () => {

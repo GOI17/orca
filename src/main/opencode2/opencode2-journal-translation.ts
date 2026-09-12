@@ -1,8 +1,7 @@
 import { agentJournalItemKey } from '../../shared/agent-session-journal-item-key'
 import type {
   AgentJournalItemBody,
-  AgentJournalItemIdentity,
-  AgentJournalPromptOption
+  AgentJournalItemIdentity
 } from '../../shared/agent-session-journal-types'
 import { decodeAgentSessionQuestionAnswers } from '../../shared/agent-session-question-answer'
 import {
@@ -12,28 +11,16 @@ import {
 } from '../native-chat/agent-session-journal/journal-payload-bounds'
 import type { StructuredAgentSessionEventSink } from '../native-chat/agent-session-wire/structured-agent-session-event-sink'
 import type { OpenCode2HttpClient } from './opencode2-http-client'
-import type { OpenCode2Form, OpenCode2FormField, OpenCode2Permission } from './opencode2-api-types'
+import type {
+  OpenCode2ActiveSessions,
+  OpenCode2Form,
+  OpenCode2FormField,
+  OpenCode2Message,
+  OpenCode2Permission
+} from './opencode2-api-types'
 import { openCode2ToolOutputText } from './opencode2-tool-output'
-
-type OpenCode2Message = {
-  id: string
-  type: string
-  text?: string
-  metadata?: Record<string, unknown>
-  time?: { created?: number; completed?: number }
-  content?: OpenCode2Content[]
-  finish?: string
-  error?: unknown
-}
-
-type OpenCode2Content = {
-  type: string
-  id?: string
-  name?: string
-  text?: string
-  state?: { status?: string; input?: unknown; content?: unknown; error?: unknown }
-  time?: { created?: number }
-}
+import { OpenCode2ActiveTurnProjection } from './opencode2-active-turn-projection'
+import { openCode2FormOptions } from './opencode2-form-options'
 
 type PromptTarget =
   | { kind: 'permission'; requestId: string }
@@ -42,6 +29,7 @@ type PromptTarget =
 export class OpenCode2JournalTranslator {
   private readonly seen = new Map<string, string>()
   private readonly promptTargets = new Map<string, PromptTarget>()
+  private readonly activeTurn = new OpenCode2ActiveTurnProjection()
   private hydrated = false
 
   constructor(
@@ -52,16 +40,17 @@ export class OpenCode2JournalTranslator {
   ) {}
 
   async refresh(): Promise<void> {
-    const [{ messages, truncated }, permissions, forms] = await Promise.all([
+    const [{ messages, truncated }, permissions, forms, activeSessions] = await Promise.all([
       this.readMessages(),
       this.client.get<OpenCode2Permission[]>(
         `/api/session/${encodeURIComponent(this.providerSessionId)}/permission`
       ),
       this.client.get<OpenCode2Form[]>(
         `/api/session/${encodeURIComponent(this.providerSessionId)}/form`
-      )
+      ),
+      this.client.get<OpenCode2ActiveSessions>('/api/session/active')
     ])
-    this.appendMessages(messages)
+    this.appendMessages(messages, this.providerSessionId in activeSessions)
     if (truncated) {
       this.append(this.identity('history:truncated'), {
         kind: 'status',
@@ -155,8 +144,10 @@ export class OpenCode2JournalTranslator {
     return messages.sort((left, right) => (left.time?.created ?? 0) - (right.time?.created ?? 0))
   }
 
-  private appendMessages(messages: OpenCode2Message[]): void {
+  private appendMessages(messages: OpenCode2Message[], active: boolean): void {
     let latestUserItemId: string | undefined
+    const latestAssistantId = messages.findLast((message) => message.type === 'assistant')?.id
+    let hasRunningAssistant = false
     for (const message of messages) {
       if (message.type === 'user' && typeof message.text === 'string') {
         const clientMessageId = message.metadata?.orcaClientMessageId
@@ -175,18 +166,15 @@ export class OpenCode2JournalTranslator {
         continue
       }
       this.appendAssistant(message)
+      const running = active && message.id === latestAssistantId
+      hasRunningAssistant ||= running
       const turnIdentity = this.identity(`turn:${message.id}`)
       this.append(
         turnIdentity,
         {
           kind: 'turn',
           turnId: message.id,
-          state:
-            message.time?.completed || message.finish || message.error
-              ? message.error
-                ? 'interrupted'
-                : 'completed'
-              : 'running',
+          state: running ? 'running' : message.error ? 'interrupted' : 'completed',
           ...(latestUserItemId ? { userItemId: latestUserItemId } : {}),
           ...(message.time?.created ? { startedAt: message.time.created } : {}),
           ...(message.time?.completed ? { completedAt: message.time.completed } : {})
@@ -194,6 +182,13 @@ export class OpenCode2JournalTranslator {
         message.time?.created
       )
     }
+    this.activeTurn.sync({
+      active,
+      hasRunningAssistant,
+      ...(latestUserItemId ? { userItemId: latestUserItemId } : {}),
+      identity: (recordId) => this.identity(recordId),
+      append: (identity, body, observedAt) => this.append(identity, body, observedAt)
+    })
   }
 
   private appendAssistant(message: OpenCode2Message): void {
@@ -255,7 +250,7 @@ export class OpenCode2JournalTranslator {
         id: field.key,
         question: field.title || field.description || field.key,
         multiSelect: field.type === 'multiselect',
-        options: this.formOptions(field),
+        options: openCode2FormOptions(field),
         ...(field.type === 'string' || field.type === 'number' || field.type === 'integer'
           ? { freeTextQuestionId: field.key }
           : {})
@@ -272,20 +267,6 @@ export class OpenCode2JournalTranslator {
       formId: form.id,
       fields: form.fields
     })
-  }
-
-  private formOptions(field: OpenCode2FormField): AgentJournalPromptOption[] {
-    if (field.type === 'boolean') {
-      return [
-        { id: 'true', label: 'Yes' },
-        { id: 'false', label: 'No' }
-      ]
-    }
-    return (field.options ?? []).map((option) => ({
-      id: option.value,
-      label: option.label,
-      ...(option.description ? { description: option.description } : {})
-    }))
   }
 
   private identity(recordId: string): AgentJournalItemIdentity {

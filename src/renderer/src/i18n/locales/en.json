@@ -17148,6 +17148,7 @@
         "responding": "Agent is responding",
         "working": "Working…",
         "thinking": "Thinking",
+        "thoughts": "Thoughts",
         "workingFor": "Working for {{value0}}",
         "workedFor": "Worked for {{value0}}",
         "toggleDetails": "Toggle turn details"

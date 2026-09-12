@@ -11,6 +11,10 @@ describe('agent session option catalog', () => {
     expect(getAgentSessionOptionCatalog('future-agent')).toBeNull()
   })
 
+  it('enables runtime-reported options for OpenCode 2', () => {
+    expect(getAgentSessionOptionCatalog('opencode2')).toMatchObject({ models: [] })
+  })
+
   it('keeps Claude option sets model-scoped', () => {
     const catalog = getAgentSessionOptionCatalog('claude')
     expect(
