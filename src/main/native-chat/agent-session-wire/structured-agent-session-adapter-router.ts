@@ -92,13 +92,8 @@ export class StructuredAgentSessionAdapterRouter implements StructuredAgentSessi
   setOption: StructuredAgentSessionAdapter['setOption'] = (input) =>
     this.owner(input.sessionId).setOption(input)
 
-  readOptions = (input: { sessionId: string; fence: number }) => {
-    const reader = this.owner(input.sessionId).readOptions
-    if (!reader) {
-      throw new Error(`structured session ${input.sessionId} does not report options`)
-    }
-    return reader(input)
-  }
+  readOptions = async (input: { sessionId: string; fence: number }) =>
+    this.owner(input.sessionId).readOptions?.(input)
 
   readOptionRestoreFailures = (sessionId: string): readonly string[] =>
     this.owner(sessionId).readOptionRestoreFailures?.(sessionId) ?? []
