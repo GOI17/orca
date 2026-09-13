@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, MoreHorizontal, PanelLeft } from 'lucide-react'
+import { MoreHorizontal, PanelLeft } from 'lucide-react'
 import logo from '../../../../resources/logo.svg'
 import { translate } from '@/i18n/i18n'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -8,32 +8,19 @@ import {
   ContextMenuItem,
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
-import { shouldShowWorktreeHistoryControls } from '../lib/titlebar-worktree-history-controls'
-import {
-  canGoBackWorktreeHistory,
-  canGoForwardWorktreeHistory
-} from '@/store/slices/worktree-nav-history'
 import { useShortcutLabel } from '../hooks/useShortcutLabel'
 import { useAppStore } from '../store'
 import { hasCustomTitleBar, isMac } from './app-window-chrome'
 import type { AppChromeLayout } from './use-app-chrome-layout'
 
-/**
- * The titlebar's left cluster: window chrome padding, app name, sidebar toggle, and the
- * worktree back/forward pair. Shared by the full-width titlebar and the sidebar-width left
- * header so the agent badge popover isn't duplicated.
- */
+/** Window chrome, app name, and sidebar toggle. */
 export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): React.JSX.Element {
   const toggleSidebar = useAppStore((s) => s.toggleSidebar)
   const updateSettings = useAppStore((s) => s.updateSettings)
-  const canGoBackWorktree = useAppStore(canGoBackWorktreeHistory)
-  const canGoForwardWorktree = useAppStore(canGoForwardWorktreeHistory)
   const leftSidebarShortcutLabel = useShortcutLabel('sidebar.left.toggle')
-  const historyBackShortcutLabel = useShortcutLabel('worktree.history.back')
-  const historyForwardShortcutLabel = useShortcutLabel('worktree.history.forward')
 
   return (
-    // Why: measure the ENTIRE row so TabGroupPanel's collapse spacer reserves enough width; measuring only the inner cluster left back/forward over the first tab.
+    // Reserve the full control width beside the workspace toolbar when the sidebar is collapsed.
     // Why: collapsed mode floats in a w-0 wrapper; w-max stops Windows Chromium from shrinking the app name to one glyph.
     <div
       ref={layout.titlebarLeftControlsRef}
@@ -108,46 +95,6 @@ export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): R
           </Tooltip>
         )}
       </div>
-      {/* Why: Back/Forward span worktree + page history, so show the cluster wherever the shortcut is live (hidden in Settings/non-stack views). */}
-      {shouldShowWorktreeHistoryControls(layout.activeView) && (
-        // With the sidebar collapsed the header shrink-wraps and ml-auto has no spare width, so keep a fixed gutter before Back.
-        <div className="ml-auto mr-3 flex items-center pl-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="sidebar-toggle sidebar-toggle-compact"
-                onClick={() => useAppStore.getState().goBackWorktree()}
-                disabled={!canGoBackWorktree}
-                aria-label={translate('auto.App.064bd07810', 'Go back')}
-              >
-                <ArrowLeft size={12} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" sideOffset={6}>
-              {translate('auto.App.fe21e8f6f5', 'Go back ({{value0}})', {
-                value0: historyBackShortcutLabel
-              })}
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="sidebar-toggle sidebar-toggle-compact"
-                onClick={() => useAppStore.getState().goForwardWorktree()}
-                disabled={!canGoForwardWorktree}
-                aria-label={translate('auto.App.cf9099fe98', 'Go forward')}
-              >
-                <ArrowRight size={12} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" sideOffset={6}>
-              {translate('auto.App.f7aa73e785', 'Go forward ({{value0}})', {
-                value0: historyForwardShortcutLabel
-              })}
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      )}
     </div>
   )
 }

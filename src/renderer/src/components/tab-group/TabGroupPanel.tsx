@@ -2,24 +2,16 @@ import { Suspense, useMemo } from 'react'
 import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { useDroppable } from '@dnd-kit/core'
 import { useAppStore } from '../../store'
-import TabBar from '../tab-bar/TabBar'
 
 import { TabBarQuickCommandsButton } from '../tab-bar/TabBarQuickCommandsButton'
 import { useWorkspaceQuickCommandTarget } from './use-workspace-quick-command-target'
 import { useTabGroupWorkspaceModel } from './useTabGroupWorkspaceModel'
-import { closeTerminalTab } from '../terminal/terminal-tab-actions'
-import { resolveGroupTabFromVisibleId } from './tab-group-visible-id'
-import { getTabPaneBodyDroppableId, type HoveredTabInsertion } from './useTabDragSplit'
+import { WorkspaceToolbarTitle } from './WorkspaceToolbarTitle'
+import { getTabPaneBodyDroppableId } from './useTabDragSplit'
 import { tabGroupBodyAnchorName } from './tab-group-body-anchor'
 import { translate } from '@/i18n/i18n'
-import type { TabGroup } from '../../../../shared/tab-types'
-import type { ClientHostedBrowserRow } from '../../../../shared/client-hosted-browser-rows'
-import { useClientHostedBrowserRows } from '@/lib/pane-manager/client-hosted-browser-row-state'
-import { resolveClientHostedBrowserRowStripGroupId } from '../tab-bar/client-hosted-browser-row-strip-placement'
 
 const EditorPanel = lazy(() => import('../editor/EditorPanel'))
-const EMPTY_GROUPS: readonly TabGroup[] = []
-const EMPTY_CLIENT_HOSTED_ROWS: readonly ClientHostedBrowserRow[] = []
 
 export default function TabGroupPanel({
   groupId,
@@ -35,8 +27,7 @@ export default function TabGroupPanel({
   suppressBottomBorder = false,
   reserveClosedExplorerToggleSpace,
   reserveCollapsedSidebarHeaderSpace,
-  isTabDragActive = false,
-  hoveredTabInsertion = null
+  isTabDragActive = false
 }: {
   groupId: string
   worktreeId: string
@@ -52,31 +43,11 @@ export default function TabGroupPanel({
   reserveClosedExplorerToggleSpace: boolean
   reserveCollapsedSidebarHeaderSpace: boolean
   isTabDragActive?: boolean
-  hoveredTabInsertion?: HoveredTabInsertion | null
 }): React.JSX.Element {
   const rightSidebarOpen = useAppStore((state) => state.rightSidebarOpen)
   const sidebarOpen = useAppStore((state) => state.sidebarOpen)
   const model = useTabGroupWorkspaceModel({ groupId, worktreeId })
-  const {
-    activeTab,
-    agentSessionItems,
-    browserItems,
-    commands,
-    editorItems,
-    tabBarOrder,
-    terminalTabs
-  } = model
-  // Why: one strip owns the worktree's client-hosted rows, or every split repeats them.
-  const ownsClientHostedRows = useAppStore(
-    (state) =>
-      resolveClientHostedBrowserRowStripGroupId(
-        state.groupsByWorktree[worktreeId] ?? EMPTY_GROUPS
-      ) === groupId
-  )
-  const worktreeClientHostedRows = useClientHostedBrowserRows(worktreeId)
-  const clientHostedRows = ownsClientHostedRows
-    ? worktreeClientHostedRows
-    : EMPTY_CLIENT_HOSTED_ROWS
+  const { activeTab, commands } = model
   const { setNodeRef: setBodyDropRef } = useDroppable({
     id: getTabPaneBodyDroppableId(groupId),
     data: {
@@ -92,122 +63,6 @@ export default function TabGroupPanel({
   const bodyAnchorStyle = useMemo(
     () => ({ anchorName: bodyAnchorName }) as React.CSSProperties,
     [bodyAnchorName]
-  )
-
-  const tabBar = (
-    <TabBar
-      tabs={terminalTabs}
-      activeTabId={
-        activeTab?.contentType === 'terminal'
-          ? activeTab.entityId
-          : activeTab?.contentType === 'agent-session'
-            ? activeTab.id
-            : null
-      }
-      groupId={groupId}
-      worktreeId={worktreeId}
-      expandedPaneByTabId={model.expandedPaneByTabId}
-      onActivate={commands.activateTerminal}
-      onClose={(terminalId) => {
-        const item = resolveGroupTabFromVisibleId(model.groupTabs, terminalId)
-        if (item?.contentType === 'terminal' || item?.contentType === 'agent-session') {
-          commands.closeItem(item.id)
-          return
-        }
-        // Why: agent quick-launch can briefly desync unified/runtime tab ids before the host snapshot lands, so still route close through the shared helper.
-        closeTerminalTab(terminalId)
-      }}
-      onCloseOthers={(visibleId) => {
-        // Why: TabBar emits entityId for terminals/browsers but unifiedTabId for editors; match both so the menu works on every tab kind.
-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
-        if (item) {
-          commands.closeOthers(item.id)
-        }
-      }}
-      onCloseToRight={(visibleId) => {
-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
-        if (item) {
-          commands.closeToRight(item.id)
-        }
-      }}
-      onCloseToLeft={(visibleId) => {
-        const item = resolveGroupTabFromVisibleId(model.groupTabs, visibleId)
-        if (item) {
-          commands.closeToLeft(item.id)
-        }
-      }}
-      onNewTerminalTab={commands.newTerminalTab}
-      onNewTerminalWithShell={commands.newTerminalWithShell}
-      onNewBrowserTab={commands.newBrowserTab}
-      onNewSimulatorTab={commands.newSimulatorTab}
-      onOpenEntry={commands.openEntry}
-      onNewFileTab={commands.newFileTab}
-      onSetCustomTitle={commands.setTabCustomTitle}
-      onSetTabColor={commands.setTabColor}
-      onTogglePaneExpand={commands.toggleTerminalPaneExpand}
-      editorFiles={editorItems}
-      browserTabs={browserItems}
-      clientHostedBrowserRows={clientHostedRows}
-      groupActiveTabId={activeTab?.id ?? null}
-      agentSessionTabs={agentSessionItems}
-      activeFileId={
-        activeTab?.contentType === 'terminal' ||
-        activeTab?.contentType === 'agent-session' ||
-        activeTab?.contentType === 'browser' ||
-        activeTab?.contentType === 'simulator'
-          ? null
-          : activeTab?.id
-      }
-      activeBrowserTabId={activeTab?.contentType === 'browser' ? activeTab.entityId : null}
-      activeSimulatorTabId={activeTab?.contentType === 'simulator' ? activeTab.id : null}
-      activeTabType={
-        activeTab?.contentType === 'terminal'
-          ? 'terminal'
-          : activeTab?.contentType === 'agent-session'
-            ? 'agent-session'
-            : activeTab?.contentType === 'browser'
-              ? 'browser'
-              : activeTab?.contentType === 'simulator'
-                ? 'simulator'
-                : 'editor'
-      }
-      onActivateFile={commands.activateEditor}
-      onCloseFile={commands.closeItem}
-      onActivateBrowserTab={commands.activateBrowser}
-      onActivateAgentSession={commands.activateAgentSession}
-      onCloseBrowserTab={(browserTabId) => {
-        const item = model.groupTabs.find(
-          (candidate) => candidate.entityId === browserTabId && candidate.contentType === 'browser'
-        )
-        if (item) {
-          commands.closeItem(item.id)
-        }
-      }}
-      onDuplicateBrowserTab={commands.duplicateBrowserTab}
-      onCloseAllFiles={commands.closeAllEditorTabsInGroup}
-      onMakePreviewFilePermanent={(_fileId, tabId) => {
-        if (!tabId) {
-          return
-        }
-        const item = model.groupTabs.find((candidate) => candidate.id === tabId)
-        if (!item) {
-          return
-        }
-        commands.makePreviewFilePermanent(item.entityId, item.id)
-      }}
-      onPinFile={(_fileId, tabId) => {
-        if (!tabId) {
-          return
-        }
-        const item = model.groupTabs.find((candidate) => candidate.id === tabId)
-        if (!item) {
-          return
-        }
-        commands.pinFile(item.entityId, item.id)
-      }}
-      tabBarOrder={tabBarOrder}
-      hoveredTabInsertion={hoveredTabInsertion}
-    />
   )
 
   const quickCommandTarget = useWorkspaceQuickCommandTarget(worktreeId, groupId, isVisible)
@@ -241,8 +96,7 @@ export default function TabGroupPanel({
       // Why: keyboard/AT focus can enter a split group without a pointer event, so sync group focus to DOM focus for global shortcuts.
       onFocusCapture={focusPanelFromEvent}
     >
-      {/* Why: each split group needs its own tab row because multiple groups can show at once but the titlebar has only one shared center slot. */}
-      {/* Why: macOS hiddenInset titleBarStyle makes -webkit-app-region: drag the only way to move the window from this tab row. */}
+      {/* Why: macOS hiddenInset titleBarStyle makes -webkit-app-region: drag the only way to move the window from the toolbar. */}
       <div
         className="h-[32px] shrink-0 border-b border-border bg-card"
         data-tab-group-strip-id={groupId}
@@ -262,7 +116,7 @@ export default function TabGroupPanel({
               }
             />
           ) : null}
-          <div className="min-w-0 flex-1 h-full">{tabBar}</div>
+          <WorkspaceToolbarTitle worktreeId={worktreeId} />
           <div
             className="ml-1.5 flex shrink-0 items-center gap-0.5"
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
