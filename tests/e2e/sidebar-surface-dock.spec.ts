@@ -2,7 +2,7 @@ import { createServer } from 'node:http'
 import { test, expect } from './helpers/orca-app'
 import { waitForActiveTerminalManager, waitForTerminalOutput } from './helpers/terminal'
 
-test('surface panel keeps its terminal and browser alive while docking', async ({
+test('panel toggles, expands fully, and keeps the bottom terminal independent', async ({
   orcaPage
 }, testInfo) => {
   test.setTimeout(120_000)
@@ -13,6 +13,12 @@ test('surface panel keeps its terminal and browser alive while docking', async (
     store.setState((state) => ({ settings: { ...state.settings, theme: 'dark' } }))
   })
   const panel = orcaPage.locator('[data-sidebar-surface-panel]')
+  const quickCommand = orcaPage.getByRole('button', { name: 'Add quick command', exact: true })
+  const commandStrip = () =>
+    quickCommand.evaluate((button) =>
+      button.closest('[data-tab-group-strip-id]')?.getAttribute('data-tab-group-strip-id')
+    )
+  const mainCommandGroupId = await commandStrip()
   await expect(panel.getByRole('heading', { name: 'Open a surface' })).toBeVisible()
   await orcaPage.screenshot({ path: testInfo.outputPath('sidebar-launcher.png') })
   await panel.getByRole('button', { name: /^Terminal/ }).click()
@@ -58,14 +64,77 @@ test('surface panel keeps its terminal and browser alive while docking', async (
   await orcaPage.keyboard.type('echo ORCA_DOCK_SESSION_ALIVE')
   await orcaPage.keyboard.press('Enter')
   await waitForTerminalOutput(orcaPage, 'ORCA_DOCK_SESSION_ALIVE')
-  await panel.getByRole('button', { name: 'Dock panel at bottom' }).click()
-  await expect(panel).toHaveAttribute('data-dock-position', 'bottom')
+  await expect(panel.getByRole('button', { name: 'Close panel', exact: true })).toHaveCount(0)
+  await panel.getByRole('button', { name: 'Toggle terminal', exact: true }).click()
+  const bottom = orcaPage.locator('[data-bottom-terminal-panel]')
+  await expect(bottom).toHaveAttribute('aria-hidden', 'false')
+  await expect(panel).toHaveAttribute('data-dock-position', 'right')
   await expect.poll(contained).toBe(true)
-  await expect(terminal).toHaveAttribute('data-terminal-overlay-tab-id', identity!)
-  await waitForTerminalOutput(orcaPage, 'ORCA_DOCK_SESSION_ALIVE')
-  await orcaPage.screenshot({ path: testInfo.outputPath('sidebar-terminal-bottom.png') })
-  await panel.getByRole('button', { name: 'Dock panel at right' }).click()
+  const bottomGroupId = await bottom
+    .locator('[data-tab-group-body-id]')
+    .getAttribute('data-tab-group-body-id')
+  const bottomTabId = await orcaPage.evaluate((groupId) => {
+    const state = window.__store!.getState()
+    return state.unifiedTabsByWorktree[state.activeWorktreeId!]?.find(
+      (tab) => tab.groupId === groupId
+    )?.id
+  }, bottomGroupId)
+  const bottomTerminal = orcaPage.locator(`[data-terminal-overlay-tab-id="${bottomTabId}"]`)
+  await expect(bottomTerminal).toBeVisible()
+  await expect.poll(commandStrip).toBe(mainCommandGroupId)
+  await expect(bottom.getByRole('button', { name: 'Add quick command', exact: true })).toHaveCount(
+    0
+  )
+  await quickCommand.click()
+  await expect(orcaPage.getByRole('dialog')).toBeVisible()
+  await expect
+    .poll(() =>
+      orcaPage.evaluate(() => {
+        const state = window.__store!.getState()
+        return state.activeGroupIdByWorktree[state.activeWorktreeId!]
+      })
+    )
+    .toBe(bottomGroupId)
+  await orcaPage.keyboard.press('Escape')
+  await expect(orcaPage.getByRole('dialog')).toBeHidden()
+  await bottomTerminal.locator('.xterm-helper-textarea').focus()
+  await orcaPage.keyboard.type('echo ORCA_BOTTOM_SESSION_ALIVE')
+  await orcaPage.keyboard.press('Enter')
+  await waitForTerminalOutput(orcaPage, 'ORCA_BOTTOM_SESSION_ALIVE')
+  await panel.getByRole('button', { name: 'Toggle terminal', exact: true }).click()
+  await expect(bottomTerminal).toBeHidden()
+  await expect.poll(commandStrip).toBe(mainCommandGroupId)
+  await panel.getByRole('button', { name: 'Toggle terminal', exact: true }).click()
+  await expect(bottomTerminal).toBeVisible()
+  await waitForTerminalOutput(orcaPage, 'ORCA_BOTTOM_SESSION_ALIVE')
+  await panel.getByRole('button', { name: 'Expand panel', exact: true }).click()
+  const workspace = orcaPage.locator('[data-workspace-content]')
+  await expect
+    .poll(async () => {
+      const expanded = (await panel.boundingBox())!
+      const available = (await workspace.boundingBox())!
+      return Math.abs(expanded.width - available.width) + Math.abs(expanded.x - available.x)
+    })
+    .toBeLessThan(2)
+  await expect(bottomTerminal).toBeHidden()
   await expect.poll(contained).toBe(true)
+  await orcaPage.screenshot({ path: testInfo.outputPath('sidebar-expanded.png') })
+  await panel.getByRole('button', { name: 'Restore panel size', exact: true }).click()
+  await expect(bottomTerminal).toBeVisible()
+  await panel.getByRole('button', { name: 'Toggle right sidebar', exact: true }).click()
+  await expect(orcaPage.getByRole('button', { name: 'Expand panel', exact: true })).toHaveCount(0)
+  await expect(
+    orcaPage.getByRole('button', { name: 'Restore panel size', exact: true })
+  ).toHaveCount(0)
+  await expect(terminal).toBeHidden()
+  await expect(bottomTerminal).toBeVisible()
+  await orcaPage.getByRole('button', { name: 'Toggle terminal', exact: true }).click()
+  await expect(bottomTerminal).toBeHidden()
+  await orcaPage.getByRole('button', { name: 'Toggle terminal', exact: true }).click()
+  await expect(bottomTerminal).toBeVisible()
+  await orcaPage.getByRole('button', { name: 'Toggle right sidebar', exact: true }).click()
+  await expect(panel.getByRole('button', { name: 'Expand panel', exact: true })).toBeVisible()
+  await expect(terminal).toBeVisible()
   await panel.getByRole('button', { name: 'Open a surface', exact: true }).click()
   await expect(terminal).toBeHidden()
 
@@ -111,9 +180,12 @@ test('surface panel keeps its terminal and browser alive while docking', async (
         'document.querySelector("#retained").value = "edited without reloading"'
       )
     })
-    await panel.getByRole('button', { name: 'Dock panel at bottom' }).click()
+    await panel.getByRole('button', { name: 'Toggle terminal', exact: true }).click()
+    await expect(bottomTerminal).toBeHidden()
+    await panel.getByRole('button', { name: 'Toggle terminal', exact: true }).click()
+    await expect(bottomTerminal).toBeVisible()
     await expect.poll(readGuest).toBe('edited without reloading')
-    await panel.getByRole('button', { name: 'Close panel' }).click()
+    await panel.getByRole('button', { name: 'Toggle right sidebar', exact: true }).click()
     await expect(browser).toBeHidden()
     await orcaPage.getByRole('button', { name: 'Toggle right sidebar', exact: true }).click()
     await expect(browser).toBeVisible()
@@ -121,7 +193,7 @@ test('surface panel keeps its terminal and browser alive while docking', async (
     const browserBox = await browser.boundingBox()
     const panelBox = await panel.boundingBox()
     expect(browserBox!.y).toBeGreaterThan(panelBox!.y)
-    await orcaPage.screenshot({ path: testInfo.outputPath('sidebar-browser-bottom.png') })
+    await orcaPage.screenshot({ path: testInfo.outputPath('sidebar-browser-and-terminal.png') })
   } finally {
     await new Promise<void>((resolve, reject) =>
       server.close((error) => (error ? reject(error) : resolve()))

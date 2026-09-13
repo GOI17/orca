@@ -25,7 +25,7 @@ type SplitNodeProps = {
   suppressBottomBorder: boolean
   isTabDragActive: boolean
   hoveredTabInsertion: HoveredTabInsertion | null
-  dockedGroupId?: string
+  dockedGroupIds: (string | undefined)[]
 }
 
 function SplitNode(props: SplitNodeProps): React.JSX.Element {
@@ -45,7 +45,7 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
     suppressBottomBorder,
     isTabDragActive,
     hoveredTabInsertion,
-    dockedGroupId
+    dockedGroupIds
   } = props
   const setTabGroupSplitRatio = useAppStore((state) => state.setTabGroupSplitRatio)
   const recordFeatureInteraction = useAppStore((state) => state.recordFeatureInteraction)
@@ -53,10 +53,10 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
   // Hide only the local dock projection; keep host layout paths intact for resize and SSH sync.
   const containsMainGroup = (branch: TabGroupLayoutNode): boolean =>
     branch.type === 'leaf'
-      ? branch.groupId !== dockedGroupId
+      ? !dockedGroupIds.includes(branch.groupId)
       : containsMainGroup(branch.first) || containsMainGroup(branch.second)
-  if (dockedGroupId) {
-    if (node.type === 'leaf' && node.groupId === dockedGroupId) {
+  if (dockedGroupIds.length) {
+    if (node.type === 'leaf' && dockedGroupIds.includes(node.groupId)) {
       return <div className="flex-1" />
     }
     if (node.type === 'split') {
@@ -132,7 +132,7 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
           suppressBottomBorder={isHorizontal ? suppressBottomBorder : true}
           isTabDragActive={isTabDragActive}
           hoveredTabInsertion={hoveredTabInsertion}
-          dockedGroupId={dockedGroupId}
+          dockedGroupIds={dockedGroupIds}
         />
       </div>
       <TabGroupResizeHandle
@@ -157,7 +157,7 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
           suppressBottomBorder={suppressBottomBorder}
           isTabDragActive={isTabDragActive}
           hoveredTabInsertion={hoveredTabInsertion}
-          dockedGroupId={dockedGroupId}
+          dockedGroupIds={dockedGroupIds}
         />
       </div>
     </div>
@@ -178,7 +178,10 @@ export default function TabGroupSplitLayout({
   renderDockedGroup?: boolean
 }): React.JSX.Element {
   const storedDockedGroupId = useSidebarSurfaceDock((state) => state.groupByWorktree[worktreeId])
-  const dockedGroupId = renderDockedGroup ? undefined : storedDockedGroupId
+  const terminalGroupId = useSidebarSurfaceDock(
+    (state) => state.terminalGroupByWorktree[worktreeId]
+  )
+  const dockedGroupIds = renderDockedGroup ? [] : [storedDockedGroupId, terminalGroupId]
   const dragSplit = useTabDragSplit({ worktreeId, enabled: isWorktreeActive })
   const hasSplits = layout.type === 'split'
 
@@ -239,7 +242,7 @@ export default function TabGroupSplitLayout({
               suppressRightBorder={false}
               suppressBottomBorder={false}
               isTabDragActive={dragSplit.activeDrag !== null}
-              dockedGroupId={dockedGroupId}
+              dockedGroupIds={dockedGroupIds}
               hoveredTabInsertion={dragSplit.hoveredTabInsertion}
             />
           </div>

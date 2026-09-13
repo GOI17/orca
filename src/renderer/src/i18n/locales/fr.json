@@ -3092,12 +3092,10 @@
             "30137df7d0": "Scinder vers la gauche",
             "4df2a06d36": "Scinder vers le bas",
             "ab1e2bff04": "Scinder vers la droite",
-            "9acaf92093": "Actions du volet",
             "1bce81dba6": "simulateur",
             "1ff1c77616": "navigateur",
             "586d2ac445": "terminal",
-            "addSplitPane": "Ajouter un volet scindé",
-            "closePaneColumn": "Fermer le volet scindé"
+            "addSplitPane": "Ajouter un volet scindé"
           },
           "AiVaultSessionDropLayer": {
             "dropOntoTerminalPane": "Déposez sur un volet de terminal pour reprendre cette session.",

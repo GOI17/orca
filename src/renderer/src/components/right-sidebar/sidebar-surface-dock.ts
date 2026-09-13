@@ -1,35 +1,40 @@
 import { create } from 'zustand'
 import type { CSSProperties } from 'react'
 
-export type SidebarDockPosition = 'right' | 'bottom'
 type SurfaceViewport = { groupId: string; left: number; top: number; width: number; height: number }
 
 // Docking is client presentation; the host still owns ordinary tab groups and their sessions.
 export const useSidebarSurfaceDock = create<{
-  position: SidebarDockPosition
   expanded: boolean
   height: number
   groupByWorktree: Record<string, string>
-  viewport: SurfaceViewport | null
-  setPosition: (position: SidebarDockPosition) => void
+  terminalGroupByWorktree: Record<string, string>
+  terminalOpen: boolean
+  terminalPending: boolean
+  viewports: Record<string, SurfaceViewport | undefined>
   toggleExpanded: () => void
   setHeight: (height: number) => void
-  setGroup: (worktreeId: string, groupId: string) => void
-  setViewport: (viewport: SurfaceViewport | null) => void
+  setGroup: (worktreeId: string, groupId: string, bottom?: boolean) => void
+  setViewport: (groupId: string, viewport: SurfaceViewport | null) => void
 }>((set) => ({
-  position: 'right',
   expanded: false,
   height: 320,
   groupByWorktree: {},
-  viewport: null,
-  setPosition: (position) => set({ position, expanded: false }),
+  terminalGroupByWorktree: {},
+  terminalOpen: false,
+  terminalPending: false,
+  viewports: {},
   toggleExpanded: () => set((state) => ({ expanded: !state.expanded })),
   setHeight: (height) => set({ height }),
-  setGroup: (worktreeId, groupId) =>
-    set((state) => ({ groupByWorktree: { ...state.groupByWorktree, [worktreeId]: groupId } })),
-  setViewport: (viewport) =>
+  setGroup: (worktreeId, groupId, bottom = false) =>
+    set((state) =>
+      bottom
+        ? { terminalGroupByWorktree: { ...state.terminalGroupByWorktree, [worktreeId]: groupId } }
+        : { groupByWorktree: { ...state.groupByWorktree, [worktreeId]: groupId } }
+    ),
+  setViewport: (groupId, viewport) =>
     set((state) => {
-      const previous = state.viewport
+      const previous = state.viewports[groupId]
       if (
         previous?.groupId === viewport?.groupId &&
         previous?.left === viewport?.left &&
@@ -39,16 +44,22 @@ export const useSidebarSurfaceDock = create<{
       ) {
         return state
       }
-      return { viewport }
+      return { viewports: { ...state.viewports, [groupId]: viewport ?? undefined } }
     })
 }))
 
 export function useDockedSurfaceStyle(groupId: string | undefined): CSSProperties | undefined {
   const isDocked = useSidebarSurfaceDock((state) =>
-    Boolean(groupId && Object.values(state.groupByWorktree).includes(groupId))
+    Boolean(
+      groupId &&
+      [
+        ...Object.values(state.groupByWorktree),
+        ...Object.values(state.terminalGroupByWorktree)
+      ].includes(groupId)
+    )
   )
   const viewport = useSidebarSurfaceDock((state) =>
-    state.viewport?.groupId === groupId ? state.viewport : null
+    groupId ? state.viewports[groupId] : undefined
   )
   if (!isDocked) {
     return undefined
@@ -70,7 +81,10 @@ export function useDockedSurfaceVisibility(groupId: string | undefined): boolean
   return useSidebarSurfaceDock(
     (state) =>
       !groupId ||
-      !Object.values(state.groupByWorktree).includes(groupId) ||
-      state.viewport?.groupId === groupId
+      ![
+        ...Object.values(state.groupByWorktree),
+        ...Object.values(state.terminalGroupByWorktree)
+      ].includes(groupId) ||
+      Boolean(state.viewports[groupId])
   )
 }

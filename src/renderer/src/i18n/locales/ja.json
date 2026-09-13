@@ -2882,12 +2882,10 @@
             "30137df7d0": "左に分割",
             "4df2a06d36": "下に分割",
             "ab1e2bff04": "右に分割",
-            "9acaf92093": "ペインの操作",
             "1bce81dba6": "シミュレータ",
             "1ff1c77616": "ブラウザ",
             "586d2ac445": "ターミナル",
-            "addSplitPane": "分割ペインを追加",
-            "closePaneColumn": "分割ペインを閉じる"
+            "addSplitPane": "分割ペインを追加"
           },
           "AiVaultSessionDropLayer": {
             "dropOntoTerminalPane": "このセッションを再開するにはターミナルペインにドロップしてください。",

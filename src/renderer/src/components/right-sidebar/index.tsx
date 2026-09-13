@@ -17,7 +17,6 @@ function RightSidebarInner(): React.JSX.Element {
   const leftSidebarWidth = useAppStore((state) => (state.sidebarOpen ? state.sidebarWidth : 0))
   const rightSidebarWidth = useAppStore((state) => state.rightSidebarWidth)
   const setRightSidebarWidth = useAppStore((state) => state.setRightSidebarWidth)
-  const toggleRightSidebar = useAppStore((state) => state.toggleRightSidebar)
   const storedTab = useAppStore((state) => state.rightSidebarTab)
   const routeRequestId = useAppStore((state) => state.rightSidebarRouteRequestId)
   const worktreeId = useAppStore((state) => state.activeWorktreeId)
@@ -31,10 +30,7 @@ function RightSidebarInner(): React.JSX.Element {
       ? dockedId
       : undefined
   )
-  const position = useSidebarSurfaceDock((state) => state.position)
   const expanded = useSidebarSurfaceDock((state) => state.expanded)
-  const height = useSidebarSurfaceDock((state) => state.height)
-  const setHeight = useSidebarSurfaceDock((state) => state.setHeight)
   const [viewport, setViewport] = useState(() => ({
     width: window.innerWidth,
     height: window.innerHeight
@@ -96,11 +92,8 @@ function RightSidebarInner(): React.JSX.Element {
     }
   }, [rightSidebarOpen, view, worktreeId, groupId])
 
-  const bottom = position === 'bottom'
-  const maxSize = bottom
-    ? Math.max(160, viewport.height - 180)
-    : computeMaxRightSidebarPanelWidth(viewport.width - (leftSidebarWidth ?? 0), 0)
-  const size = expanded ? maxSize : Math.min(maxSize, bottom ? height : rightSidebarWidth)
+  const maxSize = computeMaxRightSidebarPanelWidth(viewport.width - (leftSidebarWidth ?? 0), 0)
+  const size = Math.min(maxSize, rightSidebarWidth)
   const title =
     view === 'launcher'
       ? undefined
@@ -111,26 +104,16 @@ function RightSidebarInner(): React.JSX.Element {
   return (
     <aside
       data-sidebar-surface-panel=""
-      data-dock-position={position}
-      className={`relative flex shrink-0 flex-col bg-background text-foreground ${rightSidebarOpen ? (bottom ? 'border-t border-border' : 'border-l border-border') : 'overflow-hidden'}`}
-      style={
-        bottom
-          ? { height: rightSidebarOpen ? size : 0, width: '100%' }
-          : { width: rightSidebarOpen ? size : 0 }
-      }
+      data-dock-position="right"
+      data-expanded={expanded}
+      className={`relative flex min-w-0 shrink-0 flex-col bg-background text-foreground ${rightSidebarOpen ? 'border-l border-border' : 'overflow-hidden'}`}
+      style={{ width: rightSidebarOpen ? (expanded ? '100%' : size) : 0 }}
       aria-hidden={!rightSidebarOpen}
       inert={!rightSidebarOpen}
     >
       {rightSidebarOpen && (
         <>
-          <RightSidebarSurfaceToolbar
-            title={title}
-            onHome={() => navigate('launcher')}
-            onClose={() => {
-              focusMainGroup()
-              toggleRightSidebar()
-            }}
-          />
+          <RightSidebarSurfaceToolbar title={title} onHome={() => navigate('launcher')} />
           {view === 'launcher' && <RightSidebarSurfaceLauncher actions={actions} />}
           {view === 'panel' && (
             <RightSidebarPanelContent effectiveTab={effectiveTab} rightSidebarOpen />
@@ -144,21 +127,12 @@ function RightSidebarInner(): React.JSX.Element {
           visible={rightSidebarOpen && view === 'tabs'}
         />
       )}
-      {rightSidebarOpen && (
+      {rightSidebarOpen && !expanded && (
         <SidebarDockResizeHandle
-          bottom={bottom}
+          bottom={false}
           size={size}
           maxSize={maxSize}
-          onResize={(nextSize) => {
-            if (expanded) {
-              useSidebarSurfaceDock.getState().toggleExpanded()
-            }
-            if (bottom) {
-              setHeight(nextSize)
-            } else {
-              setRightSidebarWidth(nextSize)
-            }
-          }}
+          onResize={setRightSidebarWidth}
         />
       )}
     </aside>

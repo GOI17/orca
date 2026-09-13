@@ -1,7 +1,10 @@
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const dockedGroups = vi.hoisted(() => ({ groupByWorktree: {} as Record<string, string> }))
+const dockedGroups = vi.hoisted(() => ({
+  groupByWorktree: {} as Record<string, string>,
+  terminalGroupByWorktree: {} as Record<string, string>
+}))
 const setTabGroupSplitRatioMock = vi.fn()
 const recordFeatureInteractionMock = vi.fn()
 const setDragRootNodeMock = vi.fn()
@@ -78,6 +81,7 @@ describe('TabGroupSplitLayout', () => {
     setDragRootNodeMock.mockClear()
     useAppStoreMock.mockClear()
     dockedGroups.groupByWorktree = {}
+    dockedGroups.terminalGroupByWorktree = {}
   })
 
   function getLayoutWrapper(element: ReturnType<typeof TabGroupSplitLayout>) {
@@ -196,8 +200,9 @@ describe('TabGroupSplitLayout', () => {
     )
   })
 
-  it('keeps resize paths host-relative after projecting a group into the sidebar', () => {
+  it('keeps resize paths host-relative with both sidebar and bottom terminal groups', () => {
     dockedGroups.groupByWorktree = { 'wt-1': 'dock-group' }
+    dockedGroups.terminalGroupByWorktree = { 'wt-1': 'terminal-dock' }
     const element = TabGroupSplitLayout({
       layout: {
         type: 'split',
@@ -208,7 +213,12 @@ describe('TabGroupSplitLayout', () => {
           first: { type: 'leaf', groupId: 'top-group' },
           second: { type: 'leaf', groupId: 'bottom-group' }
         },
-        second: { type: 'leaf', groupId: 'dock-group' }
+        second: {
+          type: 'split',
+          direction: 'vertical',
+          first: { type: 'leaf', groupId: 'dock-group' },
+          second: { type: 'leaf', groupId: 'terminal-dock' }
+        }
       },
       worktreeId: 'wt-1',
       isWorktreeActive: true

@@ -1,18 +1,11 @@
 import { Suspense, useMemo } from 'react'
 import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { useDroppable } from '@dnd-kit/core'
-import { Ellipsis, X } from 'lucide-react'
 import { useAppStore } from '../../store'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import TabBar from '../tab-bar/TabBar'
 
 import { TabBarQuickCommandsButton } from '../tab-bar/TabBarQuickCommandsButton'
+import { useWorkspaceQuickCommandTarget } from './use-workspace-quick-command-target'
 import { useTabGroupWorkspaceModel } from './useTabGroupWorkspaceModel'
 import { closeTerminalTab } from '../terminal/terminal-tab-actions'
 import { resolveGroupTabFromVisibleId } from './tab-group-visible-id'
@@ -217,12 +210,17 @@ export default function TabGroupPanel({
     />
   )
 
-  const menuButtonClassName =
-    'my-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent/50 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
-  // Why: focused-only so quick commands and Close split pane stay with the active pane and unfocused strips stay compact.
-  const focusedActionChromeClassName = `flex shrink-0 items-center gap-0.5 overflow-hidden transition-[opacity] duration-150 ${
-    isFocused ? 'ml-1.5 pointer-events-auto opacity-100' : 'pointer-events-none opacity-0 w-0'
-  }`
+  const quickCommandTarget = useWorkspaceQuickCommandTarget(worktreeId, groupId, isVisible)
+  const focusPanelFromEvent = (event: React.SyntheticEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement
+    // Command clicks must not change the run target to the strip hosting the button.
+    if (
+      event.currentTarget.contains(target) &&
+      !target.closest('[data-workspace-quick-commands]')
+    ) {
+      commands.focusGroup()
+    }
+  }
   return (
     <div
       // Why: vertical borders stay `border-border` so the focus highlight (--accent ~#f5f5f5 in light) doesn't paint a near-white strip by the resize handle; only the bottom border changes on focus.
@@ -239,9 +237,9 @@ export default function TabGroupPanel({
             } ${isFocused ? '' : 'opacity-95'}`
           : ''
       }`}
-      onPointerDown={commands.focusGroup}
+      onPointerDown={focusPanelFromEvent}
       // Why: keyboard/AT focus can enter a split group without a pointer event, so sync group focus to DOM focus for global shortcuts.
-      onFocusCapture={commands.focusGroup}
+      onFocusCapture={focusPanelFromEvent}
     >
       {/* Why: each split group needs its own tab row because multiple groups can show at once but the titlebar has only one shared center slot. */}
       {/* Why: macOS hiddenInset titleBarStyle makes -webkit-app-region: drag the only way to move the window from this tab row. */}
@@ -269,54 +267,11 @@ export default function TabGroupPanel({
             className="ml-1.5 flex shrink-0 items-center gap-0.5"
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           >
-            <div className={focusedActionChromeClassName}>
-              {isFocused ? (
-                <TabBarQuickCommandsButton worktreeId={worktreeId} groupId={groupId} />
-              ) : null}
-              {isFocused && hasSplitGroups ? (
-                <Tooltip>
-                  <DropdownMenu modal={false}>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          aria-label={translate(
-                            'auto.components.tab.group.TabGroupPanel.9acaf92093',
-                            'Pane Actions'
-                          )}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                          }}
-                          className={menuButtonClassName}
-                        >
-                          <Ellipsis className="size-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                    </TooltipTrigger>
-                    <DropdownMenuContent align="end" side="bottom" sideOffset={4}>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onSelect={() => {
-                          commands.closeGroup()
-                        }}
-                      >
-                        <X className="size-4" />
-                        {translate(
-                          'auto.components.tab.group.TabGroupPanel.closePaneColumn',
-                          'Close split pane'
-                        )}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <TooltipContent side="bottom" sideOffset={6}>
-                    {translate(
-                      'auto.components.tab.group.TabGroupPanel.9acaf92093',
-                      'Pane Actions'
-                    )}
-                  </TooltipContent>
-                </Tooltip>
-              ) : null}
-            </div>
+            {quickCommandTarget ? (
+              <div data-workspace-quick-commands="" className="flex shrink-0 items-center">
+                <TabBarQuickCommandsButton worktreeId={worktreeId} groupId={quickCommandTarget} />
+              </div>
+            ) : null}
           </div>
           {/* Why: Electron drag hit-test respects no-drag only on DOM descendants, not z-index siblings, so this no-drag spacer keeps the floating right-sidebar toggle + window controls clickable. */}
           {reserveClosedExplorerToggleSpace && !rightSidebarOpen ? (
@@ -324,7 +279,7 @@ export default function TabGroupPanel({
               className="shrink-0"
               style={
                 {
-                  width: 'calc(40px + var(--window-controls-width, 0px))',
+                  width: 'calc(84px + var(--window-controls-width, 0px))',
                   WebkitAppRegion: 'no-drag'
                 } as React.CSSProperties
               }
