@@ -3,12 +3,14 @@ import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { translate } from '@/i18n/i18n'
 import Sidebar from '../components/Sidebar'
 import RightSidebar from '../components/right-sidebar'
+import { BottomTerminalPanel } from '../components/right-sidebar/BottomTerminalPanel'
+import { RightSidebarSurfaceToolbar } from '../components/right-sidebar/RightSidebarSurfaceToolbar'
 import { useSidebarSurfaceDock } from '../components/right-sidebar/sidebar-surface-dock'
 import { RecoverableRenderErrorBoundary } from '../components/error-boundaries/RecoverableRenderErrorBoundary'
 import { TerminalWorkbenchContainer } from '../components/TerminalWorkbenchContainer'
 import type { VirtualizedScrollAnchor } from '../hooks/useVirtualizedScrollAnchor'
 import { TitlebarLeftControls } from './TitlebarLeftControls'
-import { RightSidebarToggle, TitlebarMainStrip } from './TitlebarMainStrip'
+import { TitlebarMainStrip } from './TitlebarMainStrip'
 import type { AppChromeLayout } from './use-app-chrome-layout'
 
 const Landing = lazy(() => import('../components/Landing'))
@@ -89,7 +91,8 @@ function ActivePage({ layout }: { layout: AppChromeLayout }): React.JSX.Element 
 /** The left sidebar + titlebar + page/workbench content area + right sidebar. */
 export function AppWorkspaceShell(props: { layout: AppChromeLayout }): React.JSX.Element {
   const { layout } = props
-  const dockPosition = useSidebarSurfaceDock((state) => state.position)
+  const expanded = useSidebarSurfaceDock((state) => state.expanded)
+  const panelExpanded = layout.showRightSidebarControls && layout.rightSidebarOpen && expanded
   const titlebarLeftControls = <TitlebarLeftControls layout={layout} />
   const titlebarMainStrip = <TitlebarMainStrip layout={layout} />
   // Why: keep virtualized scroll memory above the sidebar's workspace/landing remount so the left list doesn't restart at scrollTop 0.
@@ -151,10 +154,11 @@ export function AppWorkspaceShell(props: { layout: AppChromeLayout }): React.JSX
                 <WorktreeSidebar layout={layout} scrollRefs={sidebarScrollRefs} />
               )
             ) : null}
-            <div
-              className={`flex min-h-0 min-w-0 flex-1 ${dockPosition === 'bottom' ? 'flex-col' : 'flex-row'}`}
-            >
-              <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
+            <div data-workspace-content="" className="flex min-h-0 min-w-0 flex-1 flex-row">
+              {/* Keep retained panes mounted so expanding the sidebar cannot restart sessions. */}
+              <div
+                className={`flex flex-col min-w-0 min-h-0 overflow-hidden ${panelExpanded ? 'w-0 flex-none' : 'flex-1'}`}
+              >
                 {/* Why: automations/artifacts own their page headers; the stacked titlebar would be an empty 36px stripe. */}
                 {layout.stackedSidebarOpen &&
                 layout.activeView !== 'automations' &&
@@ -174,7 +178,9 @@ export function AppWorkspaceShell(props: { layout: AppChromeLayout }): React.JSX
                         } as React.CSSProperties
                       }
                     >
-                      {layout.showRightSidebarControls ? <RightSidebarToggle /> : null}
+                      {layout.showRightSidebarControls ? (
+                        <RightSidebarSurfaceToolbar compact />
+                      ) : null}
                     </div>
                   )}
                   <div className="flex flex-1 min-w-0 min-h-0 flex-col">
@@ -215,6 +221,9 @@ export function AppWorkspaceShell(props: { layout: AppChromeLayout }): React.JSX
                     </Suspense>
                   </div>
                 </div>
+                <BottomTerminalPanel
+                  available={layout.workspaceChromeActive && layout.showRightSidebarControls}
+                />
               </div>
               {/* Why: keep the shell mounted for layout stability (heavy panels disconnect while closed); unmount on the distraction-free tasks view. */}
               {layout.showRightSidebarControls ? (

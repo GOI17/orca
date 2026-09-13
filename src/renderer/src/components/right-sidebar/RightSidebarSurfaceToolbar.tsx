@@ -1,4 +1,7 @@
-import { ArrowLeft, Maximize2, Minimize2, PanelBottom, PanelRight, X } from 'lucide-react'
+import { ArrowLeft, Maximize2, Minimize2, PanelBottom, PanelRight } from 'lucide-react'
+import { toast } from 'sonner'
+import { useAppStore } from '@/store'
+import { toggleBottomTerminal } from './toggle-bottom-terminal'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
@@ -12,18 +15,31 @@ import { useSidebarSurfaceDock } from './sidebar-surface-dock'
 export function RightSidebarSurfaceToolbar({
   title,
   onHome,
-  onClose
+  compact = false
 }: {
   title?: string
-  onHome: () => void
-  onClose: () => void
+  onHome?: () => void
+  compact?: boolean
 }) {
-  const position = useSidebarSurfaceDock((state) => state.position)
+  const rightOpen = useAppStore((state) => state.rightSidebarOpen)
+  const toggleRightSidebar = useAppStore((state) => state.toggleRightSidebar)
+  const worktreeId = useAppStore((state) => state.activeWorktreeId)
+  const terminalRequested = useSidebarSurfaceDock((state) => state.terminalOpen)
+  const terminalGroupId = useSidebarSurfaceDock((state) =>
+    worktreeId ? state.terminalGroupByWorktree[worktreeId] : undefined
+  )
+  const terminalOpen = useAppStore((state) =>
+    Boolean(
+      terminalRequested &&
+      worktreeId &&
+      state.groupsByWorktree[worktreeId]?.some((group) => group.id === terminalGroupId)
+    )
+  )
+  const terminalPending = useSidebarSurfaceDock((state) => state.terminalPending)
   const expanded = useSidebarSurfaceDock((state) => state.expanded)
-  const setPosition = useSidebarSurfaceDock((state) => state.setPosition)
   const toggleExpanded = useSidebarSurfaceDock((state) => state.toggleExpanded)
   const reserveWindowControls =
-    position === 'right' &&
+    !compact &&
     shouldRenderDesktopWindowChrome({
       platform: getRendererAppPlatform(),
       isWebClient: isPairedWebClientWindow()
@@ -34,24 +50,28 @@ export function RightSidebarSurfaceToolbar({
         ? translate('sidebar.surfaces.restore', 'Restore panel size')
         : translate('sidebar.surfaces.expand', 'Expand panel'),
       Icon: expanded ? Minimize2 : Maximize2,
-      onClick: toggleExpanded
+      onClick: toggleExpanded,
+      hidden: !rightOpen
     },
     {
-      label: translate('sidebar.surfaces.dockBottom', 'Dock panel at bottom'),
+      label: translate('sidebar.surfaces.toggleTerminal', 'Toggle terminal'),
       Icon: PanelBottom,
-      onClick: () => setPosition('bottom'),
-      active: position === 'bottom'
+      onClick: () => {
+        void toggleBottomTerminal().catch((error) => toast.error(String(error)))
+      },
+      active: terminalOpen,
+      disabled: !worktreeId || terminalPending
     },
     {
-      label: translate('sidebar.surfaces.dockRight', 'Dock panel at right'),
+      label: translate('auto.App.9e0b441a91', 'Toggle right sidebar'),
       Icon: PanelRight,
-      onClick: () => setPosition('right'),
-      active: position === 'right'
+      onClick: toggleRightSidebar,
+      active: rightOpen
     }
   ]
   return (
     <header
-      className={`right-sidebar-header-drag flex min-h-9 shrink-0 items-center gap-1 px-2 ${reserveWindowControls ? 'min-h-18 pt-9' : position === 'right' ? 'right-sidebar-header-inset' : ''}`}
+      className={`right-sidebar-header-drag flex min-h-9 shrink-0 items-center gap-1 px-2 ${reserveWindowControls ? 'min-h-18 pt-9' : !compact ? 'right-sidebar-header-inset' : ''}`}
     >
       {title && (
         <>
@@ -73,37 +93,26 @@ export function RightSidebarSurfaceToolbar({
         </>
       )}
       <div className="right-sidebar-header-no-drag ml-auto flex shrink-0 items-center gap-1">
-        {controls.map(({ label, Icon, onClick, active }) => (
-          <Tooltip key={label}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={label}
-                aria-pressed={active}
-                className={active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}
-                onClick={onClick}
-              >
-                <Icon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{label}</TooltipContent>
-          </Tooltip>
-        ))}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              className="text-muted-foreground"
-              aria-label={translate('sidebar.surfaces.close', 'Close panel')}
-              onClick={onClose}
-            >
-              <X />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{translate('sidebar.surfaces.close', 'Close panel')}</TooltipContent>
-        </Tooltip>
+        {controls
+          .filter((control) => !control.hidden)
+          .map(({ label, Icon, onClick, active, disabled }) => (
+            <Tooltip key={label}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={label}
+                  aria-pressed={active}
+                  disabled={disabled}
+                  className={active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}
+                  onClick={onClick}
+                >
+                  <Icon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{label}</TooltipContent>
+            </Tooltip>
+          ))}
       </div>
     </header>
   )

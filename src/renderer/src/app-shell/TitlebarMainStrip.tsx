@@ -71,7 +71,7 @@ export function TitlebarMainStrip({ layout }: { layout: AppChromeLayout }): Reac
           </TooltipContent>
         </Tooltip>
       )}
-      {/* Why: the open right sidebar's header renders its own close button, so hide this duplicate. */}
+      {/* Why: the open right sidebar's header renders its own toggle, so hide this duplicate. */}
       {layout.showRightSidebarControls && !layout.rightSidebarOpen ? <RightSidebarToggle /> : null}
       {/* Why: reserve space so the Windows/Linux window-controls overlay doesn't obscure content. */}
       {hasCustomTitleBar && <div className="window-controls-titlebar-spacer" />}

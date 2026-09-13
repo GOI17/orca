@@ -14,12 +14,11 @@ export function DockedSurfaceTabs({
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const focusedGroupId = useAppStore((state) => state.activeGroupIdByWorktree[worktreeId])
-  const position = useSidebarSurfaceDock((state) => state.position)
   useLayoutEffect(() => {
     const root = containerRef.current
     const setViewport = useSidebarSurfaceDock.getState().setViewport
     if (!root || !visible) {
-      setViewport(null)
+      setViewport(groupId, null)
       return
     }
     const body = root.querySelector<HTMLElement>('[data-tab-group-body-id]')
@@ -28,7 +27,7 @@ export function DockedSurfaceTabs({
     }
     const update = () => {
       const rect = body.getBoundingClientRect()
-      setViewport({
+      setViewport(groupId, {
         groupId,
         left: rect.left,
         top: rect.top,
@@ -44,9 +43,9 @@ export function DockedSurfaceTabs({
     return () => {
       observer.disconnect()
       window.removeEventListener('resize', update)
-      setViewport(null)
+      setViewport(groupId, null)
     }
-  }, [groupId, visible, position])
+  }, [groupId, visible])
 
   return (
     <div ref={containerRef} className={visible ? 'flex min-h-0 flex-1' : 'hidden'}>

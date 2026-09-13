@@ -42,8 +42,7 @@ export function useTabBarQuickCommandsShortcut({
   )
   const activeView = useAppStore((s) => s.activeView)
 
-  // Why: this hook only runs in the focused tab group's menu component, so the
-  // listener naturally scopes to the active group with no extra coordination.
+  // The single command control in the main strip targets the active group.
   useEffect(() => {
     if (activeView !== 'terminal') {
       return

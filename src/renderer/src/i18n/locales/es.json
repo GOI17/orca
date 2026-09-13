@@ -2882,12 +2882,10 @@
             "30137df7d0": "Dividir a la izquierda",
             "4df2a06d36": "Dividir hacia abajo",
             "ab1e2bff04": "Dividir a la derecha",
-            "9acaf92093": "Acciones del panel",
             "1bce81dba6": "simulador",
             "1ff1c77616": "navegador",
             "586d2ac445": "terminal",
-            "addSplitPane": "Agregar panel dividido",
-            "closePaneColumn": "Cerrar panel dividido"
+            "addSplitPane": "Agregar panel dividido"
           },
           "AiVaultSessionDropLayer": {
             "dropOntoTerminalPane": "Suelta sobre un panel de terminal para reanudar esta sesión.",
@@ -14783,9 +14781,7 @@
       "device": "Dispositivo",
       "restore": "Restaurar tamaño del panel",
       "expand": "Ampliar panel",
-      "dockBottom": "Acoplar panel abajo",
-      "dockRight": "Acoplar panel a la derecha",
-      "close": "Cerrar panel",
+      "toggleTerminal": "Mostrar/ocultar terminal",
       "resize": "Cambiar tamaño del panel",
       "workspace": "Superficies del espacio de trabajo"
     }
