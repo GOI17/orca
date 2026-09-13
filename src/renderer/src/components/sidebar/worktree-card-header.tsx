@@ -7,12 +7,15 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
+import { AgentIcon } from '@/lib/agent-catalog'
+import { agentTypeToIconAgent, formatAgentTypeLabel } from '@/lib/agent-status'
 import type { Repo } from '../../../../shared/repo-types'
 import { resolveRepoHeaderColor } from './project-header-color'
 import { formatSparseDirectoryPreview, shouldBeginWorktreeRename } from './worktree-card-model'
 import type { WorktreeCardPresentation } from './worktree-card-presentation'
 import { WorktreeCardSshHostControl } from './WorktreeCardSshHostControl'
 import { WorktreeTitleInlineRename } from './WorktreeTitleInlineRename'
+import { TruncatedSidebarLabel } from './truncated-sidebar-label'
 import type { WorktreeCardController } from './use-worktree-card-controller'
 
 // Why: pinned repo icon and compact inline badge share this chip shell so both repo cues read as the same affordance.
@@ -88,6 +91,67 @@ export function WorktreeCardHeader({
     titleRowIndicators,
     titleWrapper
   } = presentation
+
+  const title = (
+    <WorktreeTitleInlineRename
+      displayName={visibleCardTitle}
+      disabled={isDeleting || affiliateListMode}
+      showUnreadEmphasis={showUnreadEmphasis}
+      dimReadTitle={newCardStyle}
+      className="text-[13px] leading-5"
+      editingClassName="flex-1"
+      titleWrapper={titleWrapper}
+      onEditingChange={affiliateListMode ? undefined : setTitleRenaming}
+      onRename={handleRenameTitle}
+      beginEditing={
+        !affiliateListMode &&
+        shouldBeginWorktreeRename(renamingWorktreeId, worktree.id, renameRowKey)
+      }
+      onBeginEditingConsumed={affiliateListMode ? undefined : () => setRenamingWorktreeId(null)}
+    />
+  )
+
+  if (newCardStyle) {
+    const agents = [
+      ...new Set(
+        card.compactInlineAgentRows
+          .filter((agent) => agent.rowSource !== 'subagent' && agent.rowSource !== 'retained')
+          .map((agent) => agentTypeToIconAgent(agent.agentType))
+          .filter((agent) => agent !== null)
+      )
+    ]
+
+    return (
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          {title}
+          {card.branchIdentityDisplay && (
+            <TruncatedSidebarLabel
+              text={card.branchIdentityDisplay}
+              className="text-xs leading-4 text-muted-foreground"
+              tooltipEnabled={!presentation.hasHoverDetails}
+            />
+          )}
+        </div>
+        {agents.length > 0 && (
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 text-muted-foreground">
+            {agents.map((agent) => (
+              <Tooltip key={agent}>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex shrink-0" aria-label={formatAgentTypeLabel(agent)}>
+                    <AgentIcon agent={agent} size={14} />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={8}>
+                  {formatAgentTypeLabel(agent)}
+                </TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-w-0 items-center justify-between gap-2">
@@ -167,22 +231,7 @@ export function WorktreeCardHeader({
         )}
 
         {/* Why: unread alert lives in the left status lane; title-row contrast comes from weight and dimmed read titles. */}
-        <WorktreeTitleInlineRename
-          displayName={visibleCardTitle}
-          disabled={isDeleting || affiliateListMode}
-          showUnreadEmphasis={showUnreadEmphasis}
-          dimReadTitle={newCardStyle}
-          className="text-[13px] leading-5"
-          editingClassName="flex-1"
-          titleWrapper={titleWrapper}
-          onEditingChange={affiliateListMode ? undefined : setTitleRenaming}
-          onRename={handleRenameTitle}
-          beginEditing={
-            !affiliateListMode &&
-            shouldBeginWorktreeRename(renamingWorktreeId, worktree.id, renameRowKey)
-          }
-          onBeginEditingConsumed={affiliateListMode ? undefined : () => setRenamingWorktreeId(null)}
-        />
+        {title}
 
         {typeof worktree.firstAgentMessageRenameError === 'string' &&
         worktree.firstAgentMessageRenameError.length > 0 &&

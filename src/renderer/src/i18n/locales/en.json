@@ -11,6 +11,13 @@
     "empty": "What would you like to do?",
     "description": "Ask a question or make a quick change to files on this computer. No project needed."
   },
+  "worktreeCleanup": {
+    "action": "Clean up worktrees",
+    "checking": "Checking worktrees…",
+    "unchecked": "Could not check {{count}} worktrees. They will be kept.",
+    "none": "No clean worktrees to remove",
+    "failed": "Could not check worktrees"
+  },
   "sidebar": {
     "revealFiltered": {
       "title": "Reveal hidden workspace?",

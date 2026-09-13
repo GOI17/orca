@@ -245,7 +245,8 @@ describe('WorktreeCard quick actions', () => {
       />
     )
 
-    expect(markup).toContain('/repo/worktrees/quick-action')
+    expect(markup).not.toContain('/repo/worktrees/quick-action')
+    expect(markup).toContain('Docs folder')
     expect(markup).not.toContain('lucide-git-branch')
   })
 

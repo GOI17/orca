@@ -21,7 +21,11 @@
       "844eb0f4f4": "activity",
       "9f0152563e": "mobile",
       "ca6c6eece7": "skills",
-      "d54e66004c": "terminal"
+      "d54e66004c": "terminal",
+      "064bd07810": "Go back",
+      "cf9099fe98": "Go forward",
+      "f7aa73e785": "Go forward ({{value0}})",
+      "fe21e8f6f5": "Go back ({{value0}})"
     },
     "components": {
       "CodexRestartChip": {

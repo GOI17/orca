@@ -58,6 +58,8 @@ vi.mock('./CacheTimer', () => ({
   usePromptCacheCountdownStartedAt: () => null
 }))
 
+vi.mock('./useWorktreeAgentRows', () => ({ useWorktreeAgentRows: () => [] }))
+
 vi.mock('./WorktreeCardAgents', () => ({
   default: () => null
 }))
@@ -153,7 +155,7 @@ describe('WorktreeCard pinned repo icon', () => {
   )
 
   it(
-    'uses the pinned-style repo icon in new card style instead of a metadata-row badge',
+    'omits the repo icon and metadata row in new card style',
     async () => {
       settings = { compactWorktreeCards: false, experimentalNewWorktreeCardStyle: true }
       worktreeCardProperties = ['status']
@@ -167,8 +169,8 @@ describe('WorktreeCard pinned repo icon', () => {
         />
       )
 
-      expect(markup).toContain('🦊')
-      expect(markup).toContain('Project orca')
+      expect(markup).not.toContain('🦊')
+      expect(markup).not.toContain('Project orca')
       expect(markup).not.toContain('data-worktree-card-meta-row=""')
     },
     WORKTREE_CARD_IMPORT_TIMEOUT_MS
