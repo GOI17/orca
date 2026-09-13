@@ -171,7 +171,7 @@ describe('useLiveWorktreeName request volume', () => {
 
     expect(sendRequest).not.toHaveBeenCalled()
     expect(subscribe).not.toHaveBeenCalled()
-    expect(name).toBe('Floating Workspace')
+    expect(name).toBe('Legacy session')
   })
 
   it('does not render stale names while switching through the floating route', async () => {
@@ -220,7 +220,7 @@ describe('useLiveWorktreeName request volume', () => {
       act(() => renderer?.unmount())
     }
 
-    expect(firstNameByWorktree.get('global-floating-terminal')).toBe('Floating Workspace')
+    expect(firstNameByWorktree.get('global-floating-terminal')).toBe('Legacy session')
     expect(firstNameByWorktree.get('repo-2::/worktree')).toBe('Next workspace')
   })
 

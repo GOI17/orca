@@ -16,10 +16,7 @@ function sliceBetween(startPattern: string, endPattern: string): string {
 
 describe('mobile worktree activation', () => {
   it('opens mobile sessions without foregrounding other paired clients', () => {
-    const openSession = sliceBetween(
-      'const openWorktreeSession = useCallback(',
-      'const openFloatingWorkspace = useCallback'
-    )
+    const openSession = sliceBetween('const openWorktreeSession = useCallback(', '  return {')
 
     expect(openSession).toContain("sendRequest('worktree.activate'")
     expect(openSession).toContain('notifyClients: false')
