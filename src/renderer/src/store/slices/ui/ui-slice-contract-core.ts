@@ -103,16 +103,7 @@ export type NewWorkspaceDraft = {
   compareBaseRef?: string
 }
 
-export type UiViewHistory =
-  | 'terminal'
-  | 'settings'
-  | 'tasks'
-  | 'activity'
-  | 'automations'
-  | 'space'
-  | 'skills'
-  | 'artifacts'
-  | 'mobile'
+export type UiViewHistory = TopLevelView
 
 export type UISliceCore = {
   sidebarOpen: boolean
@@ -178,6 +169,7 @@ export type UISliceCore = {
   closeAutomationsPage: () => void
   openSpacePage: () => void
   closeSpacePage: () => void
+  personalChatDirectory: string | null
   openSkillsPage: () => void
   closeSkillsPage: () => void
   pendingSkillShareId: string | null

@@ -1,3 +1,4 @@
+import { ensurePersonalChatDirectory } from '../personal-chat-directory'
 import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
@@ -255,6 +256,7 @@ export function registerAppHandlers(store: Store, options: RegisterAppHandlersOp
   })
 
   ipcMain.handle('app:getHomeDirectory', () => app.getPath('home'))
+  ipcMain.handle('app:getPersonalChatDirectory', () => ensurePersonalChatDirectory())
 
   registerMacSymbolicHotkeysProbeHandler(readCommandStdout)
 

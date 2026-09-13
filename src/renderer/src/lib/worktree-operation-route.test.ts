@@ -15,6 +15,18 @@ function worktree(hostId: Worktree['hostId'], runtimeOwnerEnvironmentId?: string
 }
 
 describe('resolveWorktreeOperationRouteResult', () => {
+  it('routes personal file operations locally without a project catalog', () => {
+    expect(
+      resolveWorktreeOperationRouteResult(
+        { settings: { activeRuntimeEnvironmentId: 'remote' } },
+        'personal-chats'
+      )
+    ).toEqual({
+      kind: 'resolved',
+      route: { executionHostId: 'local', runtimeEnvironmentId: null }
+    })
+  })
+
   it('preserves SSH execution identity and its HUB transport owner', () => {
     expect(
       resolveWorktreeOperationRouteResult(

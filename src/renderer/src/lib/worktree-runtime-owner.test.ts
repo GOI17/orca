@@ -36,6 +36,14 @@ const state: WorktreeRuntimeOwnerState = {
 }
 
 describe('getSettingsForWorktreeRuntimeOwner', () => {
+  it('keeps personal chats local with a remote runtime selected', () => {
+    expect(getExecutionHostIdForWorktree(state, 'personal-chats')).toBe('local')
+    expect(getRuntimeEnvironmentIdForWorktree(state, 'personal-chats')).toBeNull()
+    expect(getSettingsForWorktreeRuntimeOwner(state, 'personal-chats')).toEqual({
+      activeRuntimeEnvironmentId: null
+    })
+  })
+
   it('routes to the runtime owner of the worktree', () => {
     expect(getSettingsForWorktreeRuntimeOwner(state, 'runtime-repo::wt-b')).toEqual({
       activeRuntimeEnvironmentId: 'owner-env'

@@ -1,3 +1,4 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../shared/personal-chats'
 import type { AppState } from '@/store/types'
 import {
   findIndexedRepoOwnerForHost,
@@ -57,7 +58,11 @@ export function getConnectionIdFromState(
   state: ConnectionOwnerState,
   worktreeId: string | null
 ): string | null | undefined {
-  if (!worktreeId || worktreeId === FLOATING_TERMINAL_WORKTREE_ID) {
+  if (
+    !worktreeId ||
+    worktreeId === FLOATING_TERMINAL_WORKTREE_ID ||
+    worktreeId === PERSONAL_CHATS_WORKSPACE_ID
+  ) {
     return null
   }
   const parsedWorkspaceKey = parseWorkspaceKey(worktreeId)

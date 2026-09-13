@@ -276,7 +276,8 @@ export function useAppStartupHydration(onOnboardingLoaded: (state: OnboardingSta
           await timeRendererStartupStep('recover-legacy-worker-terminals-post-reconnect', () =>
             window.api.app.recoverLegacyWorkerTerminalsForRendererStartup()
           )
-          if (useAppStore.getState().settings?.experimentalStructuredNativeChat === true) {
+          const { settings } = useAppStore.getState()
+          if (settings?.experimentalStructuredNativeChat || settings?.personalChatsEnabled) {
             await timeRendererStartupStep('project-structured-session-tabs', () =>
               restoreLocalStructuredSessionTabsOnce()
             )

@@ -1,3 +1,4 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../shared/personal-chats'
 import type { AppState } from '@/store/types'
 import { parseExecutionHostId, type ExecutionHostId } from '../../../shared/execution-host'
 import { parseWorkspaceKey } from '../../../shared/workspace-scope'
@@ -176,6 +177,9 @@ export function resolveWorktreeOperationRouteResult(
   state: WorktreeOperationRouteState,
   worktreeId: string
 ): WorktreeOperationRouteResolution {
+  if (worktreeId === PERSONAL_CHATS_WORKSPACE_ID) {
+    return { kind: 'resolved', route: { executionHostId: 'local', runtimeEnvironmentId: null } }
+  }
   const activeRoute = resolveActiveWorkspaceRoute(state, worktreeId)
   if (activeRoute) {
     return { kind: 'resolved', route: activeRoute }

@@ -96,7 +96,7 @@ export class OrcaRuntimeWithStateFields extends OrcaRuntimeWithLinearCommands {
     super()
     this.store = store
     store?.onSettingsChanged?.((updates) => {
-      if ('experimentalStructuredNativeChat' in updates) {
+      if ('experimentalStructuredNativeChat' in updates || 'personalChatsEnabled' in updates) {
         this.notifyMobileSessionTabsChanged()
       }
     })

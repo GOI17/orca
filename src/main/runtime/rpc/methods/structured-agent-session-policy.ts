@@ -2,19 +2,27 @@ import {
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
   type RuntimeCapability
 } from '../../../../shared/protocol-version'
-import type { OrcaRuntimeService } from '../../orca-runtime'
+import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { RpcContext } from '../core'
 
+type StructuredPolicyRuntime = {
+  getClientSettings: () => Pick<
+    GlobalSettings,
+    'experimentalStructuredNativeChat' | 'personalChatsEnabled'
+  >
+}
+
 type StructuredPolicyContext = Pick<RpcContext, 'clientCapabilities' | 'clientKind'> & {
-  runtime?: Pick<OrcaRuntimeService, 'getClientSettings'>
+  runtime?: StructuredPolicyRuntime
   structuredNativeChatEnabled?: boolean
 }
 
-export function isStructuredNativeChatEnabled(
-  runtime: Pick<OrcaRuntimeService, 'getClientSettings'>
-): boolean {
+export function isStructuredNativeChatEnabled(runtime: StructuredPolicyRuntime): boolean {
   try {
-    return runtime.getClientSettings().experimentalStructuredNativeChat === true
+    const settings = runtime.getClientSettings()
+    return (
+      settings.experimentalStructuredNativeChat === true || settings.personalChatsEnabled === true
+    )
   } catch {
     return false
   }

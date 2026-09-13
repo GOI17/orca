@@ -1,4 +1,16 @@
 {
+  "personalChats": {
+    "close": "Cerrar chat",
+    "name": "Nombre del chat",
+    "title": "Chats personales",
+    "local": "Las herramientas se ejecutan en este equipo",
+    "agent": "Agente",
+    "opening": "Abriendo chat…",
+    "new": "Nuevo chat",
+    "history": "Historial de chats",
+    "empty": "¿Qué quieres hacer?",
+    "description": "Haz una pregunta o un ajuste rápido a archivos de este equipo. Sin necesidad de un proyecto."
+  },
   "app": {
     "recoverableError": {
       "rootTitle": "Orca tuvo un error de renderizado.",

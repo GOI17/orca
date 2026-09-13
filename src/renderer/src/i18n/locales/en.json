@@ -1,4 +1,16 @@
 {
+  "personalChats": {
+    "close": "Close chat",
+    "name": "Chat name",
+    "title": "Personal chats",
+    "local": "Tools run on this computer",
+    "agent": "Agent",
+    "opening": "Opening chat…",
+    "new": "New chat",
+    "history": "Chat history",
+    "empty": "What would you like to do?",
+    "description": "Ask a question or make a quick change to files on this computer. No project needed."
+  },
   "sidebar": {
     "revealFiltered": {
       "title": "Reveal hidden workspace?",

@@ -65,6 +65,8 @@ export const appApi = {
   setUnreadDockBadgeCount: (count: number): Promise<void> =>
     ipcRenderer.invoke('app:setUnreadDockBadgeCount', count),
   getHomeDirectory: (): Promise<string> => ipcRenderer.invoke('app:getHomeDirectory'),
+  getPersonalChatDirectory: (): Promise<string> =>
+    ipcRenderer.invoke('app:getPersonalChatDirectory'),
   writeTerminalRenderDesyncEvidence: (args: WriteTerminalRenderDesyncEvidenceArgs) =>
     ipcRenderer.invoke('terminal:writeRenderDesyncEvidence', args)
 } satisfies PreloadApi['app']

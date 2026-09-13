@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY } from '../../../../shared/protocol-version'
-import type { OrcaRuntimeService } from '../../orca-runtime'
 import { supportsStructuredAgentSessions } from './structured-agent-session-policy'
 
 function runtimeWithSetting(
-  experimentalStructuredNativeChat: boolean
-): Pick<OrcaRuntimeService, 'getClientSettings'> {
+  experimentalStructuredNativeChat: boolean,
+  personalChatsEnabled = false
+) {
   return {
-    getClientSettings: () => ({ experimentalStructuredNativeChat })
-  } as unknown as Pick<OrcaRuntimeService, 'getClientSettings'>
+    getClientSettings: () => ({ experimentalStructuredNativeChat, personalChatsEnabled })
+  }
 }
 
 const CAPABLE = [STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY]
@@ -21,6 +21,14 @@ const CALLERS = [
 ]
 
 describe('supportsStructuredAgentSessions', () => {
+  it('admits personal chats independently while retaining wire capability checks', () => {
+    const runtime = runtimeWithSetting(false, true)
+    expect(supportsStructuredAgentSessions({ runtime })).toBe(true)
+    expect(
+      supportsStructuredAgentSessions({ runtime, clientKind: 'runtime', clientCapabilities: [] })
+    ).toBe(false)
+  })
+
   it.each([true, false])('admits every caller alike when the setting is %s', (enabled) => {
     const decisions = CALLERS.map((caller) =>
       supportsStructuredAgentSessions({
@@ -94,7 +102,7 @@ describe('supportsStructuredAgentSessions', () => {
           getClientSettings: () => {
             throw new Error('settings unavailable')
           }
-        } as unknown as Pick<OrcaRuntimeService, 'getClientSettings'>
+        }
       })
     ).toBe(false)
   })

@@ -44,6 +44,8 @@ export function createWebAppApi(): Partial<PreloadApi> {
       onKeyboardLayoutChanged: () => () => undefined,
       setUnreadDockBadgeCount: () => Promise.resolve(),
       getHomeDirectory: () => Promise.resolve(''),
+      getPersonalChatDirectory: () =>
+        Promise.reject(new Error('Personal chats require the desktop app.')),
       // Browser fallback has no app-owned userData dir; reject so the sentinel can't claim sensitive evidence was persisted.
       writeTerminalRenderDesyncEvidence: () =>
         Promise.reject(

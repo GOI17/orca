@@ -1,4 +1,5 @@
 import React from 'react'
+import { PersonalChatsSidebarEntry } from '../personal-chats/PersonalChatsSidebarEntry'
 import { BookOpen, CalendarClock, EyeOff, Files, Search, Smartphone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store'
@@ -120,6 +121,7 @@ const SidebarNav = React.memo(function SidebarNav() {
         </span>
       </button>
       <SetupGuideSidebarEntry />
+      <PersonalChatsSidebarEntry />
       <SidebarTaskNavButton />
       {showArtifactsButton ? (
         <ContextMenu>
