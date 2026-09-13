@@ -89,7 +89,6 @@ export function buildWorktreeCardPresentation(card: WorktreeCardController) {
     !!conflictOperation && conflictOperation !== 'unknown' && conflictOperation !== 'rebase'
   const hasMetadataBadge = showConflictOperationBadge
   const showUnreadQuickAction = !affiliateListMode && showStatus && !newCardStyle
-  // Why: the slot owns the unread/status lane; legacy keeps the bell toggle, the new card keeps the glyph passive.
   const showCombinedStatusSlot = showStatus
   const showTitleRowPrimary = compactCards && worktree.isMainWorktree && !isFolder
   const showMetaRowDetails = !newCardStyle && !compactCards && (hasDetails || hasPorts)
@@ -106,9 +105,9 @@ export function buildWorktreeCardPresentation(card: WorktreeCardController) {
     cacheStartedAt != null ||
     showMetaRowDetails
   )
-  const hasMetaRow = compactCards
-    ? hasMetadataBadge || cacheStartedAt != null
-    : hasDetailedMetaRowContent
+  const hasMetaRow =
+    !newCardStyle &&
+    (compactCards ? hasMetadataBadge || cacheStartedAt != null : hasDetailedMetaRowContent)
   const showHeaderActions = showTitleRowPrimary || showDeleteQuickAction
   // Why: normalize the title once so title/branch de-dupe and identity-only hover eligibility stay in sync.
   const trimmedVisibleCardTitle = visibleCardTitle.trim()
@@ -258,7 +257,11 @@ export function buildWorktreeCardPresentation(card: WorktreeCardController) {
     <div className="ml-auto flex shrink-0 items-center gap-1 pr-1.5">{detailsAndPorts}</div>
   ) : null
   const hasSecondaryCardContent =
-    hasMetaRow || !!remoteBranchConflict || showInlineAgentList || showLineageChildChip
+    (newCardStyle && Boolean(card.branchIdentityDisplay)) ||
+    hasMetaRow ||
+    (!newCardStyle && !!remoteBranchConflict) ||
+    showInlineAgentList ||
+    showLineageChildChip
   const titleOnlyCard = !hasSecondaryCardContent
 
   return {

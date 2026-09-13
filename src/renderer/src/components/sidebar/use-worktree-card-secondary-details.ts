@@ -88,16 +88,16 @@ export function useWorktreeCardSecondaryDetails({
   const metaAutomationProvenance = showAutomation ? worktree.automationProvenance : null
   const metaCliProvenance = showCli ? worktree.cliProvenance : null
   const metaComment = showComment ? hoverComment : null
-  const showInlineAgentList = cardProps.includes('inline-agents') && (newCardStyle || !compactCards)
+  const showInlineAgentList = !newCardStyle && !compactCards && cardProps.includes('inline-agents')
   const compactInlineAgentRows = useWorktreeAgentRows(
     worktree.id,
-    showInlineAgentList && agentActivityDisplayMode === 'compact'
+    newCardStyle || (showInlineAgentList && agentActivityDisplayMode === 'compact')
   )
   const compactInlineAgentRowsVisible =
     showInlineAgentList &&
     agentActivityDisplayMode === 'compact' &&
     compactInlineAgentRows.length > 0
-  const showAggregateCacheTimer = !compactCards && !compactInlineAgentRowsVisible
+  const showAggregateCacheTimer = !newCardStyle && !compactCards && !compactInlineAgentRowsVisible
   const handleOpenGitHubIssueInOrca = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()

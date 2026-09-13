@@ -38,6 +38,7 @@ import {
   REPO_HEADER_ACTION_REVEAL_CLASS
 } from '../../repo-header-action-button-class'
 import type { getRepoHeaderCreateState } from '../../repo-header-create-state'
+import { CleanProjectWorktreesMenuItem } from '../../CleanProjectWorktreesMenuItem'
 import {
   handleRepoHeaderActionPointerDown,
   stopRepoHeaderKeyboardToggle,
@@ -165,6 +166,7 @@ export function RepoHeaderProjectActionsMenu({
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuSeparator />
+        {isGitRepoKind(repo) ? <CleanProjectWorktreesMenuItem repo={repo} /> : null}
         <DropdownMenuItem variant="destructive" onSelect={() => actions.onRemoveProject(repo)}>
           <Trash2 className="size-3.5" />
           {translate('auto.components.sidebar.WorktreeList.c83968f87f', 'Remove Project')}

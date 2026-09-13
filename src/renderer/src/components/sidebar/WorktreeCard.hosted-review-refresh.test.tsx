@@ -61,6 +61,8 @@ vi.mock('./CacheTimer', () => ({
   usePromptCacheCountdownStartedAt: () => null
 }))
 
+vi.mock('./useWorktreeAgentRows', () => ({ useWorktreeAgentRows: () => [] }))
+
 vi.mock('./WorktreeCardAgents', () => ({
   default: () => null
 }))

@@ -11,6 +11,13 @@
     "empty": "¿Qué quieres hacer?",
     "description": "Haz una pregunta o un ajuste rápido a archivos de este equipo. Sin necesidad de un proyecto."
   },
+  "worktreeCleanup": {
+    "action": "Limpiar worktrees",
+    "checking": "Comprobando worktrees…",
+    "unchecked": "No se pudo comprobar el estado de {{count}} worktrees. Se conservarán.",
+    "none": "No hay worktrees sin cambios para eliminar",
+    "failed": "No se pudieron comprobar los worktrees"
+  },
   "app": {
     "recoverableError": {
       "rootTitle": "Orca tuvo un error de renderizado.",
