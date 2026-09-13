@@ -1,163 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { TabGroupResizeHandle } from './TabGroupResizeHandle'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import type { TabGroupLayoutNode } from '../../../../shared/tab-types'
 import { useAppStore } from '../../store'
 import TabGroupPanel from './TabGroupPanel'
+import { useSidebarSurfaceDock } from '../right-sidebar/sidebar-surface-dock'
 import TabDragPreview from '../tab-bar/TabDragPreview'
 import { TabDragProvider } from './tab-drag-context'
 import TabPaneColumnSplitDragOverlay from './TabPaneColumnSplitDragOverlay'
 import { type HoveredTabInsertion, useTabDragSplit } from './useTabDragSplit'
 
-const MIN_RATIO = 0.15
-const MAX_RATIO = 0.85
-
-function ResizeHandle({
-  direction,
-  onResizeStart,
-  onRatioChange
-}: {
-  direction: 'horizontal' | 'vertical'
-  onResizeStart: () => void
-  onRatioChange: (ratio: number) => void
-}): React.JSX.Element {
-  const isHorizontal = direction === 'horizontal'
-  const [dragging, setDragging] = useState(false)
-  const activeResizeCleanupRef = useRef<((updateDragging?: boolean) => void) | null>(null)
-
-  useEffect(
-    () => () => {
-      activeResizeCleanupRef.current?.(false)
-    },
-    []
-  )
-
-  const onPointerDown = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
-      event.preventDefault()
-      // Why: a second pointer must not steal or finalize the active gesture.
-      if (activeResizeCleanupRef.current) {
-        return
-      }
-      const handle = event.currentTarget
-      const container = handle.parentElement
-      if (!container) {
-        return
-      }
-      const firstPane = handle.previousElementSibling as HTMLElement | null
-      const secondPane = handle.nextElementSibling as HTMLElement | null
-      if (!firstPane || !secondPane) {
-        return
-      }
-      onResizeStart()
-      setDragging(true)
-      handle.setPointerCapture(event.pointerId)
-      // Why: measure outside pointermove so pane writes never force a readback.
-      let rect = container.getBoundingClientRect()
-      const resizeObserver = new ResizeObserver(() => {
-        rect = container.getBoundingClientRect()
-      })
-      resizeObserver.observe(container)
-      let draggedRatio: number | null = null
-
-      const onPointerMove = (moveEvent: PointerEvent): void => {
-        if (moveEvent.pointerId !== event.pointerId || !handle.hasPointerCapture(event.pointerId)) {
-          return
-        }
-        const ratio = isHorizontal
-          ? (moveEvent.clientX - rect.left) / rect.width
-          : (moveEvent.clientY - rect.top) / rect.height
-        const clamped = Math.min(MAX_RATIO, Math.max(MIN_RATIO, ratio))
-        draggedRatio = clamped
-        // Why: direct style writes keep the drag off the store — a commit per
-        // pointermove published 60-120 global store updates/s against every
-        // subscriber (STA-3328). React re-applies identical flex on commit.
-        firstPane.style.flex = `${clamped} 1 0%`
-        secondPane.style.flex = `${1 - clamped} 1 0%`
-      }
-
-      let cleaned = false
-      const cleanup = (updateDragging = true): void => {
-        if (cleaned) {
-          return
-        }
-        cleaned = true
-        resizeObserver.disconnect()
-        if (draggedRatio !== null) {
-          onRatioChange(draggedRatio)
-        }
-        if (updateDragging) {
-          setDragging(false)
-        }
-        try {
-          if (handle.hasPointerCapture(event.pointerId)) {
-            handle.releasePointerCapture(event.pointerId)
-          }
-        } catch {
-          // Best effort: unmount cleanup can run after Chromium has already dropped capture.
-        }
-        handle.removeEventListener('pointermove', onPointerMove)
-        handle.removeEventListener('pointerup', onPointerUp)
-        handle.removeEventListener('pointercancel', onPointerCancel)
-        handle.removeEventListener('lostpointercapture', onLostPointerCapture)
-        if (activeResizeCleanupRef.current === cleanup) {
-          activeResizeCleanupRef.current = null
-        }
-      }
-
-      const onPointerUp = (upEvent: PointerEvent): void => {
-        if (upEvent.pointerId === event.pointerId) {
-          cleanup()
-        }
-      }
-
-      const onPointerCancel = (cancelEvent: PointerEvent): void => {
-        if (cancelEvent.pointerId === event.pointerId) {
-          cleanup()
-        }
-      }
-
-      const onLostPointerCapture = (lostEvent: PointerEvent): void => {
-        if (lostEvent.pointerId === event.pointerId) {
-          cleanup()
-        }
-      }
-
-      handle.addEventListener('pointermove', onPointerMove)
-      handle.addEventListener('pointerup', onPointerUp)
-      handle.addEventListener('pointercancel', onPointerCancel)
-      handle.addEventListener('lostpointercapture', onLostPointerCapture)
-      activeResizeCleanupRef.current = cleanup
-    },
-    [isHorizontal, onRatioChange, onResizeStart]
-  )
-
-  return (
-    <div
-      className={`tab-group-split-resize-handle ${
-        isHorizontal ? 'is-vertical' : 'is-horizontal'
-      }${dragging ? ' is-dragging' : ''}`}
-      onPointerDown={onPointerDown}
-    />
-  )
-}
-
-function SplitNode({
-  node,
-  nodePath,
-  worktreeId,
-  focusedGroupId,
-  isWorktreeActive,
-  hasSplitGroups,
-  touchesTopEdge,
-  touchesRightEdge,
-  touchesLeftEdge,
-  touchesBottomEdge,
-  suppressLeftBorder,
-  suppressRightBorder,
-  suppressBottomBorder,
-  isTabDragActive,
-  hoveredTabInsertion
-}: {
+type SplitNodeProps = {
   node: TabGroupLayoutNode
   nodePath: string
   worktreeId: string
@@ -173,9 +25,57 @@ function SplitNode({
   suppressBottomBorder: boolean
   isTabDragActive: boolean
   hoveredTabInsertion: HoveredTabInsertion | null
-}): React.JSX.Element {
+  dockedGroupId?: string
+}
+
+function SplitNode(props: SplitNodeProps): React.JSX.Element {
+  const {
+    node,
+    nodePath,
+    worktreeId,
+    focusedGroupId,
+    isWorktreeActive,
+    hasSplitGroups,
+    touchesTopEdge,
+    touchesRightEdge,
+    touchesLeftEdge,
+    touchesBottomEdge,
+    suppressLeftBorder,
+    suppressRightBorder,
+    suppressBottomBorder,
+    isTabDragActive,
+    hoveredTabInsertion,
+    dockedGroupId
+  } = props
   const setTabGroupSplitRatio = useAppStore((state) => state.setTabGroupSplitRatio)
   const recordFeatureInteraction = useAppStore((state) => state.recordFeatureInteraction)
+
+  // Hide only the local dock projection; keep host layout paths intact for resize and SSH sync.
+  const containsMainGroup = (branch: TabGroupLayoutNode): boolean =>
+    branch.type === 'leaf'
+      ? branch.groupId !== dockedGroupId
+      : containsMainGroup(branch.first) || containsMainGroup(branch.second)
+  if (dockedGroupId) {
+    if (node.type === 'leaf' && node.groupId === dockedGroupId) {
+      return <div className="flex-1" />
+    }
+    if (node.type === 'split') {
+      const remaining = !containsMainGroup(node.first)
+        ? 'second'
+        : !containsMainGroup(node.second)
+          ? 'first'
+          : null
+      if (remaining) {
+        return (
+          <SplitNode
+            {...props}
+            node={node[remaining]}
+            nodePath={nodePath ? `${nodePath}.${remaining}` : remaining}
+          />
+        )
+      }
+    }
+  }
 
   if (node.type === 'leaf') {
     return (
@@ -232,9 +132,10 @@ function SplitNode({
           suppressBottomBorder={isHorizontal ? suppressBottomBorder : true}
           isTabDragActive={isTabDragActive}
           hoveredTabInsertion={hoveredTabInsertion}
+          dockedGroupId={dockedGroupId}
         />
       </div>
-      <ResizeHandle
+      <TabGroupResizeHandle
         direction={node.direction}
         onResizeStart={() => recordFeatureInteraction('terminal-panes')}
         onRatioChange={(nextRatio) => setTabGroupSplitRatio(worktreeId, nodePath, nextRatio)}
@@ -256,6 +157,7 @@ function SplitNode({
           suppressBottomBorder={suppressBottomBorder}
           isTabDragActive={isTabDragActive}
           hoveredTabInsertion={hoveredTabInsertion}
+          dockedGroupId={dockedGroupId}
         />
       </div>
     </div>
@@ -266,13 +168,17 @@ export default function TabGroupSplitLayout({
   layout,
   worktreeId,
   focusedGroupId,
-  isWorktreeActive
+  isWorktreeActive,
+  renderDockedGroup = false
 }: {
   layout: TabGroupLayoutNode
   worktreeId: string
   focusedGroupId?: string
   isWorktreeActive: boolean
+  renderDockedGroup?: boolean
 }): React.JSX.Element {
+  const storedDockedGroupId = useSidebarSurfaceDock((state) => state.groupByWorktree[worktreeId])
+  const dockedGroupId = renderDockedGroup ? undefined : storedDockedGroupId
   const dragSplit = useTabDragSplit({ worktreeId, enabled: isWorktreeActive })
   const hasSplits = layout.type === 'split'
 
@@ -333,6 +239,7 @@ export default function TabGroupSplitLayout({
               suppressRightBorder={false}
               suppressBottomBorder={false}
               isTabDragActive={dragSplit.activeDrag !== null}
+              dockedGroupId={dockedGroupId}
               hoveredTabInsertion={dragSplit.hoveredTabInsertion}
             />
           </div>

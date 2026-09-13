@@ -3,6 +3,7 @@ import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { translate } from '@/i18n/i18n'
 import Sidebar from '../components/Sidebar'
 import RightSidebar from '../components/right-sidebar'
+import { useSidebarSurfaceDock } from '../components/right-sidebar/sidebar-surface-dock'
 import { RecoverableRenderErrorBoundary } from '../components/error-boundaries/RecoverableRenderErrorBoundary'
 import { TerminalWorkbenchContainer } from '../components/TerminalWorkbenchContainer'
 import type { VirtualizedScrollAnchor } from '../hooks/useVirtualizedScrollAnchor'
@@ -88,6 +89,7 @@ function ActivePage({ layout }: { layout: AppChromeLayout }): React.JSX.Element 
 /** The left sidebar + titlebar + page/workbench content area + right sidebar. */
 export function AppWorkspaceShell(props: { layout: AppChromeLayout }): React.JSX.Element {
   const { layout } = props
+  const dockPosition = useSidebarSurfaceDock((state) => state.position)
   const titlebarLeftControls = <TitlebarLeftControls layout={layout} />
   const titlebarMainStrip = <TitlebarMainStrip layout={layout} />
   // Why: keep virtualized scroll memory above the sidebar's workspace/landing remount so the left list doesn't restart at scrollTop 0.
@@ -149,89 +151,93 @@ export function AppWorkspaceShell(props: { layout: AppChromeLayout }): React.JSX
                 <WorktreeSidebar layout={layout} scrollRefs={sidebarScrollRefs} />
               )
             ) : null}
-            <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
-              {/* Why: automations/artifacts own their page headers; the stacked titlebar would be an empty 36px stripe. */}
-              {layout.stackedSidebarOpen &&
-              layout.activeView !== 'automations' &&
-              layout.activeView !== 'artifacts' ? (
-                <div className="titlebar">{titlebarMainStrip}</div>
-              ) : null}
-              <div className="relative flex flex-1 min-w-0 min-h-0 overflow-hidden">
-                {/* Why: match the RightSidebar header's 36px/top-0 so the toggle's vertical center is identical open vs closed — else the icon jitters. */}
-                {layout.workspaceChromeActive && !layout.rightSidebarOpen && (
-                  <div
-                    className="absolute top-0 z-10 flex items-center h-[36px]"
-                    style={
-                      {
-                        // Why: --window-controls-width keeps the toggle clear of the fixed window-controls overlay (138px on custom chrome, 0px otherwise); no internal spacer — one would cover the pane-actions Ellipsis button with an unclickable div.
-                        right: 'var(--window-controls-width)',
-                        WebkitAppRegion: 'no-drag'
-                      } as React.CSSProperties
-                    }
-                  >
-                    {layout.showRightSidebarControls ? <RightSidebarToggle /> : null}
-                  </div>
-                )}
-                <div className="flex flex-1 min-w-0 min-h-0 flex-col">
-                  {layout.shouldMountTerminalWorkbench ? (
-                    <TerminalWorkbenchContainer isVisible={layout.terminalWorkbenchVisible}>
-                      <Suspense fallback={null}>
-                        <RecoverableRenderErrorBoundary
-                          boundaryId="terminal.workbench"
-                          surface="terminal-workbench"
-                          resetKey="terminal"
-                          title={translate(
-                            'auto.App.5a9519aef0',
-                            'The workspace workbench hit an error.'
-                          )}
-                          description={translate(
-                            'auto.App.98d4ea2823',
-                            'Terminal, browser, or editor rendering failed in this workspace. Retry to remount it.'
-                          )}
-                        >
-                          <Terminal />
-                        </RecoverableRenderErrorBoundary>
-                      </Suspense>
-                    </TerminalWorkbenchContainer>
-                  ) : null}
-                  <Suspense fallback={null}>
-                    <RecoverableRenderErrorBoundary
-                      boundaryId={`page.${layout.activeView}`}
-                      surface="page"
-                      resetKey={layout.activeView}
-                      title={translate('auto.App.b7a714db1e', 'This page hit an error.')}
-                      description={translate(
-                        'auto.App.03a14f6b5b',
-                        'Retry the page or navigate to another Orca surface.'
-                      )}
+            <div
+              className={`flex min-h-0 min-w-0 flex-1 ${dockPosition === 'bottom' ? 'flex-col' : 'flex-row'}`}
+            >
+              <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
+                {/* Why: automations/artifacts own their page headers; the stacked titlebar would be an empty 36px stripe. */}
+                {layout.stackedSidebarOpen &&
+                layout.activeView !== 'automations' &&
+                layout.activeView !== 'artifacts' ? (
+                  <div className="titlebar">{titlebarMainStrip}</div>
+                ) : null}
+                <div className="relative flex flex-1 min-w-0 min-h-0 overflow-hidden">
+                  {/* Why: match the RightSidebar header's 36px/top-0 so the toggle's vertical center is identical open vs closed — else the icon jitters. */}
+                  {layout.workspaceChromeActive && !layout.rightSidebarOpen && (
+                    <div
+                      className="absolute top-0 z-10 flex items-center h-[36px]"
+                      style={
+                        {
+                          // Why: --window-controls-width keeps the toggle clear of the fixed window-controls overlay (138px on custom chrome, 0px otherwise); no internal spacer — one would cover the pane-actions Ellipsis button with an unclickable div.
+                          right: 'var(--window-controls-width)',
+                          WebkitAppRegion: 'no-drag'
+                        } as React.CSSProperties
+                      }
                     >
-                      <ActivePage layout={layout} />
-                    </RecoverableRenderErrorBoundary>
-                  </Suspense>
+                      {layout.showRightSidebarControls ? <RightSidebarToggle /> : null}
+                    </div>
+                  )}
+                  <div className="flex flex-1 min-w-0 min-h-0 flex-col">
+                    {layout.shouldMountTerminalWorkbench ? (
+                      <TerminalWorkbenchContainer isVisible={layout.terminalWorkbenchVisible}>
+                        <Suspense fallback={null}>
+                          <RecoverableRenderErrorBoundary
+                            boundaryId="terminal.workbench"
+                            surface="terminal-workbench"
+                            resetKey="terminal"
+                            title={translate(
+                              'auto.App.5a9519aef0',
+                              'The workspace workbench hit an error.'
+                            )}
+                            description={translate(
+                              'auto.App.98d4ea2823',
+                              'Terminal, browser, or editor rendering failed in this workspace. Retry to remount it.'
+                            )}
+                          >
+                            <Terminal />
+                          </RecoverableRenderErrorBoundary>
+                        </Suspense>
+                      </TerminalWorkbenchContainer>
+                    ) : null}
+                    <Suspense fallback={null}>
+                      <RecoverableRenderErrorBoundary
+                        boundaryId={`page.${layout.activeView}`}
+                        surface="page"
+                        resetKey={layout.activeView}
+                        title={translate('auto.App.b7a714db1e', 'This page hit an error.')}
+                        description={translate(
+                          'auto.App.03a14f6b5b',
+                          'Retry the page or navigate to another Orca surface.'
+                        )}
+                      >
+                        <ActivePage layout={layout} />
+                      </RecoverableRenderErrorBoundary>
+                    </Suspense>
+                  </div>
                 </div>
               </div>
+              {/* Why: keep the shell mounted for layout stability (heavy panels disconnect while closed); unmount on the distraction-free tasks view. */}
+              {layout.showRightSidebarControls ? (
+                <RecoverableRenderErrorBoundary
+                  boundaryId="right-sidebar"
+                  surface="right-sidebar"
+                  resetKey={
+                    layout.rightSidebarTab === 'explorer'
+                      ? `${layout.rightSidebarTab}:${layout.rightSidebarExplorerView}`
+                      : layout.rightSidebarTab
+                  }
+                  title={translate('auto.App.ed6b168d00', 'The right sidebar hit an error.')}
+                  description={translate(
+                    'auto.App.8d1e160ed1',
+                    'Retry the sidebar or switch tabs to reload this surface.'
+                  )}
+                >
+                  <RightSidebar />
+                </RecoverableRenderErrorBoundary>
+              ) : null}
             </div>
           </div>
         </div>
-        {/* Why: keep the shell mounted for layout stability (heavy panels disconnect while closed); unmount on the distraction-free tasks view. */}
-        {layout.showRightSidebarControls ? (
-          <RecoverableRenderErrorBoundary
-            boundaryId="right-sidebar"
-            surface="right-sidebar"
-            resetKey={
-              layout.rightSidebarTab === 'explorer'
-                ? `${layout.rightSidebarTab}:${layout.rightSidebarExplorerView}`
-                : layout.rightSidebarTab
-            }
-            title={translate('auto.App.ed6b168d00', 'The right sidebar hit an error.')}
-            description={translate(
-              'auto.App.8d1e160ed1',
-              'Retry the sidebar or switch tabs to reload this surface.'
-            )}
-          >
-            <RightSidebar />
-          </RecoverableRenderErrorBoundary>
-        ) : null}
       </div>
     </RecoverableRenderErrorBoundary>
   )

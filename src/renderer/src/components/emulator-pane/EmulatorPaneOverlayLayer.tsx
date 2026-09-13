@@ -1,3 +1,7 @@
+import {
+  useDockedSurfaceStyle,
+  useDockedSurfaceVisibility
+} from '../right-sidebar/sidebar-surface-dock'
 import { memo, useCallback, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '@/store'
@@ -18,9 +22,12 @@ type SimulatorOverlaySlotProps = {
 const SimulatorOverlaySlot = memo(function SimulatorOverlaySlot({
   tab,
   groupId,
-  isActive,
+  isActive: requestedActive,
   onFocusOwningGroup
 }: SimulatorOverlaySlotProps): React.JSX.Element {
+  const dockVisible = useDockedSurfaceVisibility(groupId)
+  const isActive = requestedActive && dockVisible
+  const dockedStyle = useDockedSurfaceStyle(groupId)
   const anchorName = groupId !== undefined ? tabGroupBodyAnchorName(groupId) : undefined
   const style: React.CSSProperties = useMemo(
     () =>
@@ -42,7 +49,7 @@ const SimulatorOverlaySlot = memo(function SimulatorOverlaySlot({
 
   return (
     <div
-      style={style}
+      style={dockedStyle ? { ...style, ...dockedStyle } : style}
       className="orca-emulator-overlay-slot min-h-0 min-w-0 overflow-hidden"
       onPointerDownCapture={() => {
         if (groupId && onFocusOwningGroup) {

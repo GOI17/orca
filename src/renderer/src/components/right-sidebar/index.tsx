@@ -1,217 +1,168 @@
-import React, { useMemo, useState } from 'react'
-import { PanelRight } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { useAppStore } from '@/store'
-import { cn } from '@/lib/utils'
-import { useSidebarResize } from '@/hooks/useSidebarResize'
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
-import { ContextMenu, ContextMenuTrigger } from '@/components/ui/context-menu'
-import { getTopActivityBarLayout } from './activity-bar-overflow'
-import { ActivityBarButton } from './activity-bar-buttons'
-import { getActiveChecksStatus } from './active-checks-status'
-import { useShortcutLabel } from '@/hooks/useShortcutLabel'
-import {
-  RIGHT_SIDEBAR_MIN_WIDTH,
-  clampRightSidebarPanelWidth,
-  computeMaxRightSidebarPanelWidth
-} from './right-sidebar-width'
 import { translate } from '@/i18n/i18n'
 import { RightSidebarPanelContent } from './right-sidebar-panel-content'
-import { useMeasuredWidth } from './right-sidebar-measured-width'
-import {
-  isPairedWebClientWindow,
-  shouldRenderDesktopWindowChrome
-} from '@/lib/desktop-window-chrome'
-import { getRendererAppPlatform } from '@/lib/renderer-app-platform'
-import { ActivityBarPositionMenu } from './activity-bar-position-menu'
-import { RightSidebarTopActivityBar } from './right-sidebar-top-activity-bar'
 import { useRightSidebarActivityItems } from './use-right-sidebar-activity-items'
 import { useRightSidebarTabRouting } from './use-right-sidebar-tab-routing'
-import { useWindowWidth } from './use-window-width'
-
-const ACTIVITY_BAR_SIDE_WIDTH = 40
+import { RightSidebarSurfaceLauncher } from './RightSidebarSurfaceLauncher'
+import { RightSidebarSurfaceToolbar } from './RightSidebarSurfaceToolbar'
+import { useRightSidebarSurfaceActions } from './use-right-sidebar-surface-actions'
+import { useSidebarSurfaceDock } from './sidebar-surface-dock'
+import { DockedSurfaceTabs } from './DockedSurfaceTabs'
+import { SidebarDockResizeHandle } from './SidebarDockResizeHandle'
+import { computeMaxRightSidebarPanelWidth } from './right-sidebar-width'
 
 function RightSidebarInner(): React.JSX.Element {
-  const hasDesktopWindowChrome = shouldRenderDesktopWindowChrome({
-    platform: getRendererAppPlatform(),
-    isWebClient: isPairedWebClientWindow()
-  })
-  const rightSidebarShortcut = useShortcutLabel('sidebar.right.toggle')
-  const rightSidebarOpen = useAppStore((s) => s.rightSidebarOpen)
-  const rightSidebarWidth = useAppStore((s) => s.rightSidebarWidth)
-  const setRightSidebarWidth = useAppStore((s) => s.setRightSidebarWidth)
-  const toggleRightSidebar = useAppStore((s) => s.toggleRightSidebar)
-  const checksStatus = useAppStore((s) => (s.rightSidebarOpen ? getActiveChecksStatus(s) : null))
-  const activityBarPosition = useAppStore((s) => s.activityBarPosition)
-  const setActivityBarPosition = useAppStore((s) => s.setActivityBarPosition)
-  const [topActivityStripWidth, setTopActivityStripWidth] = useState<number | null>(null)
-  const {
-    visibleItems,
-    activeFolderWorkspaceKey,
-    pluginSystemEnabled,
-    pluginFetchStatus,
-    installedPluginTabKeys
-  } = useRightSidebarActivityItems({ rightSidebarOpen })
-  const { effectiveTab, selectActivityTab } = useRightSidebarTabRouting({
-    visibleItems,
-    activeFolderWorkspaceKey,
-    pluginSystemEnabled,
-    pluginFetchStatus,
-    installedPluginTabKeys
-  })
-
-  const activityBarSideWidth = activityBarPosition === 'side' ? ACTIVITY_BAR_SIDE_WIDTH : 0
-  const windowWidth = useWindowWidth()
-  const maxWidth = computeMaxRightSidebarPanelWidth(windowWidth, activityBarSideWidth)
-  const renderedRightSidebarWidth = clampRightSidebarPanelWidth(
-    rightSidebarWidth,
-    windowWidth,
-    activityBarSideWidth
+  const rightSidebarOpen = useAppStore((state) => state.rightSidebarOpen)
+  const leftSidebarWidth = useAppStore((state) => (state.sidebarOpen ? state.sidebarWidth : 0))
+  const rightSidebarWidth = useAppStore((state) => state.rightSidebarWidth)
+  const setRightSidebarWidth = useAppStore((state) => state.setRightSidebarWidth)
+  const toggleRightSidebar = useAppStore((state) => state.toggleRightSidebar)
+  const storedTab = useAppStore((state) => state.rightSidebarTab)
+  const routeRequestId = useAppStore((state) => state.rightSidebarRouteRequestId)
+  const worktreeId = useAppStore((state) => state.activeWorktreeId)
+  const dockedId = useSidebarSurfaceDock((state) =>
+    worktreeId ? state.groupByWorktree[worktreeId] : undefined
   )
-  const { containerRef, onResizeStart } = useSidebarResize<HTMLDivElement>({
-    isOpen: rightSidebarOpen,
-    width: renderedRightSidebarWidth,
-    minWidth: RIGHT_SIDEBAR_MIN_WIDTH,
-    maxWidth,
-    deltaSign: -1,
-    renderedExtraWidth: activityBarSideWidth,
-    setWidth: setRightSidebarWidth
+  const groupId = useAppStore((state) =>
+    worktreeId &&
+    dockedId &&
+    state.groupsByWorktree[worktreeId]?.some((group) => group.id === dockedId)
+      ? dockedId
+      : undefined
+  )
+  const position = useSidebarSurfaceDock((state) => state.position)
+  const expanded = useSidebarSurfaceDock((state) => state.expanded)
+  const height = useSidebarSurfaceDock((state) => state.height)
+  const setHeight = useSidebarSurfaceDock((state) => state.setHeight)
+  const [viewport, setViewport] = useState(() => ({
+    width: window.innerWidth,
+    height: window.innerHeight
+  }))
+  const [navigation, setNavigation] = useState<{
+    view: 'launcher' | 'tabs' | 'panel'
+    requestId: number
+  }>({
+    view: routeRequestId === 0 && storedTab === 'explorer' ? 'launcher' : 'panel',
+    requestId: routeRequestId
   })
-  const topActivityStripRef = useMeasuredWidth(setTopActivityStripWidth)
-
-  const panelContent = rightSidebarOpen ? (
-    <div className="flex flex-col flex-1 min-h-0 overflow-hidden scrollbar-sleek-parent">
-      {/* Why: sidebar panels no longer use key={activeWorktreeId} because
-          the full unmount/remount cycle on every worktree switch triggered
-          an IPC storm (watchWorktree + readDir + git:branchCompare + …)
-          that froze the app for seconds on Windows.  Each panel now reacts
-          to activeWorktreeId changes via store subscriptions and reset
-          effects, keeping the component instance alive across switches. */}
-      {/* Why: live agent activity now renders inline inside each workspace
-          card (WorktreeCardAgents, toggled by the 'inline-agents' card
-          property) rather than in a bottom-docked dashboard panel that
-          competed with file Explorer/Search for vertical space. The right
-          sidebar is back to tab-only content. */}
-      <RightSidebarPanelContent effectiveTab={effectiveTab} rightSidebarOpen={rightSidebarOpen} />
-    </div>
-  ) : null
-
-  const topActivityLayout = useMemo(
-    () => getTopActivityBarLayout(visibleItems, topActivityStripWidth, effectiveTab),
-    [visibleItems, topActivityStripWidth, effectiveTab]
+  const activity = useRightSidebarActivityItems({ rightSidebarOpen })
+  const { effectiveTab, selectActivityTab } = useRightSidebarTabRouting(activity)
+  // Explicit file/search/review commands must take precedence over the surface picker.
+  const requestedView = navigation.requestId === routeRequestId ? navigation.view : 'panel'
+  const view = requestedView === 'tabs' && !groupId ? 'launcher' : requestedView
+  const focusMainGroup = () => {
+    const state = useAppStore.getState()
+    if (!worktreeId || state.activeGroupIdByWorktree[worktreeId] !== groupId) {
+      return
+    }
+    const mainGroup = state.groupsByWorktree[worktreeId]?.find((group) => group.id !== groupId)
+    if (mainGroup) {
+      state.focusGroup(worktreeId, mainGroup.id)
+    }
+  }
+  const navigate = (next: 'launcher' | 'tabs' | 'panel') => {
+    if (next !== 'tabs') {
+      focusMainGroup()
+    }
+    setNavigation({ view: next, requestId: routeRequestId })
+  }
+  const actions = useRightSidebarSurfaceActions(
+    activity.visibleItems,
+    (tab) => {
+      navigate('panel')
+      selectActivityTab(tab)
+    },
+    () => navigate('tabs')
   )
 
-  const sideActivityBarIcons = visibleItems.map((item) => (
-    <ActivityBarButton
-      key={item.id}
-      item={item}
-      active={effectiveTab === item.id}
-      onClick={() => selectActivityTab(item.id)}
-      layout="side"
-      statusIndicator={item.id === 'checks' ? checksStatus : null}
-    />
-  ))
+  useEffect(() => {
+    const update = () => setViewport({ width: window.innerWidth, height: window.innerHeight })
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
-  const closeButton = rightSidebarOpen ? (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          className="sidebar-toggle mr-1"
-          onClick={toggleRightSidebar}
-          aria-label={translate(
-            'auto.components.right.sidebar.index.e8e2e4ce74',
-            'Toggle right sidebar'
-          )}
-        >
-          <PanelRight size={16} />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom" sideOffset={6}>
-        {translate(
-          'auto.components.right.sidebar.index.9fffaf17c1',
-          'Toggle right sidebar ({{value0}})',
-          { value0: rightSidebarShortcut }
-        )}
-      </TooltipContent>
-    </Tooltip>
-  ) : null
+  useEffect(() => {
+    if (rightSidebarOpen && view === 'tabs') {
+      return
+    }
+    const state = useAppStore.getState()
+    if (!worktreeId || !groupId || state.activeGroupIdByWorktree[worktreeId] !== groupId) {
+      return
+    }
+    const mainGroup = state.groupsByWorktree[worktreeId]?.find((group) => group.id !== groupId)
+    if (mainGroup) {
+      state.focusGroup(worktreeId, mainGroup.id)
+    }
+  }, [rightSidebarOpen, view, worktreeId, groupId])
+
+  const bottom = position === 'bottom'
+  const maxSize = bottom
+    ? Math.max(160, viewport.height - 180)
+    : computeMaxRightSidebarPanelWidth(viewport.width - (leftSidebarWidth ?? 0), 0)
+  const size = expanded ? maxSize : Math.min(maxSize, bottom ? height : rightSidebarWidth)
+  const title =
+    view === 'launcher'
+      ? undefined
+      : view === 'tabs'
+        ? translate('sidebar.surfaces.workspace', 'Workspace surfaces')
+        : activity.visibleItems.find((item) => item.id === effectiveTab)?.title
 
   return (
-    <div
-      ref={containerRef}
-      className={cn(
-        'relative flex-shrink-0 flex flex-row',
-        // Why: overflow-visible is needed when open so the resize handle
-        // on the left edge remains interactive.  When closed (width 0),
-        // switch to overflow-hidden so the activity bar icons and panel
-        // content don't leak past the 0-width boundary (the component
-        // stays mounted for performance — see App.tsx).
-        rightSidebarOpen ? 'overflow-visible' : 'overflow-hidden'
-      )}
+    <aside
+      data-sidebar-surface-panel=""
+      data-dock-position={position}
+      className={`relative flex shrink-0 flex-col bg-background text-foreground ${rightSidebarOpen ? (bottom ? 'border-t border-border' : 'border-l border-border') : 'overflow-hidden'}`}
+      style={
+        bottom
+          ? { height: rightSidebarOpen ? size : 0, width: '100%' }
+          : { width: rightSidebarOpen ? size : 0 }
+      }
+      aria-hidden={!rightSidebarOpen}
+      inert={!rightSidebarOpen}
     >
-      {/* Panel content area */}
-      <div
-        className="flex flex-col flex-1 min-w-0 bg-sidebar overflow-hidden"
-        style={{
-          borderLeft: rightSidebarOpen ? '1px solid var(--sidebar-border)' : 'none'
-        }}
-      >
-        {activityBarPosition === 'top' ? (
-          <RightSidebarTopActivityBar
-            hasDesktopWindowChrome={hasDesktopWindowChrome}
-            topActivityStripRef={topActivityStripRef}
-            topActivityLayout={topActivityLayout}
-            effectiveTab={effectiveTab}
-            onSelectTab={selectActivityTab}
-            checksStatus={checksStatus}
-            closeButton={closeButton}
-            activityBarPosition={activityBarPosition}
-            onChangeActivityBarPosition={setActivityBarPosition}
+      {rightSidebarOpen && (
+        <>
+          <RightSidebarSurfaceToolbar
+            title={title}
+            onHome={() => navigate('launcher')}
+            onClose={() => {
+              focusMainGroup()
+              toggleRightSidebar()
+            }}
           />
-        ) : (
-          /* ── Side layout: static title header ── */
-          /* Why: the 40px side activity bar absorbs the rightmost 40px of the
-             138px window-controls overlay when custom desktop chrome is active,
-             but the remaining 98px still overlaps the panel header.
-             right-sidebar-header-side-inset applies exactly that remainder
-             (138-40=98px) as padding-right so the close button clears the
-             minimize button without the full 138px gap. */
-          <div className="flex items-center justify-between h-[36px] min-h-[36px] px-3 border-b border-border right-sidebar-header-side-inset right-sidebar-header-drag">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
-              {visibleItems.find((item) => item.id === effectiveTab)?.title ?? ''}
-            </span>
-            <TooltipProvider delayDuration={400}>
-              <div className="flex items-center">{closeButton}</div>
-            </TooltipProvider>
-          </div>
-        )}
-
-        {panelContent}
-
-        {/* Resize handle on LEFT side */}
-        <div
-          className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-ring/20 active:bg-ring/30 transition-colors z-10"
-          onMouseDown={onResizeStart}
-        />
-      </div>
-
-      {/* Side Activity Bar (icon strip on right edge) — only for 'side' position */}
-      {activityBarPosition === 'side' && (
-        <ContextMenu>
-          <ContextMenuTrigger asChild>
-            <div className="flex flex-col items-center w-10 min-w-[40px] bg-sidebar border-l border-border side-activity-bar-windows-inset">
-              <TooltipProvider delayDuration={400}>{sideActivityBarIcons}</TooltipProvider>
-            </div>
-          </ContextMenuTrigger>
-          <ActivityBarPositionMenu
-            currentPosition={activityBarPosition}
-            onChangePosition={setActivityBarPosition}
-          />
-        </ContextMenu>
+          {view === 'launcher' && <RightSidebarSurfaceLauncher actions={actions} />}
+          {view === 'panel' && (
+            <RightSidebarPanelContent effectiveTab={effectiveTab} rightSidebarOpen />
+          )}
+        </>
       )}
-    </div>
+      {worktreeId && groupId && (
+        <DockedSurfaceTabs
+          worktreeId={worktreeId}
+          groupId={groupId}
+          visible={rightSidebarOpen && view === 'tabs'}
+        />
+      )}
+      {rightSidebarOpen && (
+        <SidebarDockResizeHandle
+          bottom={bottom}
+          size={size}
+          maxSize={maxSize}
+          onResize={(nextSize) => {
+            if (expanded) {
+              useSidebarSurfaceDock.getState().toggleExpanded()
+            }
+            if (bottom) {
+              setHeight(nextSize)
+            } else {
+              setRightSidebarWidth(nextSize)
+            }
+          }}
+        />
+      )}
+    </aside>
   )
 }
 
-const RightSidebar = React.memo(RightSidebarInner)
-export default RightSidebar
+export default React.memo(RightSidebarInner)

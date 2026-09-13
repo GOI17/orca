@@ -6,10 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import RightSidebar from './index'
 import { TopActivityOverflowMenu } from './activity-bar-buttons'
-import {
-  RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME,
-  RIGHT_SIDEBAR_WINDOWS_TOP_ACTIVITY_STRIP_CLASS_NAME
-} from './right-sidebar-titlebar-drag-regions'
+import { RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME } from './right-sidebar-titlebar-drag-regions'
 import type { ActiveRightSidebarTab } from '@/store/slices/editor'
 import { resetRendererAppPlatformCacheForTests } from '@/lib/renderer-app-platform'
 
@@ -88,17 +85,20 @@ vi.mock('@/store', async () => {
   }
 
   return {
-    useAppStore: (selector: (state: Record<string, unknown>) => unknown) =>
-      React.useSyncExternalStore(
-        (listener) => {
-          mockAppState.listeners.add(listener)
-          return () => {
-            mockAppState.listeners.delete(listener)
-          }
-        },
-        () => getSnapshot(selector),
-        () => getSnapshot(selector)
-      )
+    useAppStore: Object.assign(
+      (selector: (state: Record<string, unknown>) => unknown) =>
+        React.useSyncExternalStore(
+          (listener) => {
+            mockAppState.listeners.add(listener)
+            return () => {
+              mockAppState.listeners.delete(listener)
+            }
+          },
+          () => getSnapshot(selector),
+          () => getSnapshot(selector)
+        ),
+      { getState: () => ({ activeGroupIdByWorktree: {}, groupsByWorktree: {} }) }
+    )
   }
 })
 
@@ -194,10 +194,6 @@ function buttonOpeningTag(markup: string, ariaLabelPrefix: string): string {
   return match[0]
 }
 
-function expectNoDrag(tag: string): void {
-  expect(tag).toContain(RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME)
-}
-
 function setRendererPlatform(platform: NodeJS.Platform): void {
   resetRendererAppPlatformCacheForTests()
   Object.defineProperty(window, 'api', {
@@ -236,44 +232,38 @@ describe('rendered right sidebar titlebar drag regions', () => {
     mockAppState.cachedWorktree = null
   })
 
-  it('keeps the rendered top activity strip draggable, context-menuable, and only controls no-drag', () => {
-    const markup = renderToStaticMarkup(<RightSidebar />)
-    const header = openingTag(markup, 'right-sidebar-header-drag')
-    const activityStrip = openingTag(markup, 'right-sidebar-activity-strip')
+  it.each(['darwin', 'linux', 'win32'] as const)(
+    'keeps surface controls clickable within the draggable %s header',
+    (platform) => {
+      setRendererPlatform(platform)
+      const markup = renderToStaticMarkup(<RightSidebar />)
+      expect(openingTag(markup, 'right-sidebar-header-drag')).not.toContain(
+        RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME
+      )
+      const container = document.createElement('div')
+      container.innerHTML = markup
+      for (const label of [
+        'Expand panel',
+        'Dock panel at bottom',
+        'Dock panel at right',
+        'Close panel'
+      ]) {
+        expect(
+          container
+            .querySelector(`[aria-label="${label}"]`)
+            ?.closest(`.${RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME}`)
+        ).not.toBeNull()
+      }
+      expect(markup).toContain(platform === 'darwin' ? 'right-sidebar-header-inset' : 'pt-9')
+    }
+  )
 
-    expect(header).not.toContain(RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME)
-    expect(activityStrip).not.toContain(RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME)
-    expect(activityStrip).toContain('data-context-menu-trigger="true"')
-    expect(markup).toContain('right-sidebar-header-drag')
-
-    expectNoDrag(buttonOpeningTag(markup, 'Explorer'))
-    expectNoDrag(buttonOpeningTag(markup, 'Source Control'))
-    expectNoDrag(buttonOpeningTag(markup, 'Checks'))
-    expect(buttonOpeningTag(markup, 'Toggle right sidebar')).toContain('sidebar-toggle')
-    expect(markup).toContain(RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME)
-  })
-
-  it('uses the custom desktop chrome top strip on Linux desktop', () => {
-    setRendererPlatform('linux')
-
-    const markup = renderToStaticMarkup(<RightSidebar />)
-    const activityStrip = openingTag(markup, 'right-sidebar-activity-strip')
-
-    expect(activityStrip).toContain('h-10')
-    expect(activityStrip).toContain('border-b')
-    expect(markup).toContain(RIGHT_SIDEBAR_WINDOWS_TOP_ACTIVITY_STRIP_CLASS_NAME)
-  })
-
-  it('keeps paired Linux web clients on the browser-style top strip', () => {
+  it('keeps unavailable client-hosted actions disabled in paired web clients', () => {
     setRendererPlatform('linux')
     ;(globalThis as { __ORCA_WEB_CLIENT__?: boolean }).__ORCA_WEB_CLIENT__ = true
-
     const markup = renderToStaticMarkup(<RightSidebar />)
-    const activityStrip = openingTag(markup, 'right-sidebar-activity-strip')
-
-    expect(activityStrip).toContain('pl-2')
-    expect(activityStrip).not.toContain('h-10')
-    expect(markup).not.toContain(RIGHT_SIDEBAR_WINDOWS_TOP_ACTIVITY_STRIP_CLASS_NAME)
+    expect(buttonOpeningTag(markup, 'Browser')).toContain('disabled')
+    expect(buttonOpeningTag(markup, 'Device')).toContain('disabled')
   })
 
   it('keeps the overflow trigger no-drag when it renders', () => {
@@ -296,60 +286,58 @@ describe('rendered right sidebar titlebar drag regions', () => {
     expect(overflowButton).toContain('aria-label="More sidebar tabs"')
   })
 
-  it('keeps side activity-bar controls no-drag without cancelling the side header drag region', () => {
+  it('uses the surface picker with a legacy side activity-bar preference', () => {
     mockAppState.activityBarPosition = 'side'
-
     const markup = renderToStaticMarkup(<RightSidebar />)
-    const sideHeader = openingTag(markup, 'right-sidebar-header-drag')
-    const sideStrip = openingTag(markup, 'side-activity-bar-windows-inset')
-
-    expect(sideHeader).not.toContain(RIGHT_SIDEBAR_HEADER_NO_DRAG_CLASS_NAME)
-    expect(sideHeader).toContain('right-sidebar-header-side-inset')
-    expect(sideStrip).toContain('data-context-menu-trigger="true"')
-
-    expectNoDrag(buttonOpeningTag(markup, 'Explorer'))
-    expectNoDrag(buttonOpeningTag(markup, 'Source Control'))
-    expectNoDrag(buttonOpeningTag(markup, 'Checks'))
-    expect(buttonOpeningTag(markup, 'Toggle right sidebar')).toContain('sidebar-toggle')
+    expect(markup).toContain('Open a surface')
+    expect(markup).not.toContain('side-activity-bar-windows-inset')
   })
 
-  it('hides git-only activity buttons for folder workspace ids without a backing repo', () => {
+  it('disables git-only surfaces for folder workspace ids without a backing repo', () => {
     mockAppState.activeWorktreeId = 'folder:folder-1'
     mockAppState.activeRepo = null
 
     const markup = renderToStaticMarkup(<RightSidebar />)
 
-    expect(markup).toContain('aria-label="Explorer')
+    expect(markup).toContain('aria-label="Files')
     expect(markup).toContain('aria-label="Agents')
     expect(markup).not.toContain('aria-label="Search')
     expect(markup).toContain('aria-label="Attached worktrees')
-    expect(markup).toContain('aria-label="PR Checks')
-    expect(markup).not.toContain('aria-label="Source Control')
-    expect(markup).not.toContain('aria-label="Checks')
+    expect(markup).toContain('aria-label="Linked reviews')
+    expect(buttonOpeningTag(markup, 'Diff')).toContain('disabled')
+    expect(buttonOpeningTag(markup, 'Review')).toContain('disabled')
   })
 
-  it('renders a visible fallback without overwriting a hidden folder-only tab', () => {
+  it('renders a visible fallback without overwriting a hidden folder-only tab', async () => {
     mockAppState.rightSidebarTab = 'workspaces'
     mockAppState.activeWorktreeId = 'worktree-1'
     mockAppState.activeRepo = { id: 'repo-1', kind: 'git', connectionId: null }
 
-    const markup = renderToStaticMarkup(<RightSidebar />)
+    const container = document.createElement('div')
+    const root = createRoot(container)
+    await act(async () => root.render(<RightSidebar />))
+    const markup = container.innerHTML
 
     expect(markup).toContain('data-file-explorer')
     expect(markup).not.toContain('data-folder-workspace-worktrees-panel')
     expect(mockAppState.setRightSidebarTab).not.toHaveBeenCalled()
+    await act(async () => root.unmount())
   })
 
-  it('renders a visible fallback without overwriting a hidden PR Checks tab', () => {
+  it('renders a visible fallback without overwriting a hidden PR Checks tab', async () => {
     mockAppState.rightSidebarTab = 'pr-checks'
     mockAppState.activeWorktreeId = 'worktree-1'
     mockAppState.activeRepo = { id: 'repo-1', kind: 'git', connectionId: null }
 
-    const markup = renderToStaticMarkup(<RightSidebar />)
+    const container = document.createElement('div')
+    const root = createRoot(container)
+    await act(async () => root.render(<RightSidebar />))
+    const markup = container.innerHTML
 
     expect(markup).toContain('data-file-explorer')
     expect(markup).not.toContain('data-folder-workspace-pr-checks-panel')
     expect(mockAppState.setRightSidebarTab).not.toHaveBeenCalled()
+    await act(async () => root.unmount())
   })
 
   it('keeps remembered folder PR Checks visible when the global route falls back to Explorer', async () => {
@@ -364,7 +352,7 @@ describe('rendered right sidebar titlebar drag regions', () => {
 
     await act(async () => {
       container
-        .querySelector<HTMLButtonElement>('[aria-label^="PR Checks"]')
+        .querySelector<HTMLButtonElement>('[aria-label="Linked reviews"]')
         ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
 
@@ -379,8 +367,11 @@ describe('rendered right sidebar titlebar drag regions', () => {
     expect(container.innerHTML).not.toContain('data-file-explorer')
 
     await act(async () => {
+      container.querySelector<HTMLButtonElement>('[aria-label="Open a surface"]')?.click()
+    })
+    await act(async () => {
       container
-        .querySelector<HTMLButtonElement>('[aria-label^="Explorer"]')
+        .querySelector<HTMLButtonElement>('[aria-label="Files"]')
         ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
 
