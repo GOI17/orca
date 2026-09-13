@@ -7,7 +7,7 @@ import { useSidebarSurfaceDock } from '../right-sidebar/sidebar-surface-dock'
 import TabDragPreview from '../tab-bar/TabDragPreview'
 import { TabDragProvider } from './tab-drag-context'
 import TabPaneColumnSplitDragOverlay from './TabPaneColumnSplitDragOverlay'
-import { type HoveredTabInsertion, useTabDragSplit } from './useTabDragSplit'
+import { useTabDragSplit } from './useTabDragSplit'
 
 type SplitNodeProps = {
   node: TabGroupLayoutNode
@@ -24,7 +24,6 @@ type SplitNodeProps = {
   suppressRightBorder: boolean
   suppressBottomBorder: boolean
   isTabDragActive: boolean
-  hoveredTabInsertion: HoveredTabInsertion | null
   dockedGroupIds: (string | undefined)[]
 }
 
@@ -44,7 +43,6 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
     suppressRightBorder,
     suppressBottomBorder,
     isTabDragActive,
-    hoveredTabInsertion,
     dockedGroupIds
   } = props
   const setTabGroupSplitRatio = useAppStore((state) => state.setTabGroupSplitRatio)
@@ -98,9 +96,6 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
         reserveClosedExplorerToggleSpace={touchesTopEdge && touchesRightEdge}
         reserveCollapsedSidebarHeaderSpace={touchesTopEdge && touchesLeftEdge}
         isTabDragActive={isTabDragActive}
-        hoveredTabInsertion={
-          hoveredTabInsertion?.groupId === node.groupId ? hoveredTabInsertion : null
-        }
       />
     )
   }
@@ -131,7 +126,6 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
           suppressRightBorder={isHorizontal ? true : suppressRightBorder}
           suppressBottomBorder={isHorizontal ? suppressBottomBorder : true}
           isTabDragActive={isTabDragActive}
-          hoveredTabInsertion={hoveredTabInsertion}
           dockedGroupIds={dockedGroupIds}
         />
       </div>
@@ -156,7 +150,6 @@ function SplitNode(props: SplitNodeProps): React.JSX.Element {
           suppressRightBorder={suppressRightBorder}
           suppressBottomBorder={suppressBottomBorder}
           isTabDragActive={isTabDragActive}
-          hoveredTabInsertion={hoveredTabInsertion}
           dockedGroupIds={dockedGroupIds}
         />
       </div>
@@ -243,7 +236,6 @@ export default function TabGroupSplitLayout({
               suppressBottomBorder={false}
               isTabDragActive={dragSplit.activeDrag !== null}
               dockedGroupIds={dockedGroupIds}
-              hoveredTabInsertion={dragSplit.hoveredTabInsertion}
             />
           </div>
         </div>

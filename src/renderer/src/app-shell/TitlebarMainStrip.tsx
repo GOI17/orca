@@ -31,7 +31,7 @@ export function RightSidebarToggle(): React.JSX.Element {
   )
 }
 
-/** The titlebar's center/right strip: the tab-strip portal slot and the trailing chrome buttons. */
+/** The titlebar's trailing controls and flexible drag space. */
 export function TitlebarMainStrip({ layout }: { layout: AppChromeLayout }): React.JSX.Element {
   const handleToggleExpand = (): void => {
     if (!layout.effectiveActiveTabId) {
@@ -49,10 +49,7 @@ export function TitlebarMainStrip({ layout }: { layout: AppChromeLayout }): Reac
       {layout.activeView === 'activity' ? (
         <ActivityTitlebarControls />
       ) : layout.creationLayoutActive ? null : (
-        <div
-          id="titlebar-tabs"
-          className={`flex flex-1 min-w-0 self-stretch${!layout.workspaceChromeActive ? ' invisible pointer-events-none' : ''}`}
-        />
+        <div className="flex flex-1 min-w-0 self-stretch" />
       )}
       {layout.showTitlebarExpandButton && (
         <Tooltip>

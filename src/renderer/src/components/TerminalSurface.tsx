@@ -1,6 +1,5 @@
 import EditorAutosaveController from './editor/EditorAutosaveController'
 import { useAnyBrowserGuestNeedsPaint } from './browser-pane/host-guest/browser-guest-paint-retention'
-import { TerminalTitlebarTabs } from './TerminalTitlebarTabs'
 import { TerminalSplitWorkspaceSurfaces } from './TerminalSplitWorkspaceSurfaces'
 import { TerminalLegacyWorkspaceSurface } from './TerminalLegacyWorkspaceSurface'
 import { TerminalWorkspaceDialogs } from './TerminalWorkspaceDialogs'
@@ -27,7 +26,6 @@ export function TerminalSurface({
       data-rendered-active-worktree-id={renderedActiveWorktreeId ?? undefined}
     >
       <EditorAutosaveController />
-      <TerminalTitlebarTabs controller={controller} />
       <TerminalSplitWorkspaceSurfaces controller={controller} />
       <TerminalLegacyWorkspaceSurface controller={controller} />
       <TerminalWorkspaceDialogs controller={controller} />
