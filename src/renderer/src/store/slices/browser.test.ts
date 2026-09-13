@@ -587,12 +587,12 @@ describe('createBrowserSlice annotations', () => {
   })
 })
 
-describe('createBrowserSlice floating tabs', () => {
-  it('tracks new floating browser tabs without changing the main browser surface', () => {
+describe('createBrowserSlice legacy synthetic tabs', () => {
+  it('tracks legacy browser tabs without changing the main browser surface', () => {
     const store = createTestStore()
     store.setState({ activeWorktreeId: 'wt-1', activeTabType: 'terminal' } as Partial<AppState>)
     const mainTab = store.getState().createBrowserTab('wt-1', 'https://example.com')
-    const activeTabTypeBeforeFloating = store.getState().activeTabType
+    const previousActiveTabType = store.getState().activeTabType
 
     const tab = store.getState().createBrowserTab(FLOATING_TERMINAL_WORKTREE_ID, 'about:blank', {
       focusAddressBar: true
@@ -603,8 +603,8 @@ describe('createBrowserSlice floating tabs', () => {
     expect(store.getState().activeBrowserTabIdByWorktree[FLOATING_TERMINAL_WORKTREE_ID]).toBe(
       tab.id
     )
-    expect(store.getState().pendingAddressBarFocusByTabId[tab.id]).toBe(true)
-    expect(store.getState().activeTabType).toBe(activeTabTypeBeforeFloating)
+    expect(store.getState().pendingAddressBarFocusByTabId[tab.id]).toBeUndefined()
+    expect(store.getState().activeTabType).toBe(previousActiveTabType)
   })
 })
 

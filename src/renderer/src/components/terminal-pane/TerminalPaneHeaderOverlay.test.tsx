@@ -43,24 +43,18 @@ function renderOverlay({
   paneTitles,
   paneCount = 2,
   showAlwaysOnHeaders = true,
-  showSplitButton = true,
   onClosePane = vi.fn(),
   onRemoveTitle = vi.fn(),
   onRenameSubmit = vi.fn(),
-  canContinueAgentSessionInNewSession = false,
-  onContinueAgentSessionInNewSession = vi.fn(),
   renameValue = '',
   renamingPaneId = null
 }: {
   paneTitles: Record<number, string>
   paneCount?: number
   showAlwaysOnHeaders?: boolean
-  showSplitButton?: boolean
   onClosePane?: ReturnType<typeof vi.fn>
   onRemoveTitle?: ReturnType<typeof vi.fn>
   onRenameSubmit?: ReturnType<typeof vi.fn>
-  canContinueAgentSessionInNewSession?: boolean
-  onContinueAgentSessionInNewSession?: ReturnType<typeof vi.fn>
   renameValue?: string
   renamingPaneId?: number | null
 }): {
@@ -80,7 +74,6 @@ function renderOverlay({
         worktreeId="wt-1"
         cwd={path.join(path.sep, 'tmp')}
         showAlwaysOnHeaders={showAlwaysOnHeaders}
-        showSplitButton={showSplitButton}
         paneCount={paneCount}
         activePaneId={1}
         panes={panes}
@@ -98,11 +91,6 @@ function renderOverlay({
         hiddenStartupStyle={{}}
         managerRef={{ current: null } as RefObject<PaneManager | null>}
         paneTransportsRef={{ current: new Map() } as RefObject<Map<number, PtyTransport>>}
-        canContinueAgentSessionInNewSession={canContinueAgentSessionInNewSession}
-        onContinueAgentSessionInNewSession={
-          onContinueAgentSessionInNewSession as (pane: ManagedPane) => void
-        }
-        onSplitPane={vi.fn()}
         onBeginPaneDrag={vi.fn()}
         onActivatePaneTitleInteraction={vi.fn()}
         onPaneTitleContextMenu={vi.fn()}
@@ -161,12 +149,13 @@ describe('TerminalPaneHeaderOverlay', () => {
     expect(onClosePane).not.toHaveBeenCalledWith(1)
   })
 
-  it('keeps split and close-pane controls available for untitled split pane headers', () => {
+  it('keeps close-pane controls available without split or continuation header buttons', () => {
     const { container, onClosePane, onRemoveTitle } = renderOverlay({
       paneTitles: { 1: '', 2: '' }
     })
 
-    expect(container.querySelector('button[aria-label="Split Terminal Right"]')).not.toBeNull()
+    expect(container.querySelector('button[aria-label="Split Terminal Right"]')).toBeNull()
+    expect(container.querySelector('button[aria-label="Continue in New Session…"]')).toBeNull()
     expect(container.querySelector('.pane-title-drag-handle')).toBeNull()
     const closePane = container.querySelector<HTMLButtonElement>('button[aria-label="Close Pane"]')
     expect(closePane).not.toBeNull()
@@ -175,16 +164,6 @@ describe('TerminalPaneHeaderOverlay', () => {
 
     expect(onClosePane).toHaveBeenCalledWith(1)
     expect(onRemoveTitle).not.toHaveBeenCalled()
-  })
-
-  it('omits the split control when the header affordance is hidden', () => {
-    const { container } = renderOverlay({
-      paneTitles: { 1: '', 2: '' },
-      paneCount: 1,
-      showSplitButton: false
-    })
-
-    expect(container.querySelector('button[aria-label="Split Terminal Right"]')).toBeNull()
   })
 
   it('ignores IME composition Enter before submitting a pane title rename', () => {
@@ -204,24 +183,5 @@ describe('TerminalPaneHeaderOverlay', () => {
     pressInputKey(input as HTMLInputElement, 'Enter')
 
     expect(onRenameSubmit).toHaveBeenCalledTimes(1)
-  })
-
-  it('shows new-session continuation on the active agent pane header', () => {
-    const onContinueAgentSessionInNewSession = vi.fn()
-    const { container } = renderOverlay({
-      paneTitles: { 1: '', 2: '' },
-      canContinueAgentSessionInNewSession: true,
-      onContinueAgentSessionInNewSession
-    })
-    const handoff = container.querySelector<HTMLButtonElement>(
-      'button[aria-label="Continue in New Session…"]'
-    )
-
-    expect(handoff).not.toBeNull()
-    act(() => handoff?.click())
-
-    expect(onContinueAgentSessionInNewSession).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 1 })
-    )
   })
 })

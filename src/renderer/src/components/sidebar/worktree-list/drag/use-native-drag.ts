@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import type React from 'react'
-import { getWorkspaceKanbanSidebarDropTarget } from '../../workspace-kanban-sidebar-drop'
 import { getFullDropIndexForWorktreeDragUnit } from '../../worktree-drag-units'
 import { getWorktreeSidebarDragRectsForGroup } from '../../worktree-sidebar-drag-autoscroll'
 import { getWorktreeSidebarDragGrab } from '../../worktree-sidebar-drag-geometry'
@@ -157,12 +156,6 @@ export function useWorktreeNativeDrag(args: {
         clearWorktreeDrag()
         return
       }
-      const boardDropTarget = getWorkspaceKanbanSidebarDropTarget(event.clientX, event.clientY)
-      if (boardDropTarget.status || boardDropTarget.isPinDrop) {
-        clearWorktreeDrag()
-        return
-      }
-
       const container = scrollRef.current
       const target = ctx.getEligibleLineageDropTarget(
         container

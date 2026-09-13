@@ -98,8 +98,6 @@
       "722d03aa62": "La ventana de informe de fallos tuvo un error.",
       "8a023cea1f": "Vuelve a intentarlo para recargar los controles de la barra de estado.",
       "2e8ff36f94": "La barra de estado tuvo un error.",
-      "7cbfbf622f": "Vuelve a intentarlo, o cierra y vuelve a abrir el espacio de trabajo flotante.",
-      "1b3024bcd6": "El espacio de trabajo flotante tuvo un error.",
       "8d1e160ed1": "Vuelve a intentarlo o cambia de pestaña para recargar la barra lateral.",
       "ed6b168d00": "La barra lateral derecha tuvo un error.",
       "03a14f6b5b": "Vuelve a intentarlo con la página o navega a otra sección de Orca.",
@@ -403,15 +401,6 @@
               "9f00d7df0c": "El prompt de corrección de checks está vacío. Actualiza los ajustes de Source Control AI.",
               "2ebf794906": "No se detectó ningún agente de IA habilitado en este host de espacio de trabajo.",
               "4c7f783a7a": "El agente guardado para checks no está disponible en este host de espacio de trabajo."
-            }
-          }
-        }
-      },
-      "floating": {
-        "workspace": {
-          "tab": {
-            "creation": {
-              "f3785eddc2": "Nueva pestaña del navegador"
             }
           }
         }
@@ -739,7 +728,6 @@
         "291c8ed902": "Las pestañas del navegador no están disponibles mientras haya un host remoto activo",
         "f45fa2b03c": "Los perfiles del navegador no están disponibles mientras haya un host remoto activo",
         "f000b2ff76": "No hay ningún worktree activo",
-        "56d3ec4203": "No se pudo crear el archivo Markdown sin título.",
         "f6300deb8b": "Nueva pestaña del navegador",
         "7a64b31991": "La creación de terminales locales no está disponible mientras haya un host remoto activo",
         "60428567b4": "Mostrar terminales locales no está disponible mientras haya un host remoto activo",
@@ -779,8 +767,6 @@
         "0c6ee88a5f": "Entrada y edición",
         "b11a5a48a2": "Tema, zoom, apariencia de la aplicación y del terminal, barras laterales y barra de estado.",
         "93d88d20bf": "Apariencia",
-        "2d0659f6f0": "Terminal global, navegador y pestañas Markdown.",
-        "65b19f5bde": "Espacio de trabajo flotante",
         "3d65d3f1b9": "Configura la compatibilidad del emulador móvil para Orca y coding agents.",
         "1e761cff2b": "Emulador móvil",
         "e815fd01bd": "Página de inicio, enrutamiento de enlaces y cookies de sesión.",
@@ -1930,7 +1916,6 @@
         "0037b21794": "No guardar",
         "21295c6b8c": "Cambios no guardados",
         "5c1d2a32bb": "Cargando editor...",
-        "f0600556b3": "No se pudo crear el archivo Markdown sin título.",
         "37da0d736f": "Nueva pestaña del navegador",
         "a2a279b32a": "El guardado agotó el tiempo de espera o falló. Corrige los errores antes de cerrar.",
         "46e08bc5c8": "Este archivo tiene cambios no guardados.",
@@ -3297,7 +3282,6 @@
             "antigravityUsageDetails": "Abrir detalles de uso de Antigravity",
             "grokUsageAria": "Abrir detalles de uso de Grok",
             "grokUsageMenu": "Uso de Grok",
-            "floatingTerminalNewActivity": "{{label}}, nueva actividad",
             "codexSignInSuccess": "Sesión iniciada en Codex",
             "codexSignInError": "No se pudo iniciar sesión en Codex. Inténtalo de nuevo."
           },
@@ -4325,9 +4309,6 @@
           "removeDescriptionSsh": "Esto solo elimina {{name}} de Orca. Sus archivos permanecen en {{host}}; vuelve a añadir ese host SSH para recuperarlo.",
           "removeDescriptionLocal": "Esto solo elimina {{name}} de Orca. Sigue estando en tu disco."
         },
-        "ScrollToCurrentWorkspaceToolbarButton": {
-          "23989bb663": "Mostrar espacio de trabajo activo"
-        },
         "SetupGuideSidebarEntry": {
           "b0a7bfc34c": "Ocultar de la barra lateral",
           "88d402b71d": "Checklist de onboarding"
@@ -4407,9 +4388,7 @@
         "SidebarHeader": {
           "projects": "Proyectos",
           "92154beb7e": "Nuevo espacio de trabajo",
-          "49f62c5665": "Tablero de espacios de trabajo",
           "5c9c7c16aa": "Agregar un proyecto para crear espacios de trabajo",
-          "a30e34eb5c": "Cerrar tablero del espacio de trabajo",
           "spaces": "Espacios",
           "views": "Vista de la barra lateral",
           "addProject": "Agregar proyecto"
@@ -4460,10 +4439,7 @@
         },
         "SidebarToolbar": {
           "19e32d0e5f": "Abrir el selector de carpetas para agregar un proyecto",
-          "abc62b6328": "Agregar proyecto",
-          "87d0064026": "El tablero de espacios de trabajo se movió a la barra inferior",
-          "a30e34eb5c": "Cerrar tablero de espacios de trabajo",
-          "49f62c5665": "Tablero de espacios de trabajo"
+          "abc62b6328": "Agregar proyecto"
         },
         "SidebarWorkspaceFilterSection": {
           "c3fa13dc2e": "Ocultar rama predeterminada",
@@ -4537,35 +4513,6 @@
         "SshTargetRow": {
           "4677394048": "Conectando…",
           "75ad429b5d": "Conectar"
-        },
-        "WorkspaceKanbanCard": {
-          "cefae8983e": "Fijado"
-        },
-        "WorkspaceKanbanDrawerHeader": {
-          "f369f5c5a3": "Cerrar",
-          "e1a34450fc": "Organiza espacios de trabajo por estado y abre tarjetas de espacios de trabajo.",
-          "81870af08f": "seleccionado",
-          "c6a77ab0f4": "Tablero de espacios de trabajo"
-        },
-        "WorkspaceKanbanPinDropTarget": {
-          "c30151c5ee": "Suelta aquí para fijar sin cambiar el estado.",
-          "8fae2d0862": "Fijado"
-        },
-        "WorkspaceKanbanSettingsMenu": {
-          "79eb990aa4": "Agregar estado",
-          "054cb50df7": "Quitar {{value0}}",
-          "b45b350eb0": "Mover {{value0}} a la izquierda",
-          "8ce44af9a8": "Cambiar nombre {{value0}}",
-          "395e541d5d": "Estados",
-          "34f03eb0de": "Ajustes del tablero",
-          "26cbc92150": "Ajustes del tablero de espacios de trabajo",
-          "87d24a0c2f": "Sincronizar tablero y estado de issue",
-          "4c2eaa78cc": "Al mover un espacio de trabajo vinculado, se actualiza el estado de su issue de Linear cuando existe un estado de workflow coincidente."
-        },
-        "WorkspaceKanbanStatusLane": {
-          "8ad104642b": "Vacío",
-          "3611d1ae7f": "Cambiar tamaño de columnas del tablero de espacios de trabajo",
-          "2df01a03ff": "No hay coincidencias"
         },
         "WorkspaceStatusAppearancePopover": {
           "514be2f569": "Establecer color de {{value0}} en {{value1}}",
@@ -5150,19 +5097,6 @@
           "3c4d5e6f7a": "Administrar host…",
           "6e7f8a9b0c": "Quitar host…"
         },
-        "WorkspaceKanbanDrawer": {
-          "1975a4e480": "Falló la sincronización del estado de la tarea",
-          "e02b0d92ff": "Se omitió la sincronización del estado de la tarea",
-          "c1d2e3f4a5": "No se pudo leer el issue {{value0}} de Linear.",
-          "d2e3f4a5b6": "No hay ningún estado de workflow de Linear que coincida con {{value0}}.",
-          "e3f4a5b6c7": "Varios estados de workflow de Linear coinciden con {{value0}}.",
-          "f4a5b6c7d8": "No se pudo actualizar el issue {{value0}} de Linear.",
-          "a5b6c7d8e9": "No se pudo sincronizar el issue {{value0}} de Linear.",
-          "b6c7d8e9f0": "No se pudo completar la sincronización del estado de la tarea.",
-          "c7d8e9f0a1": "{{value0}} actualizado",
-          "d8e9f0a1b2": "{{value0}} omitido",
-          "e9f0a1b2c3": "{{value0}} falló"
-        },
         "WorktreeParentPickerPopover": {
           "failedSetParent": "No se pudo establecer el worktree padre",
           "current": "Actual",
@@ -5265,14 +5199,6 @@
           "screenshotsHint": "Attach up to {count} screenshots",
           "attachImages": "Attach",
           "removeImage": "Remove {{fileName}}"
-        },
-        "WorkspaceKanbanSearchField": {
-          "bdb753c78d": "Ningún espacio de trabajo coincide",
-          "4d96c209d6": "{{value0}} de {{value1}} espacios de trabajo coinciden",
-          "c0cd6bdf6c": "Buscar espacios de trabajo",
-          "3b7ea51793": "Borrar búsqueda",
-          "7f1c2e94a5": "El texto de búsqueda es demasiado largo: el tablero no está filtrado",
-          "9a4d0f6b21": "Demasiado largo"
         }
       },
       "shared": {
@@ -5974,19 +5900,6 @@
             "modeInWindow": "En ventana",
             "modePopout": "Ventana emergente"
           }
-        },
-        "FloatingWorkspacePane": {
-          "aeaf76fda9": "Barra de estado",
-          "9fb225f2d7": "Botón flotante",
-          "3c900e26e5": "El atajo de teclado funciona independientemente de dónde se muestre el botón.",
-          "5e5a8da236": "Ubicación del botón de activación",
-          "505001823e": "Elegir directorio del workspace flotante",
-          "81afb79785": "Las nuevas pestañas de terminal flotante comienzan aquí. Las notas Markdown se guardan en el workspace flotante propiedad de la app de Orca.",
-          "12aa09f10c": "Directorio del terminal",
-          "41eb95f7f0": "Muestra el botón y el panel del workspace flotante.",
-          "5136813663": "Activar workspace flotante",
-          "37df688d6f": "Activa el workspace flotante y elige dónde comienzan las nuevas pestañas.",
-          "1f67f39384": "Workspace flotante"
         },
         "AgentCacheTimerSection": {
           "05de84a104": "1 hora",
@@ -7019,8 +6932,6 @@
           "d7a3e635b6": "Entrada y edición",
           "6d1a27e193": "Tema, zoom, apariencia de la aplicación y del terminal, barras laterales y barra de estado.",
           "2b4474780a": "Apariencia",
-          "3d9adfe6a5": "Pestañas globales de terminal, navegador y Markdown.",
-          "3eb22a3ada": "Espacio de trabajo flotante",
           "01f9d36292": "Configura la compatibilidad con el emulador móvil para Orca y agentes de codificación.",
           "f75daf1002": "Emulador móvil",
           "ad9788036f": "Página de inicio, enrutamiento de enlaces y cookies de sesión.",
@@ -8236,27 +8147,6 @@
               "title": "Panel de agentes",
               "description": "Tablero Kanban para monitorear agentes en diferentes worktrees, en ventana o como ventana emergente.",
               "dashboard": "panel"
-            }
-          }
-        },
-        "floating": {
-          "workspace": {
-            "search": {
-              "94f4d013c8": "barra de estado",
-              "a452146574": "botón para alternar",
-              "6765b85e48": "directorio inicial",
-              "a38bfc3f77": "panel rápido",
-              "52db6e3baf": "notas",
-              "156ffeee08": "nota",
-              "884e5e6132": "markdown",
-              "49db74a92d": "navegador",
-              "6410fe83d8": "terminal",
-              "2b5efa55c9": "global",
-              "ebeedb2f6a": "terminal rápido",
-              "6f183fa1b9": "terminal flotante",
-              "a08e482f6d": "espacio de trabajo flotante",
-              "b96b5ee6cf": "Habilita el espacio de trabajo flotante, elige dónde comienzan las nuevas pestañas y dónde aparece el botón para alternar.",
-              "b2b60e7163": "Espacio de trabajo flotante"
             }
           }
         },
@@ -12122,61 +12012,6 @@
           }
         }
       },
-      "floating": {
-        "terminal": {
-          "FloatingTerminalIconContextMenu": {
-            "8e7d775287": "Ocultar espacio de trabajo flotante",
-            "763f5fa2c1": "Mover al botón flotante",
-            "0ee79e0674": "Mover a la barra de estado"
-          },
-          "FloatingTerminalOrchestrationDialog": {
-            "f726054620": "Permite a los agentes transferir contexto y coordinar el trabajo a través de Orca.",
-            "1cd3f8af64": "Skill de orquestación",
-            "6f0aed26b8": "Instala la CLI de Orca y el skill de orquestación para que los agentes puedan coordinarse a través de Orca.",
-            "05d7aabc20": "No instalado",
-            "630c0ac8c8": "Instalado",
-            "dfd021ce46": "Comprobando...",
-            "543f325a14": "Habilitar orquestación"
-          },
-          "FloatingTerminalPanel": {
-            "fc1042e92b": "Minimizar",
-            "8b07759314": "Nuevo navegador",
-            "88ffb502e5": "Abrir nota Markdown",
-            "629528690b": "Nueva nota Markdown",
-            "3215fc73e9": "Nueva terminal",
-            "da508bd7f5": "Guardar",
-            "918c2139f3": "No guardar",
-            "e7bf09d4d4": "Cancelar",
-            "690b6fb98a": "Cambios no guardados",
-            "bbc177f98f": "Habilitar",
-            "adc281394d": "Descartar",
-            "8cf80db43b": "Configura la CLI de Orca y el skill de agente para que los agentes puedan coordinarse a través de Orca.",
-            "2a3c5ddf5e": "Habilitar orquestación",
-            "d6b563ae24": "Cargando editor...",
-            "8b14ba6c17": "Nueva pestaña del navegador",
-            "b085fb58b5": "Este archivo tiene cambios no guardados.",
-            "5ddc688c52": "\"{{value0}}\" tiene cambios no guardados. ¿Quieres guardar antes de cerrar?",
-            "25d7817f79": "terminal"
-          },
-          "FloatingTerminalToggleButton": {
-            "3b04b065b5": "Mostrar espacio de trabajo flotante",
-            "4cb418b991": "Mostrar espacio de trabajo flotante, nueva actividad",
-            "5785dd9148": "Minimizar el espacio de trabajo flotante",
-            "bfe7809a70": "{{value0}} espacio de trabajo flotante ({{value1}})"
-          },
-          "FloatingTerminalWindowControls": {
-            "2f6054342c": "Minimizar",
-            "1bbaa0302f": "Minimizar el espacio de trabajo flotante",
-            "3f4ca29961": "Maximizar el espacio de trabajo flotante",
-            "1c79cba25d": "Restaurar el espacio de trabajo flotante",
-            "648352c51f": "Abrir {{value0}} en el espacio de trabajo flotante",
-            "82da3701e7": "No se pudo crear el comando de inicio para {{value0}}.",
-            "109870e023": "Maximizar",
-            "b5686fee1e": "Restaurar",
-            "1e502f1284": "Abrir"
-          }
-        }
-      },
       "feature": {
         "wall": {
           "AgentCapabilitiesSetupAction": {
@@ -14218,6 +14053,9 @@
           "f915168c8e": "no leído",
           "d6a8de3934": "agentes",
           "dc708f3eff": "Agents cercanos"
+        },
+        "threadSearch": {
+          "clear": "Borrar búsqueda"
         }
       },
       "confirmation": {

@@ -304,20 +304,4 @@ describe('feature interaction writer boundaries', () => {
       )
     ).not.toContain("recordFeatureInteraction('browser-annotations-sent-to-agent')")
   })
-
-  it('records floating workspace hide only from explicit disable or hide actions', () => {
-    const allowedSources = [
-      componentSource('settings/FloatingWorkspacePane.tsx'),
-      componentSource('floating-terminal/FloatingTerminalIconContextMenu.tsx')
-    ].join('\n')
-    const passiveSources = [
-      componentSource('../App.tsx'),
-      componentSource('floating-terminal/FloatingTerminalPanel.tsx')
-    ].join('\n')
-
-    expect(
-      allowedSources.match(/recordFeatureInteraction\('floating-workspace-hidden'\)/g) ?? []
-    ).toHaveLength(2)
-    expect(passiveSources).not.toContain("recordFeatureInteraction('floating-workspace-hidden')")
-  })
 })

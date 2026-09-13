@@ -1,10 +1,8 @@
 import { useShallow } from 'zustand/react/shallow'
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
-import { isFloatingWorkspacePanelFocused } from '@/lib/floating-workspace-terminal-actions'
 import { requestScrollToCurrentWorkspaceRevealAndRename } from '@/lib/scroll-to-current-workspace-status'
 import { showTerminalShortcutCaptureNotification } from '@/lib/terminal-shortcut-capture-notification'
 import { shouldShowWorktreeHistoryControls } from '../lib/titlebar-worktree-history-controls'
-import { TOGGLE_WORKSPACE_BOARD_EVENT } from '../components/sidebar/useWorkspaceBoardPanel'
 import { requestTerminalTabRename } from '../components/tab-bar/terminal-tab-rename-request'
 import {
   deleteHoveredWorkspaceImmediately,
@@ -43,13 +41,8 @@ export type AppShortcutState = {
   activeWorktreeId: AppStoreState['activeWorktreeId']
   actions: AppShortcutActions
   creationLayoutActive: boolean
-  floatingTerminalEnabled: boolean
-  floatingTerminalOpen: boolean
-  floatingVisibleTabCount: number
   keybindings: AppStoreState['keybindings']
-  openFloatingWorkspaceMaximized: () => void
   pluginCommands: ReturnType<typeof usePluginCommands>
-  setFloatingTerminalOpen: (open: boolean) => void
   terminalShortcutPolicy: NonNullable<AppStoreState['settings']>['terminalShortcutPolicy']
   workspaceChromeActive: boolean
 }
@@ -95,7 +88,7 @@ function resolveRenameTargetTabId(activeWorktreeId: string | null): string | nul
 
 /**
  * Builds the app-level handlers for every keybindable action. Each returns whether it claimed
- * the chord, so an unavailable surface (settings view, closed floating panel) falls through to
+ * the chord, so an unavailable surface (such as the settings view) falls through to
  * the terminal or the next handler instead of silently no-opping.
  *
  * `input` is absent when a command is invoked from the palette/menu rather than a key event.
@@ -110,14 +103,10 @@ export function createAppCommandHandlers(
     activeWorktreeId,
     actions,
     creationLayoutActive,
-    floatingTerminalEnabled,
-    floatingTerminalOpen,
     keybindings,
-    openFloatingWorkspaceMaximized,
     terminalShortcutPolicy,
     workspaceChromeActive
   } = state
-  const floatingWorkspaceFocused = isFloatingWorkspacePanelFocused()
   const canRevealRightSidebar = !creationLayoutActive && canShowRightSidebarForView(activeView)
   const claim = (actionId: KeybindingActionId, run: () => void): boolean => {
     input?.preventDefault()
@@ -179,18 +168,9 @@ export function createAppCommandHandlers(
         })
     ],
     [
-      'floatingWorkspace.maximize',
-      () => {
-        if (floatingTerminalOpen || !floatingTerminalEnabled) {
-          return false
-        }
-        return claim('floatingWorkspace.maximize', openFloatingWorkspaceMaximized)
-      }
-    ],
-    [
       'tab.rename',
       () => {
-        if (!workspaceChromeActive || floatingWorkspaceFocused) {
+        if (!workspaceChromeActive) {
           return false
         }
         // Why: a structured chat tab is renamed through the same inline editor, so gating on
@@ -205,7 +185,7 @@ export function createAppCommandHandlers(
     [
       'workspace.rename',
       () => {
-        if (!workspaceChromeActive || floatingWorkspaceFocused || !activeWorktreeId) {
+        if (!workspaceChromeActive || !activeWorktreeId) {
           return false
         }
         return claim('workspace.rename', () => {
@@ -217,9 +197,6 @@ export function createAppCommandHandlers(
     [
       'workspace.delete',
       () => {
-        if (floatingWorkspaceFocused) {
-          return false
-        }
         const store = useAppStore.getState()
         const target = resolveHoveredWorkspaceDeleteTarget(store)
         if (!target) {
@@ -227,18 +204,6 @@ export function createAppCommandHandlers(
         }
         return claim('workspace.delete', () => {
           deleteHoveredWorkspaceImmediately(store, target)
-        })
-      }
-    ],
-    [
-      'workspace.openBoard',
-      () => {
-        if (activeView === 'settings') {
-          return false
-        }
-        return claim('workspace.openBoard', () => {
-          useAppStore.getState().setSidebarOpen(true)
-          window.dispatchEvent(new CustomEvent(TOGGLE_WORKSPACE_BOARD_EVENT))
         })
       }
     ],

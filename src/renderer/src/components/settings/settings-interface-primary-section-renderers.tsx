@@ -1,5 +1,4 @@
 import { BrowserPane } from './BrowserPane'
-import { FloatingWorkspacePane } from './FloatingWorkspacePane'
 import { MobileEmulatorSettingsPane } from './MobileEmulatorSettingsPane'
 import { QuickCommandsPane } from './QuickCommandsPane'
 import { TerminalPane } from './TerminalPane'
@@ -108,25 +107,4 @@ export function renderMobileEmulatorSettingsSection(
       ) : null}
     </SettingsSection>
   ) : null
-}
-
-export function renderFloatingWorkspaceSettingsSection(
-  context: SettingsRenderContext
-): React.JSX.Element {
-  const { model, navigation, view } = context
-  return (
-    <SettingsSection
-      id="floating-workspace"
-      title={translate('auto.components.settings.Settings.3eb22a3ada', 'Floating Workspace')}
-      description={translate(
-        'auto.components.settings.Settings.3d9adfe6a5',
-        'Global terminal, browser, and markdown tabs.'
-      )}
-      searchEntries={navigation.getSectionSearchEntries('floating-workspace')}
-    >
-      {view.isSectionMounted('floating-workspace') ? (
-        <FloatingWorkspacePane settings={model.settings} updateSettings={model.updateSettings} />
-      ) : null}
-    </SettingsSection>
-  )
 }

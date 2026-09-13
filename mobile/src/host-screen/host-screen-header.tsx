@@ -8,7 +8,6 @@ import {
   Plus,
   Search,
   SlidersHorizontal,
-  SquareTerminal,
   UserCircle,
   X
 } from 'lucide-react-native'
@@ -27,7 +26,6 @@ export function HostScreenHeader({ controller }: { controller: HostScreenControl
     actions,
     connState,
     embedded,
-    floatingWorkspaceEnabled,
     forceReconnectHost,
     hostId,
     lastConnectedAt,
@@ -87,24 +85,6 @@ export function HostScreenHeader({ controller }: { controller: HostScreenControl
             </>
           )
         })()}
-        {!embedded && floatingWorkspaceEnabled ? (
-          <Pressable
-            style={[
-              styles.floatingWorkspaceHeaderButton,
-              connState !== 'connected' && styles.toolbarIconDisabled
-            ]}
-            onPress={actions.openFloatingWorkspace}
-            disabled={connState !== 'connected'}
-            accessibilityRole="button"
-            accessibilityLabel="Floating Workspace"
-            hitSlop={8}
-          >
-            <SquareTerminal
-              size={18}
-              color={connState === 'connected' ? colors.textPrimary : colors.textMuted}
-            />
-          </Pressable>
-        ) : null}
         {embedded && onHideSidebar ? (
           <Pressable
             style={styles.sidebarCollapseButton}
@@ -210,24 +190,6 @@ export function HostScreenHeader({ controller }: { controller: HostScreenControl
                 color={connState === 'connected' ? colors.textSecondary : colors.textMuted}
               />
             </Pressable>
-
-            {floatingWorkspaceEnabled ? (
-              <Pressable
-                style={[
-                  styles.embeddedToolbarIconButton,
-                  connState !== 'connected' && styles.toolbarIconDisabled
-                ]}
-                onPress={actions.openFloatingWorkspace}
-                disabled={connState !== 'connected'}
-                accessibilityRole="button"
-                accessibilityLabel="Floating Workspace"
-              >
-                <SquareTerminal
-                  size={18}
-                  color={connState === 'connected' ? colors.textSecondary : colors.textMuted}
-                />
-              </Pressable>
-            ) : null}
 
             <Pressable
               style={[

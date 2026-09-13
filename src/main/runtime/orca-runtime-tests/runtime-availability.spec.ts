@@ -66,17 +66,8 @@ describe('OrcaRuntimeService', () => {
     expect(runtime.getStatus().terminalWindowsShell).toBe('wsl.exe')
   })
 
-  it('reports floating workspace availability from settings on status', () => {
-    expect(createRuntime().getStatus().floatingWorkspaceEnabled).toBe(true)
-
-    const disabledRuntime = new OrcaRuntimeService({
-      ...store,
-      getSettings: () => ({
-        ...store.getSettings(),
-        floatingTerminalEnabled: false
-      })
-    } as never)
-    expect(disabledRuntime.getStatus().floatingWorkspaceEnabled).toBe(false)
+  it('advertises the retired workspace as unavailable to older clients', () => {
+    expect(createRuntime().getStatus().floatingWorkspaceEnabled).toBe(false)
   })
 
   it('polls floating tabs with targeted PTY liveness and no repo/provider inventory', async () => {

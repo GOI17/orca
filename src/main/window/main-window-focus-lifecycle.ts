@@ -25,8 +25,6 @@ import { createRendererRecoveryReloadWatchdog } from './renderer-recovery-reload
 
 export type MainWindowFocusLifecycle = {
   dispose: () => void
-  isFloatingPanelFocused: () => boolean
-  isFloatingTerminalInputFocused: () => boolean
   isMarkdownEditorFocused: () => boolean
   isRendererProcessGone: () => boolean
   isShortcutRecorderFocused: () => boolean
@@ -46,9 +44,6 @@ export function installMainWindowFocusLifecycle(args: {
   // Why: mirror markdown-editor focus so before-input-event skips Cmd/Ctrl+B while TipTap owns focus (docs/markdown-cmd-b-bold-design.md).
   let markdownEditorFocused = false
   let terminalInputFocused = false
-  // floatingTerminalInputFocused: textarea-only (terminal keybinding context). floatingPanelFocused: superset for routing ownership.
-  let floatingTerminalInputFocused = false
-  let floatingPanelFocused = false
   let shortcutRecorderFocused = false
 
   const markdownFocusChannel = 'ui:setMarkdownEditorFocused'
@@ -69,20 +64,6 @@ export function installMainWindowFocusLifecycle(args: {
     terminalInputFocused = focused === true
   }
   ipcMain.on(terminalInputFocusChannel, onTerminalInputFocused)
-  const floatingFocusChannel = 'ui:setFloatingFocus'
-  // Why: one atomic payload for both bits so before-input-event never reads a torn terminal=true/panel=false state.
-  // terminalFocused drives the Ctrl+B/L terminal-context carve-out; panelFocused is the routing-ownership superset (panel ⊇ terminal).
-  const onFloatingFocus = (event: Electron.IpcMainEvent, state: unknown): void => {
-    if (event.sender !== mainWindow.webContents) {
-      return
-    }
-    const payload = (state ?? {}) as { panelFocused?: unknown; terminalFocused?: unknown }
-    const terminal = payload.terminalFocused === true
-    floatingTerminalInputFocused = terminal
-    // Re-assert the invariant defensively in case a sender ever emits panel=false with terminal=true.
-    floatingPanelFocused = payload.panelFocused === true || terminal
-  }
-  ipcMain.on(floatingFocusChannel, onFloatingFocus)
   const shortcutRecorderFocusChannel = 'ui:setShortcutRecorderFocused'
   // Why: the Settings recorder must receive app shortcuts to rebind them; before-input-event would otherwise consume the key first.
   const onShortcutRecorderFocused = (event: Electron.IpcMainEvent, focused: unknown): void => {
@@ -126,10 +107,6 @@ export function installMainWindowFocusLifecycle(args: {
   const resetTerminalInputFocus = (): void => {
     terminalInputFocused = false
   }
-  const resetFloatingTerminalInputFocus = (): void => {
-    floatingTerminalInputFocused = false
-    floatingPanelFocused = false
-  }
   const resetShortcutRecorderFocus = (): void => {
     shortcutRecorderFocused = false
   }
@@ -140,7 +117,6 @@ export function installMainWindowFocusLifecycle(args: {
     retireBrowserClientPageRenderer(rendererWebContents)
     resetMarkdownEditorFocus()
     resetTerminalInputFocus()
-    resetFloatingTerminalInputFocus()
     resetShortcutRecorderFocus()
     return () => {
       if (
@@ -218,7 +194,6 @@ export function installMainWindowFocusLifecycle(args: {
     browserRouteWebContentsRegistry.retireRenderer(rendererWebContentsId)
     resetMarkdownEditorFocus()
     resetTerminalInputFocus()
-    resetFloatingTerminalInputFocus()
     resetShortcutRecorderFocus()
     // Why: macOS reports BrowserWindow teardown as renderer killed/SIGKILL after close — window noise, not a crash.
     if (!isWindowClosing()) {
@@ -234,7 +209,6 @@ export function installMainWindowFocusLifecycle(args: {
     retireBrowserClientPageRenderer(rendererWebContents)
     resetMarkdownEditorFocus()
     resetTerminalInputFocus()
-    resetFloatingTerminalInputFocus()
     resetShortcutRecorderFocus()
   })
   mainWindow.webContents.on('did-finish-load', () => {
@@ -247,20 +221,16 @@ export function installMainWindowFocusLifecycle(args: {
   const dispose = (): void => {
     resetMarkdownEditorFocus()
     resetTerminalInputFocus()
-    resetFloatingTerminalInputFocus()
     resetShortcutRecorderFocus()
     clearRendererRecoveryTimer()
     recoveryReloadWatchdog.clear()
     ipcMain.removeListener(markdownFocusChannel, onMarkdownEditorFocused)
     ipcMain.removeListener(terminalInputFocusChannel, onTerminalInputFocused)
-    ipcMain.removeListener(floatingFocusChannel, onFloatingFocus)
     ipcMain.removeListener(shortcutRecorderFocusChannel, onShortcutRecorderFocused)
     ipcMain.removeListener(richMarkdownContextMenuTargetChannel, onRichMarkdownContextMenuTarget)
   }
   return {
     dispose,
-    isFloatingPanelFocused: () => floatingPanelFocused,
-    isFloatingTerminalInputFocused: () => floatingTerminalInputFocused,
     isMarkdownEditorFocused: () => markdownEditorFocused,
     isRendererProcessGone: () => rendererProcessGone,
     isShortcutRecorderFocused: () => shortcutRecorderFocused,

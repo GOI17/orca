@@ -330,8 +330,7 @@ export function createReattachPayloadHandlers(
       const fit = safeFitAndThen(session.pane, 'reattach-pty-resize', gridPush.continuation, {
         shouldContinue: gridPush.shouldContinue,
         retryIfUnmeasurable: true,
-        // Why only this caller: a restored floating workspace is display:none until the
-        // user opens it, so dropping the grid push strands the PTY at the replay grid.
+        // Hidden restored panes still need their PTY grid updated when revealed.
         deferIfHidden: true
       })
       session.pendingReattachFit = fit

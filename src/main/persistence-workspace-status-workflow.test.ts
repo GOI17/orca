@@ -124,24 +124,6 @@ describe('Store', () => {
     expect(store.getUI().sortBy).toBe('recent')
   })
 
-  it('defaults workspace board task status sync off and normalizes persisted values', async () => {
-    writeDataFile({
-      schemaVersion: 1,
-      repos: [],
-      worktreeMeta: {},
-      settings: {},
-      ui: { syncTaskStatusFromWorkspaceBoard: 'yes' },
-      githubCache: { pr: {}, issue: {} },
-      workspaceSession: {}
-    })
-
-    const store = await createStore()
-    expect(store.getUI().syncTaskStatusFromWorkspaceBoard).toBe(false)
-
-    store.updateUI({ syncTaskStatusFromWorkspaceBoard: true })
-    expect(store.getUI().syncTaskStatusFromWorkspaceBoard).toBe(true)
-  })
-
   it('preserves workflows above 20 statuses across load, write, and restart', async () => {
     const imported = Array.from({ length: 21 }, (_, index) => ({
       id: `state-${index + 1}`,

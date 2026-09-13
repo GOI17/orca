@@ -100,26 +100,6 @@ export const KEYBINDING_DEFINITION_CORE_1: readonly KeybindingDefinition[] = [
     allowInTerminal: true
   },
   {
-    id: 'workspace.openBoard',
-    title: 'Toggle Workspace Board',
-    group: 'Global',
-    scope: 'global',
-    searchKeywords: [
-      'shortcut',
-      'global',
-      'workspace',
-      'board',
-      'kanban',
-      'worktree',
-      'toggle',
-      'open',
-      'close'
-    ],
-    // Why: configurable but unbound by default, to not take a global chord from terminal/browser/editor users.
-    defaultBindings: platformBindings([]),
-    allowInTerminal: true
-  },
-  {
     id: 'dashboard.toggle',
     title: 'Toggle Agent Dashboard',
     group: 'Global',
@@ -136,7 +116,7 @@ export const KEYBINDING_DEFINITION_CORE_1: readonly KeybindingDefinition[] = [
       'open',
       'close'
     ],
-    // Why: configurable but unbound by default, matching workspace.openBoard — an
+    // Why: configurable but unbound by default, like other optional app actions — an
     // experimental surface must not claim a global chord from terminal users.
     defaultBindings: platformBindings([]),
     allowInTerminal: true
@@ -264,37 +244,5 @@ export const KEYBINDING_DEFINITION_CORE_1: readonly KeybindingDefinition[] = [
     searchKeywords: ['shortcut', 'sidebar', 'worktree', 'focus'],
     // Why: keep zoom.reset on the browser-standard Mod+0; this chord was unreachable while it shared that default (#8584).
     defaultBindings: platformBindings(['Mod+Shift+0'])
-  },
-  {
-    id: 'floatingTerminal.toggle',
-    title: 'Toggle Floating Terminal',
-    group: 'Global',
-    scope: 'global',
-    searchKeywords: ['shortcut', 'floating terminal', 'terminal'],
-    defaultBindings: platformBindings(['Mod+Alt+A']),
-    allowInTerminal: true
-  },
-  {
-    id: 'floatingWorkspace.maximize',
-    title: 'Maximize Floating Workspace Panel',
-    group: 'Global',
-    scope: 'global',
-    searchKeywords: [
-      'shortcut',
-      'floating',
-      'workspace',
-      'panel',
-      'floating workspace',
-      'workspace panel',
-      'maximize',
-      'expand'
-    ],
-    // Why: pairs with floatingTerminal.toggle (Cmd+Opt+A) so maximize stays one-handed; macOS-only, Linux/Windows unbound.
-    defaultBindings: {
-      darwin: ['Mod+Alt+Shift+A'],
-      linux: [],
-      win32: []
-    },
-    allowInTerminal: true
   }
 ]

@@ -30,9 +30,6 @@ export function sendResolvedWindowShortcutAction(
     case 'toggleWorktreePalette':
       mainWindow.webContents.send('ui:toggleWorktreePalette')
       return
-    case 'toggleFloatingTerminal':
-      mainWindow.webContents.send('ui:toggleFloatingTerminal')
-      return
     case 'openQuickOpen':
       mainWindow.webContents.send('ui:openQuickOpen')
       return
@@ -44,9 +41,6 @@ export function sendResolvedWindowShortcutAction(
       return
     case 'deleteCurrentWorkspace':
       mainWindow.webContents.send('ui:deleteCurrentWorkspace')
-      return
-    case 'openWorkspaceBoard':
-      mainWindow.webContents.send('ui:openWorkspaceBoard')
       return
     case 'openTasks':
       mainWindow.webContents.send('ui:openTasks')

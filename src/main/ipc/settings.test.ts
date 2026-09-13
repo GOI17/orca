@@ -441,24 +441,6 @@ describe('registerSettingsHandlers', () => {
     expect(prepareLocalWorktreeRootsForReposMock).not.toHaveBeenCalled()
   })
 
-  it('does not accept floating workspace trust grants from renderer settings IPC', async () => {
-    store.getSettings.mockReturnValue({ floatingTerminalTrustedCwds: [] })
-    store.updateSettings.mockReturnValue({ floatingTerminalTrustedCwds: [] })
-    registerSettingsHandlers(store as never)
-
-    const handler = handleMock.mock.calls.find((call) => call[0] === 'settings:set')?.[1] as (
-      _event: unknown,
-      args: unknown
-    ) => Promise<unknown>
-
-    await handler(settingsInvokeEvent, { floatingTerminalTrustedCwds: ['/tmp/notes'] })
-
-    expect(store.updateSettings).toHaveBeenCalledWith(
-      {},
-      { notifyListeners: true, originWebContentsId: 1 }
-    )
-  })
-
   it('does not accept plugin authority grants from generic renderer settings IPC', async () => {
     store.getSettings.mockReturnValue({ pluginConsents: {}, disabledPlugins: [] })
     store.updateSettings.mockReturnValue({ pluginConsents: {}, disabledPlugins: [] })

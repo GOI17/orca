@@ -20,10 +20,6 @@ vi.mock('../components/tab-bar/terminal-tab-rename-request', () => ({
   requestTerminalTabRename: mocks.requestTerminalTabRename
 }))
 
-vi.mock('@/lib/floating-workspace-terminal-actions', () => ({
-  isFloatingWorkspacePanelFocused: () => false
-}))
-
 vi.mock('@/lib/terminal-shortcut-capture-notification', () => ({
   showTerminalShortcutCaptureNotification: vi.fn()
 }))
@@ -104,13 +100,8 @@ function shortcutState(): AppShortcutState {
     activeWorktreeId: WORKTREE_ID,
     actions: {} as AppShortcutState['actions'],
     creationLayoutActive: false,
-    floatingTerminalEnabled: false,
-    floatingTerminalOpen: false,
-    floatingVisibleTabCount: 0,
     keybindings: {},
-    openFloatingWorkspaceMaximized: vi.fn(),
     pluginCommands: [],
-    setFloatingTerminalOpen: vi.fn(),
     terminalShortcutPolicy: 'orca-first',
     workspaceChromeActive: true
   }

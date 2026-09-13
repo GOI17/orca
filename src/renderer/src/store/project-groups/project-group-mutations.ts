@@ -31,9 +31,9 @@ export function createProjectGroupMutationActions(
   | 'moveProjectToGroup'
 > {
   return {
-    createProjectGroup: async (name) => {
+    createProjectGroup: async (name, options) => {
       try {
-        const target = getActiveRuntimeTarget(get().settings)
+        const target = getActiveRuntimeTarget(options ?? get().settings)
         const group =
           target.kind === 'local'
             ? await window.api.projectGroups.create({

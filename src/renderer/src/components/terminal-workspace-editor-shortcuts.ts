@@ -5,11 +5,9 @@ import {
   type EditorRequestCmdSaveDetail
 } from './editor/editor-autosave'
 import { getEditorCmdSaveFileId } from './editor/editor-cmd-save-target'
-import { isEventTargetInsideFloatingWorkspacePanel } from '@/lib/floating-workspace-terminal-actions'
 
 type EditorShortcutContext = {
   event: KeyboardEvent
-  floatingWorkspaceFocused: boolean
   matchShortcut: (actionId: KeybindingActionId) => boolean
   notifyTerminalCapture: (actionId: KeybindingActionId) => void
 }
@@ -18,7 +16,6 @@ type EditorShortcutContext = {
 // fall through to the remaining workspace shortcuts.
 export function handleTerminalWorkspaceEditorShortcut({
   event,
-  floatingWorkspaceFocused,
   matchShortcut,
   notifyTerminalCapture
 }: EditorShortcutContext): boolean {
@@ -30,9 +27,7 @@ export function handleTerminalWorkspaceEditorShortcut({
       target?.closest('textarea:not(.xterm-helper-textarea), input') !== null
     if (!inEditor) {
       const state = useAppStore.getState()
-      const floatingPanelOwnsEvent =
-        isEventTargetInsideFloatingWorkspacePanel(event.target) || floatingWorkspaceFocused
-      const requestedFileId = getEditorCmdSaveFileId(state, floatingPanelOwnsEvent)
+      const requestedFileId = getEditorCmdSaveFileId(state)
       if (requestedFileId) {
         event.preventDefault()
         notifyTerminalCapture('editor.save')

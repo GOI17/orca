@@ -222,12 +222,7 @@ function resolvePaneCwd(args: {
   state: CodexPaneLaneState
   tab: Pick<TerminalTab, 'startupCwd' | 'worktreeId'>
 }): string | null {
-  // Why floating terminals get no cwd: theirs never reaches the tab. It is
-  // resolved over IPC from settings.floatingTerminalCwd and handed to the
-  // transport as a prop, so the store cannot see the path main keyed off. Such a
-  // pane falls through to its shell below, which is right unless the configured
-  // floating cwd is a WSL UNC path under a host shell — a known gap, not a guess
-  // worth making, since guessing wrong here mutes a working terminal.
+  // Legacy synthetic sessions have no persisted workspace root.
   if (args.tab.worktreeId === FLOATING_TERMINAL_WORKTREE_ID) {
     return null
   }

@@ -36,7 +36,6 @@ export function useTerminalPaneFoundation(
     isVisible = true,
     isWorktreeActive = isVisible,
     isolatedPaneKey = null,
-    showSplitButton = true,
     onPtyExit,
     onCloseTab
   } = props
@@ -158,7 +157,6 @@ export function useTerminalPaneFoundation(
     isVisible,
     isWorktreeActive,
     isolatedPaneKey,
-    showSplitButton,
     onPtyExit,
     onCloseTab,
     containerRef,

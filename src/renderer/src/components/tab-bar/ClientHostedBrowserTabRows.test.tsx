@@ -44,7 +44,6 @@ function rowsTree(groupActiveTabId: string | null): React.JSX.Element {
         worktreeId="wt-1"
         groupId="group-1"
         groupActiveTabId={groupActiveTabId}
-        includeTopTabBorder
       />
     </TooltipProvider>
   )

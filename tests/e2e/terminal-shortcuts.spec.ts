@@ -16,7 +16,6 @@
 
 import { test, expect } from './helpers/orca-app'
 import type { ElectronApplication, Page } from '@stablyai/playwright-test'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../src/shared/constants'
 import {
   execInTerminal,
   sendToTerminal,
@@ -119,89 +118,6 @@ async function dispatchCtrlCToActiveTerminalTextarea(
   }, options)
 }
 
-async function focusFloatingTerminal(page: Page): Promise<void> {
-  await page
-    .locator(
-      `[data-floating-terminal-panel][aria-hidden="false"] [data-terminal-tab-id] .xterm-helper-textarea`
-    )
-    .first()
-    .focus()
-}
-
-async function seedFloatingTerminalTabSwitchScenario(page: Page): Promise<{
-  backgroundFirstTabId: string
-  floatingFirstTabId: string
-  floatingSecondTabId: string
-}> {
-  return page.evaluate((floatingWorktreeId) => {
-    const store = window.__store
-    if (!store) {
-      throw new Error('Store unavailable')
-    }
-    const state = store.getState()
-    const backgroundWorktreeId = state.activeWorktreeId
-    if (!backgroundWorktreeId) {
-      throw new Error('No active background worktree')
-    }
-
-    const backgroundFirst =
-      state.tabsByWorktree[backgroundWorktreeId]?.find(
-        (tab) => tab.id === state.activeTabIdByWorktree[backgroundWorktreeId]
-      ) ??
-      state.tabsByWorktree[backgroundWorktreeId]?.find((tab) => tab.id === state.activeTabId) ??
-      state.createTab(backgroundWorktreeId)
-    state.createTab(backgroundWorktreeId)
-    state.setActiveTab(backgroundFirst.id)
-    state.setActiveTabType('terminal')
-
-    const floatingFirst = state.createTab(floatingWorktreeId, undefined, undefined, {
-      activate: false
-    })
-    state.activateTab(floatingFirst.id)
-    const floatingGroupId =
-      state.activeGroupIdByWorktree[floatingWorktreeId] ??
-      state.groupsByWorktree[floatingWorktreeId]?.[0]?.id
-    const floatingSecond = state.createTab(floatingWorktreeId, floatingGroupId, undefined, {
-      activate: false
-    })
-    state.activateTab(floatingFirst.id)
-
-    return {
-      backgroundFirstTabId: backgroundFirst.id,
-      floatingFirstTabId: floatingFirst.id,
-      floatingSecondTabId: floatingSecond.id
-    }
-  }, FLOATING_TERMINAL_WORKTREE_ID)
-}
-
-async function getActiveFloatingTerminalTabId(page: Page): Promise<string | null> {
-  return page.evaluate((floatingWorktreeId) => {
-    const state = window.__store?.getState()
-    if (!state) {
-      return null
-    }
-    const groupId = state.activeGroupIdByWorktree[floatingWorktreeId]
-    const group =
-      (groupId
-        ? state.groupsByWorktree[floatingWorktreeId]?.find((candidate) => candidate.id === groupId)
-        : null) ??
-      state.groupsByWorktree[floatingWorktreeId]?.find((candidate) => candidate.activeTabId) ??
-      null
-    const activeTab = group?.activeTabId
-      ? state.unifiedTabsByWorktree[floatingWorktreeId]?.find((tab) => tab.id === group.activeTabId)
-      : null
-    return activeTab?.contentType === 'terminal' ? activeTab.entityId : null
-  }, FLOATING_TERMINAL_WORKTREE_ID)
-}
-
-async function getActiveBackgroundTerminalTabId(page: Page): Promise<string | null> {
-  return page.evaluate(() => {
-    const state = window.__store?.getState()
-    const worktreeId = state?.activeWorktreeId
-    return worktreeId ? (state.activeTabIdByWorktree[worktreeId] ?? state.activeTabId) : null
-  })
-}
-
 async function getActiveTerminalViewport(
   page: Page
 ): Promise<{ viewportY: number; baseY: number }> {
@@ -296,7 +212,7 @@ async function pressShiftedRussianLayoutKey(page: Page): Promise<{
     const textarea = pane?.container.querySelector(
       '.xterm-helper-textarea'
     ) as HTMLTextAreaElement | null
-    if (!textarea) {
+    if (!pane || !textarea) {
       throw new Error('No xterm helper textarea to receive keyboard input')
     }
     textarea.focus()
@@ -662,7 +578,8 @@ test.describe('Terminal Shortcuts', () => {
             const manager = tabId ? window.__paneManagers?.get(tabId) : null
             const pane = manager?.getActivePane?.() ?? manager?.getPanes?.()[0] ?? null
             const terminalText = pane?.terminal.buffer.active
-              .translateBufferLineToString(pane.terminal.buffer.active.cursorY, true)
+              .getLine(pane.terminal.buffer.active.baseY + pane.terminal.buffer.active.cursorY)
+              ?.translateToString(true)
               .trim()
             const visibleText = pane?.container.textContent ?? ''
             return {
@@ -682,49 +599,6 @@ test.describe('Terminal Shortcuts', () => {
         hasComplexScriptOutput: false,
         hasWebgl: true
       })
-  })
-
-  test('floating terminal owns tab switch shortcuts while focused', async ({ orcaPage }) => {
-    const scenario = await seedFloatingTerminalTabSwitchScenario(orcaPage)
-    await orcaPage.evaluate(async () => {
-      const state = window.__store?.getState()
-      if (state?.settings?.floatingTerminalEnabled !== true) {
-        await state?.updateSettings({ floatingTerminalEnabled: true })
-      }
-      if (!document.querySelector('[data-floating-terminal-panel][aria-hidden="false"]')) {
-        window.dispatchEvent(new CustomEvent('orca-toggle-floating-terminal'))
-      }
-    })
-    await expect(
-      orcaPage.locator('[data-floating-terminal-panel][aria-hidden="false"]')
-    ).toBeVisible()
-    await focusFloatingTerminal(orcaPage)
-
-    await orcaPage.keyboard.press(`${mod}+Shift+BracketRight`)
-    await expect
-      .poll(() => getActiveFloatingTerminalTabId(orcaPage), {
-        timeout: 5_000,
-        message: 'floating terminal did not switch to the next tab'
-      })
-      .toBe(scenario.floatingSecondTabId)
-    await expect
-      .poll(() => getActiveBackgroundTerminalTabId(orcaPage), {
-        timeout: 1_000,
-        message: 'background terminal tab changed while floating terminal was focused'
-      })
-      .toBe(scenario.backgroundFirstTabId)
-
-    await focusFloatingTerminal(orcaPage)
-    await orcaPage.keyboard.press(`${mod}+Shift+BracketLeft`)
-    await expect
-      .poll(() => getActiveFloatingTerminalTabId(orcaPage), {
-        timeout: 5_000,
-        message: 'floating terminal did not switch back to the previous tab'
-      })
-      .toBe(scenario.floatingFirstTabId)
-    await expect(getActiveBackgroundTerminalTabId(orcaPage)).resolves.toBe(
-      scenario.backgroundFirstTabId
-    )
   })
 
   test('all terminal chords reach the PTY or fire their action', async ({

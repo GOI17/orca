@@ -1,3 +1,4 @@
+import { stripRetiredWorkspacePreferences } from '../../../../shared/retired-workspace-preferences'
 import { normalizeAutoRenameBranchFromWorkDefaultOn } from '../../../../shared/auto-rename-branch-from-work-settings'
 import {
   getDefaultSettings,
@@ -35,8 +36,8 @@ export function mergeWebUIState(
     }
   void _reserved
   return {
-    ...base,
-    ...safeUpdates,
+    ...stripRetiredWorkspacePreferences(base),
+    ...stripRetiredWorkspacePreferences(safeUpdates),
     workspaceCleanup: mergeWorkspaceCleanupUIState(
       base.workspaceCleanup,
       safeUpdates.workspaceCleanup
@@ -136,8 +137,8 @@ export function mergeSettings(
 ): GlobalSettings {
   const defaults = getDefaultSettings('~')
   const merged = {
-    ...base,
-    ...updates,
+    ...stripRetiredWorkspacePreferences(base),
+    ...stripRetiredWorkspacePreferences(updates),
     notifications: {
       ...base.notifications,
       ...updates.notifications

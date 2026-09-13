@@ -4,14 +4,12 @@ import { setupTerminalCreateSurfacing } from './ipc-events-terminal-create-test-
 
 describe('useIpcEvents updater integration', () => {
   it('surfaces terminal creates without stealing focus unless requested', async () => {
-    let floatingPanelFocused = false
-    const scenario = await setupTerminalCreateSurfacing(() => floatingPanelFocused)
+    const scenario = await setupTerminalCreateSurfacing()
     const { createTab, setActiveView, setActiveWorktree, markWorktreeVisited } = scenario
     const { recordWorktreeVisit, setActiveTabType, setActiveTab } = scenario
     const { revealWorktreeInSidebar, setTabCustomTitle, queueTabStartupCommand } = scenario
     const { registerAgentLaunchConfig, updateTabPtyId, setTabLayout } = scenario
     const { replyTerminalCreate, dispatchEvent } = scenario
-    const { createFloatingWorkspaceTerminalTab } = scenario
     const { createWebRuntimeSessionTerminal, focusRuntimeTerminalSurface } = scenario
     const { focusTerminalTabSurface, storeState, createTerminalListenerRef } = scenario
     const { requestTerminalCreateListenerRef, focusTerminalListenerRef } = scenario
@@ -22,18 +20,9 @@ describe('useIpcEvents updater integration', () => {
       throw new Error('Expected create-terminal and new-terminal-tab listeners to be registered')
     }
 
-    floatingPanelFocused = true
-    newTerminalTabListenerRef.current()
-    expect(createFloatingWorkspaceTerminalTab).toHaveBeenCalledWith(storeState)
-    expect(createTab).not.toHaveBeenCalled()
-
-    floatingPanelFocused = false
-    createFloatingWorkspaceTerminalTab.mockClear()
-    createTab.mockClear()
     newTerminalTabListenerRef.current()
     await Promise.resolve()
     await Promise.resolve()
-    expect(createFloatingWorkspaceTerminalTab).not.toHaveBeenCalled()
     expect(createWebRuntimeSessionTerminal).toHaveBeenCalledWith({
       worktreeId: 'wt-1',
       // Why: multi-host scopes the new terminal to the worktree's own runtime

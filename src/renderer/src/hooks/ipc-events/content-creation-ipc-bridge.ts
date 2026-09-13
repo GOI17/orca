@@ -4,12 +4,6 @@ import {
   isManualSimulatorLaunchPending,
   rememberPrelaunchedSimulatorSession
 } from '@/lib/simulator-launch-coordination'
-import {
-  createFloatingWorkspaceBrowserTab,
-  createFloatingWorkspaceMarkdownTab,
-  isFloatingWorkspacePanelFocused
-} from '@/lib/floating-workspace-terminal-actions'
-import { translate } from '@/i18n/i18n'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import { toast } from 'sonner'
 import { useAppStore } from '../../store'
@@ -21,12 +15,6 @@ export function registerContentCreationIpcBridge(
   unsubs.push(
     window.api.ui.onNewBrowserTab(() => {
       const store = useAppStore.getState()
-      if (isFloatingWorkspacePanelFocused()) {
-        void createFloatingWorkspaceBrowserTab(store).catch((error) => {
-          toast.error(error instanceof Error ? error.message : String(error))
-        })
-        return
-      }
       const worktreeId = store.activeWorktreeId
       if (!worktreeId) {
         return
@@ -45,19 +33,6 @@ export function registerContentCreationIpcBridge(
   unsubs.push(
     window.api.ui.onNewMarkdownTab(() => {
       const store = useAppStore.getState()
-      if (isFloatingWorkspacePanelFocused()) {
-        void createFloatingWorkspaceMarkdownTab(store).catch((err) => {
-          toast.error(
-            err instanceof Error
-              ? err.message
-              : translate(
-                  'auto.hooks.useIpcEvents.56d3ec4203',
-                  'Failed to create untitled markdown file.'
-                )
-          )
-        })
-        return
-      }
       const worktreeId = store.activeWorktreeId
       if (!worktreeId) {
         return

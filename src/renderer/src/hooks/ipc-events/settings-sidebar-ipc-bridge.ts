@@ -1,6 +1,5 @@
 import { canShowRightSidebarForView } from '@/lib/right-sidebar-visibility'
 import { showTerminalShortcutCaptureNotification } from '@/lib/terminal-shortcut-capture-notification'
-import { TOGGLE_FLOATING_TERMINAL_EVENT } from '@/lib/floating-terminal'
 import { subscribeToUnpairedDeviceAuthNotification } from '../unpaired-device-auth-notification'
 import { translate } from '@/i18n/i18n'
 import { toast } from 'sonner'
@@ -167,12 +166,6 @@ export function registerSettingsAndSidebarIpcBridge(unsubs: (() => void)[]): voi
         return
       }
       store.openModal('worktree-palette')
-    })
-  )
-
-  unsubs.push(
-    window.api.ui.onToggleFloatingTerminal(() => {
-      window.dispatchEvent(new CustomEvent(TOGGLE_FLOATING_TERMINAL_EVENT))
     })
   )
 

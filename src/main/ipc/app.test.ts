@@ -101,12 +101,6 @@ vi.mock('../app-relaunch', () => ({
   relaunchApp: relaunchAppMock
 }))
 
-vi.mock('./floating-workspace-directory', () => ({
-  ensureDefaultFloatingWorkspacePath: vi.fn(),
-  grantFloatingWorkspaceDirectory: grantFloatingWorkspaceDirectoryMock,
-  resolveFloatingTerminalCwd: vi.fn()
-}))
-
 vi.mock('./renderer-shutdown-checkpoint', () => ({
   registerRendererShutdownCheckpointHandler: registerRendererShutdownCheckpointHandlerMock
 }))
@@ -395,23 +389,6 @@ describe('registerAppHandlers', () => {
     // shell and any orphaned `defaults`/`plutil` stages are reaped on timeout.
     expect(processKillSpy).toHaveBeenCalledTimes(2)
     expect(processKillSpy).toHaveBeenCalledWith(-4242, 'SIGKILL')
-  })
-
-  it('picks an existing floating workspace directory without enabling native directory creation', async () => {
-    const store = {}
-    showOpenDialogMock.mockResolvedValue({
-      canceled: false,
-      filePaths: ['/Users/kaylee/notes']
-    })
-    registerAppHandlers(store as never)
-
-    await expect(
-      handlers.get('app:pickFloatingWorkspaceDirectory')?.({ sender: {} })
-    ).resolves.toBe('/Users/kaylee/notes')
-    expect(showOpenDialogMock).toHaveBeenCalledWith({
-      properties: ['openDirectory']
-    })
-    expect(grantFloatingWorkspaceDirectoryMock).toHaveBeenCalledWith(store, '/Users/kaylee/notes')
   })
 
   // Why: the renderer reads these on every Windows capability refresh; the sync probes

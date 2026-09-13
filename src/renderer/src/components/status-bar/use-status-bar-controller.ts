@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useShortcutLabel } from '@/hooks/useShortcutLabel'
 import { useAppStore } from '../../store'
-import { selectFloatingWorkspaceHasUnread } from '../../store/selectors'
 import type { ProviderRateLimits } from '../../../../shared/rate-limit-types'
 import { normalizeUsagePercentageDisplay } from '../../../../shared/usage-percentage-display'
 import { normalizeStatusBarUsageMode } from '../../../../shared/status-bar-usage-mode'
@@ -11,8 +9,7 @@ import { getUsageProviderAccountsSectionId } from './usage-provider-settings-tar
 import { CLOSE_ALL_CONTEXT_MENUS_EVENT, useStatusBarMenuFocusHandoff } from './ProviderDetailsMenu'
 import { observeStatusBarContainer } from './status-bar-container-observer'
 
-export function useStatusBarController(floatingTerminalOpen: boolean) {
-  const floatingTerminalShortcut = useShortcutLabel('floatingTerminal.toggle')
+export function useStatusBarController() {
   const rateLimits = useAppStore((s) => s.rateLimits)
   const settings = useAppStore((s) => s.settings)
   const refreshRateLimits = useAppStore((s) => s.refreshRateLimits)
@@ -28,11 +25,6 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
   const statusBarVisible = useAppStore((s) => s.statusBarVisible)
   const statusBarItems = useAppStore((s) => s.statusBarItems)
   const recordFeatureInteraction = useAppStore((s) => s.recordFeatureInteraction)
-  // Why: reuse the floating-button's unread dot so activity shows for either trigger location (see FloatingTerminalToggleButton).
-  const hasFloatingUnread = useAppStore(selectFloatingWorkspaceHasUnread)
-  const floatingTerminalEnabled = settings?.floatingTerminalEnabled === true
-  const floatingTerminalTriggerLocation =
-    settings?.floatingTerminalTriggerLocation ?? 'floating-button'
   // Why: gate per-CLI bars on PATH detection so an uninstalled agent isn't shown a noisy empty bar (auto re-shows when installed).
   const detectedAgentIds = useAppStore((s) => s.detectedAgentIds)
   const ensureDetectedAgents = useAppStore((s) => s.ensureDetectedAgents)
@@ -154,8 +146,6 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
   const showSsh = statusBarItems.includes('ssh')
   const showResourceUsage = statusBarItems.includes('resource-usage')
   const showPorts = statusBarItems.includes('ports')
-  const showFloatingTerminalToggle =
-    floatingTerminalEnabled && floatingTerminalTriggerLocation === 'status-bar'
   // Why: meter-only children (excludes resource-usage) so the % display callout anchors to a real meter cluster.
   const hasVisibleUsageMeters =
     showClaude ||
@@ -186,10 +176,6 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
 
   const compact = containerWidth < 900
   const iconOnly = containerWidth < 500
-  const floatingTerminalActionLabel = floatingTerminalOpen
-    ? 'Minimize Floating Workspace'
-    : 'Show Floating Workspace'
-  const showFloatingWorkspaceAttentionDot = !floatingTerminalOpen && hasFloatingUnread
 
   // Why: the roster must contain only status items the user left visible;
   // otherwise an empty trigger would bypass those visibility controls.
@@ -237,8 +223,6 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
     compact,
     containerRefCallback,
     detectedAgentIds,
-    floatingTerminalActionLabel,
-    floatingTerminalShortcut,
     handleManageAccounts,
     handleOpenProviderAccounts,
     handleRefresh,
@@ -257,8 +241,6 @@ export function useStatusBarController(floatingTerminalOpen: boolean) {
     setMenuPoint,
     setStatusBarUsageMode,
     showEmptyUsageCta,
-    showFloatingTerminalToggle,
-    showFloatingWorkspaceAttentionDot,
     showPorts,
     showResourceUsage,
     showSsh,

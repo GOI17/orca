@@ -183,13 +183,7 @@ function makeCompletedOnboardingProfile() {
       lastCompletedStep: ONBOARDING_FINAL_STEP
     },
     ui: {
-      contextualToursSeenIds: [
-        'workspace-board',
-        'browser',
-        'tasks',
-        'automations',
-        'workspace-creation'
-      ],
+      contextualToursSeenIds: ['browser', 'tasks', 'automations', 'workspace-creation'],
       contextualToursAutoEligible: false,
       projectOrderManualDefaultNoticeDismissed: true
     }

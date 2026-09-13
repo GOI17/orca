@@ -2,19 +2,13 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import type { Repo } from '../../../shared/repo-types'
 import type { TerminalTab } from '../../../shared/terminal-tab-types'
 import type { Worktree } from '../../../shared/worktree/types'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { toRuntimeExecutionHostId, toSshExecutionHostId } from '../../../shared/execution-host'
 import { isGitRepoKind } from '../../../shared/repo-kind'
-import type { AppState } from './types'
 import {
   getAllWorktreesFromState,
   getProjectHostSetupProjectionFromState,
   getWorktreeMapFromState,
-  resetFloatingVisibleTabCountSelectorCacheForTest,
-  resetFloatingWorkspaceUnreadSelectorCacheForTest,
-  selectRepoByIdForActiveWorkspace,
-  selectFloatingVisibleTabCount,
-  selectFloatingWorkspaceHasUnread
+  selectRepoByIdForActiveWorkspace
 } from './selectors'
 import { selectActiveTerminalChromeState } from './active-terminal-chrome-selector'
 
@@ -63,9 +57,7 @@ function makeTerminalTab(args: { id: string; worktreeId: string; title: string }
 }
 
 describe('store selectors', () => {
-  beforeEach(() => {
-    resetFloatingVisibleTabCountSelectorCacheForTest()
-  })
+  beforeEach(() => {})
 
   it('deduplicates cached worktree snapshots without changing reference reuse', () => {
     const first = makeWorktree({ id: 'wt-1', repoId: 'repo-1', displayName: 'first' })
@@ -89,112 +81,6 @@ describe('store selectors', () => {
     expect(worktreeMap.get('wt-1')).toBe(replacement)
     expect(getAllWorktreesFromState(state)).toBe(allWorktrees)
     expect(getWorktreeMapFromState(state)).toBe(worktreeMap)
-  })
-
-  it('reuses the floating tab-count projection across unrelated store ticks', () => {
-    const worktreeId = FLOATING_TERMINAL_WORKTREE_ID
-    const terminalTabs = [
-      {
-        id: 'term-1',
-        ptyId: null,
-        worktreeId,
-        title: 'Terminal',
-        customTitle: null,
-        color: null,
-        sortOrder: 0,
-        createdAt: 1
-      }
-    ] as AppState['tabsByWorktree'][string]
-    const browserTabs = [{ id: 'browser-1' }] as AppState['browserTabsByWorktree'][string]
-    let openFileScans = 0
-    const fileEntries = [
-      {
-        id: 'file-1',
-        filePath: '/tmp/file-1.ts',
-        relativePath: 'file-1.ts',
-        worktreeId,
-        language: 'typescript',
-        mode: 'edit',
-        isDirty: false
-      },
-      {
-        id: 'file-2',
-        filePath: '/tmp/file-2.ts',
-        relativePath: 'file-2.ts',
-        worktreeId: 'repo::/elsewhere',
-        language: 'typescript',
-        mode: 'edit',
-        isDirty: false
-      }
-    ] as AppState['openFiles']
-    const openFiles = [...fileEntries] as AppState['openFiles']
-    Object.defineProperty(openFiles, Symbol.iterator, {
-      value: function* () {
-        openFileScans += 1
-        for (const entry of fileEntries) {
-          yield entry
-        }
-      }
-    })
-    const unifiedTabs = [
-      {
-        id: 'unified-term-1',
-        entityId: 'term-1',
-        worktreeId,
-        contentType: 'terminal',
-        label: 'Terminal',
-        sortOrder: 0,
-        createdAt: 1
-      },
-      {
-        id: 'unified-browser-1',
-        entityId: 'browser-1',
-        worktreeId,
-        contentType: 'browser',
-        label: 'Browser',
-        sortOrder: 1,
-        createdAt: 2
-      },
-      {
-        id: 'unified-file-1',
-        entityId: 'file-1',
-        worktreeId,
-        contentType: 'editor',
-        label: 'file-1.ts',
-        sortOrder: 2,
-        createdAt: 3
-      },
-      {
-        id: 'simulator-1',
-        entityId: 'simulator-1',
-        worktreeId,
-        contentType: 'simulator',
-        label: 'Mobile Emulator',
-        sortOrder: 3,
-        createdAt: 4
-      },
-      {
-        id: 'unified-stale-terminal',
-        entityId: 'missing-term',
-        worktreeId,
-        contentType: 'terminal',
-        label: 'Stale',
-        sortOrder: 4,
-        createdAt: 5
-      }
-    ] as AppState['unifiedTabsByWorktree'][string]
-    const state = {
-      tabsByWorktree: { [worktreeId]: terminalTabs },
-      browserTabsByWorktree: { [worktreeId]: browserTabs },
-      openFiles,
-      unifiedTabsByWorktree: { [worktreeId]: unifiedTabs }
-    } satisfies Parameters<typeof selectFloatingVisibleTabCount>[0]
-
-    expect(selectFloatingVisibleTabCount(state)).toBe(4)
-    expect(openFileScans).toBe(1)
-
-    expect(selectFloatingVisibleTabCount({ ...state })).toBe(4)
-    expect(openFileScans).toBe(1)
   })
 
   it('keeps active terminal chrome stable across title-only tab updates', () => {
@@ -601,144 +487,5 @@ describe('store selectors', () => {
     expect(getProjectHostSetupProjectionFromState({ repos, projects, projectHostSetups })).toBe(
       projection
     )
-  })
-})
-
-describe('selectFloatingWorkspaceHasUnread', () => {
-  const FLOATING = FLOATING_TERMINAL_WORKTREE_ID
-
-  type UnreadState = Parameters<typeof selectFloatingWorkspaceHasUnread>[0]
-
-  beforeEach(() => {
-    resetFloatingWorkspaceUnreadSelectorCacheForTest()
-  })
-
-  function makeState(overrides: Partial<UnreadState>): UnreadState {
-    return {
-      tabsByWorktree: {},
-      unreadTerminalTabs: {},
-      unreadAgentCompletionPanes: {},
-      ...overrides
-    } as UnreadState
-  }
-
-  function floatingTab(id: string): TerminalTab {
-    return { id, title: id, ptyId: null } as unknown as TerminalTab
-  }
-
-  it('is false when the floating workspace has no tabs', () => {
-    expect(selectFloatingWorkspaceHasUnread(makeState({}))).toBe(false)
-  })
-
-  it('is true for a bell — an unread floating tab', () => {
-    const state = makeState({
-      tabsByWorktree: { [FLOATING]: [floatingTab('ft1')] },
-      unreadTerminalTabs: { ft1: true }
-    })
-    expect(selectFloatingWorkspaceHasUnread(state)).toBe(true)
-  })
-
-  it('is true for an agent completion — an unread floating pane', () => {
-    const state = makeState({
-      tabsByWorktree: { [FLOATING]: [floatingTab('ft1')] },
-      unreadAgentCompletionPanes: { 'ft1:leaf-a': true }
-    })
-    expect(selectFloatingWorkspaceHasUnread(state)).toBe(true)
-  })
-
-  it('stays true while any of several floating tabs is still unacknowledged', () => {
-    const state = makeState({
-      tabsByWorktree: { [FLOATING]: [floatingTab('ft1'), floatingTab('ft2'), floatingTab('ft3')] },
-      unreadTerminalTabs: { ft3: true }
-    })
-    expect(selectFloatingWorkspaceHasUnread(state)).toBe(true)
-  })
-
-  it('ignores unread that belongs to non-floating (main workspace) tabs', () => {
-    const state = makeState({
-      tabsByWorktree: { [FLOATING]: [floatingTab('ft1')] },
-      unreadTerminalTabs: { 'main-tab': true },
-      unreadAgentCompletionPanes: { 'main-tab:leaf-x': true }
-    })
-    expect(selectFloatingWorkspaceHasUnread(state)).toBe(false)
-  })
-
-  it('does not light for a stale unread entry whose floating tab no longer exists', () => {
-    // Mirrors closing a floating tab: the tab is gone from tabsByWorktree, so even
-    // a lingering map entry (there should be none — closeTab purges) cannot show.
-    const state = makeState({
-      tabsByWorktree: { [FLOATING]: [floatingTab('ft-live')] },
-      unreadTerminalTabs: { 'ft-closed': true },
-      unreadAgentCompletionPanes: { 'ft-closed:leaf-a': true }
-    })
-    expect(selectFloatingWorkspaceHasUnread(state)).toBe(false)
-  })
-
-  it('shares one scan across consumers and skips 1,000 unrelated writes', () => {
-    let tabIdReads = 0
-    let terminalUnreadReads = 0
-    let completionKeyScans = 0
-    const tabs = [
-      {
-        get id() {
-          tabIdReads += 1
-          return 'ft1'
-        },
-        title: 'floating',
-        ptyId: null
-      } as unknown as TerminalTab
-    ]
-    const unreadTerminalTabs = new Proxy<Record<string, true>>(
-      {},
-      {
-        get(target, property, receiver) {
-          if (typeof property === 'string') {
-            terminalUnreadReads += 1
-          }
-          return Reflect.get(target, property, receiver)
-        }
-      }
-    )
-    const unreadAgentCompletionPanes = new Proxy<Record<string, true>>(
-      { 'main-tab:leaf-a': true },
-      {
-        ownKeys(target) {
-          completionKeyScans += 1
-          return Reflect.ownKeys(target)
-        }
-      }
-    )
-    const state = makeState({
-      tabsByWorktree: { [FLOATING]: tabs },
-      unreadTerminalTabs,
-      unreadAgentCompletionPanes
-    })
-
-    expect(selectFloatingWorkspaceHasUnread(state)).toBe(false)
-    const countsAfterFirstConsumer = {
-      tabIdReads,
-      terminalUnreadReads,
-      completionKeyScans
-    }
-    expect(selectFloatingWorkspaceHasUnread(state)).toBe(false)
-    for (let write = 0; write < 1_000; write += 1) {
-      expect(
-        selectFloatingWorkspaceHasUnread({
-          ...state,
-          unrelatedStoreRevision: write
-        } as unknown as UnreadState)
-      ).toBe(false)
-    }
-    expect({ tabIdReads, terminalUnreadReads, completionKeyScans }).toEqual(
-      countsAfterFirstConsumer
-    )
-
-    expect(
-      selectFloatingWorkspaceHasUnread({
-        ...state,
-        unreadTerminalTabs: { ft1: true }
-      })
-    ).toBe(true)
-    expect(tabIdReads).toBeGreaterThan(countsAfterFirstConsumer.tabIdReads)
   })
 })

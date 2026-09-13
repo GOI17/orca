@@ -498,16 +498,6 @@
           }
         }
       },
-      "floating": {
-        "terminal": {
-          "FloatingTerminalPanel": {
-            "25d7817f79": "terminal"
-          },
-          "FloatingTerminalWindowControls": {
-            "1e502f1284": "Open"
-          }
-        }
-      },
       "github": {
         "CloseReasonDropdown": {
           "e1f2a3b4c5": "Choose close reason"
@@ -1866,9 +1856,7 @@
           "dcaa645da5": "ok"
         },
         "SidebarHeader": {
-          "49f62c5665": "Workspace board",
           "5c9c7c16aa": "Add a project to create workspaces",
-          "a30e34eb5c": "Close workspace board",
           "projects": "Projects",
           "spaces": "Spaces",
           "views": "Sidebar view"
@@ -1893,9 +1881,6 @@
           "680043342f": "compact",
           "bc96dbd041": "Workspace options ({{value0}})",
           "c7591b6014": "repo"
-        },
-        "WorkspaceKanbanSettingsMenu": {
-          "b45b350eb0": "Move {{value0}} left"
         },
         "WorkspaceStatusAppearancePopover": {
           "514be2f569": "Set {{value0}} color to {{value1}}"

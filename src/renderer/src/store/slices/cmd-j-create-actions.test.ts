@@ -1,12 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 import type { AppState } from '../types'
 import { createTestStore, makeWorktree, seedStore, TEST_REPO } from './store-test-helpers'
-import {
-  FLOATING_BROWSER_UNAVAILABLE_MESSAGE,
-  MANAGED_BROWSER_UNAVAILABLE_MESSAGE
-} from '@/lib/client-creation-action-policy'
+import { MANAGED_BROWSER_UNAVAILABLE_MESSAGE } from '@/lib/client-creation-action-policy'
 
 const createWebRuntimeSessionBrowserTabMock = vi.hoisted(() => vi.fn())
 const createWebRuntimeSessionTerminalMock = vi.hoisted(() => vi.fn())
@@ -144,37 +140,6 @@ describe('Cmd+J lifted creation actions', () => {
 
     expect(createWebRuntimeSessionBrowserTabMock).not.toHaveBeenCalled()
     expect(store.getState().browserTabsByWorktree['wt-1'] ?? []).toEqual([])
-  })
-
-  it('rejects floating browsers while preserving floating terminal creation', async () => {
-    createWebRuntimeSessionBrowserTabMock.mockResolvedValue(false)
-    createWebRuntimeSessionTerminalMock.mockResolvedValue(false)
-    const store = createTestStore()
-    seedStore(store, {
-      activeWorktreeId: FLOATING_TERMINAL_WORKTREE_ID,
-      settings: { activeRuntimeEnvironmentId: 'runtime-1' } as AppState['settings'],
-      groupsByWorktree: {
-        [FLOATING_TERMINAL_WORKTREE_ID]: [
-          {
-            id: 'group-1',
-            worktreeId: FLOATING_TERMINAL_WORKTREE_ID,
-            activeTabId: null,
-            tabOrder: []
-          }
-        ]
-      },
-      activeGroupIdByWorktree: { [FLOATING_TERMINAL_WORKTREE_ID]: 'group-1' }
-    })
-
-    await expect(store.getState().openNewBrowserTabInActiveWorkspace('group-1')).rejects.toThrow(
-      FLOATING_BROWSER_UNAVAILABLE_MESSAGE
-    )
-    await store.getState().openNewTerminalTabInActiveWorkspace('group-1')
-
-    expect(createWebRuntimeSessionBrowserTabMock).not.toHaveBeenCalled()
-    expect(createWebRuntimeSessionTerminalMock).not.toHaveBeenCalled()
-    expect(store.getState().browserTabsByWorktree[FLOATING_TERMINAL_WORKTREE_ID] ?? []).toEqual([])
-    expect(store.getState().tabsByWorktree[FLOATING_TERMINAL_WORKTREE_ID] ?? []).toHaveLength(1)
   })
 
   it('does not fall back to a local terminal tab when paired-web creation fails', async () => {

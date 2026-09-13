@@ -282,8 +282,6 @@
       "722d03aa62": "The crash report dialog hit an error.",
       "8a023cea1f": "Retry the status bar to remount its controls.",
       "2e8ff36f94": "The status bar hit an error.",
-      "7cbfbf622f": "Retry the floating workspace or close and reopen it.",
-      "1b3024bcd6": "The floating workspace hit an error.",
       "8d1e160ed1": "Retry the sidebar or switch tabs to reload this surface.",
       "ed6b168d00": "The right sidebar hit an error.",
       "03a14f6b5b": "Retry the page or navigate to another Orca surface.",
@@ -633,15 +631,6 @@
               "9f00d7df0c": "Fix checks prompt is empty. Update Source Control AI settings.",
               "2ebf794906": "No enabled AI agent was detected on this workspace host.",
               "4c7f783a7a": "Saved checks agent is not available on this workspace host."
-            }
-          }
-        }
-      },
-      "floating": {
-        "workspace": {
-          "tab": {
-            "creation": {
-              "f3785eddc2": "New Browser Tab"
             }
           }
         }
@@ -1017,7 +1006,6 @@
         "291c8ed902": "Browser tabs are unavailable while a remote runtime is active",
         "f45fa2b03c": "Browser profiles are unavailable while a remote runtime is active",
         "f000b2ff76": "No active worktree",
-        "56d3ec4203": "Failed to create untitled markdown file.",
         "f6300deb8b": "New Browser Tab",
         "7a64b31991": "Local terminal creation is unavailable while a remote runtime is active",
         "60428567b4": "Local terminal reveal is unavailable while a remote runtime is active",
@@ -1057,8 +1045,6 @@
         "0c6ee88a5f": "Input & Editing",
         "b11a5a48a2": "Theme, zoom, app and terminal appearance, sidebars, and status bar.",
         "93d88d20bf": "Appearance",
-        "2d0659f6f0": "Global terminal, browser, and markdown tabs.",
-        "65b19f5bde": "Floating Workspace",
         "3d65d3f1b9": "Configure mobile emulator support for Orca and coding agents.",
         "1e761cff2b": "Mobile Emulator",
         "e815fd01bd": "Home page, link routing, and session cookies.",
@@ -1113,8 +1099,7 @@
         "automationsTitle": "Automations",
         "automationsDescription": "Schedule agent work and choose whether Automations appears in the sidebar.",
         "shareSkillsTitle": "Share Skills",
-        "shareSkillsDescription": "Share your skills with an unlisted link. Anyone who has it can install them.",
-        "floatingWorkspaceWebDescription": "Global terminal and markdown tabs."
+        "shareSkillsDescription": "Share your skills with an unlisted link. Anyone who has it can install them."
       },
       "useAppMenuPaste": {
         "pasteTooLarge": "Paste is too large."
@@ -2269,7 +2254,6 @@
         "0037b21794": "Don't Save",
         "21295c6b8c": "Unsaved Changes",
         "5c1d2a32bb": "Loading editor...",
-        "f0600556b3": "Failed to create untitled markdown file.",
         "37da0d736f": "New Browser Tab",
         "a2a279b32a": "Save timed out or failed. Fix errors before closing.",
         "46e08bc5c8": "This file has unsaved changes.",
@@ -3724,7 +3708,6 @@
             "antigravityUsageDetails": "Open Antigravity usage details",
             "grokUsageAria": "Open Grok usage details",
             "grokUsageMenu": "Grok Usage",
-            "floatingTerminalNewActivity": "{{label}}, new activity",
             "codexSignInSuccess": "Signed in to Codex",
             "codexSignInError": "Codex sign-in failed. Please try again."
           },
@@ -5213,9 +5196,6 @@
           "removeDescriptionLocal": "This only removes {{name}} from Orca. It is still on your disk.",
           "removeDescriptionVmRecipe": "This removes {{name}} from Orca. Its VM recipe determines whether the environment and its files are permanently deleted."
         },
-        "ScrollToCurrentWorkspaceToolbarButton": {
-          "23989bb663": "Reveal active workspace"
-        },
         "SetupGuideSidebarEntry": {
           "b0a7bfc34c": "Hide from sidebar",
           "88d402b71d": "Onboarding checklist"
@@ -5296,9 +5276,7 @@
           "projects": "Projects",
           "spaces": "Spaces",
           "92154beb7e": "New workspace",
-          "49f62c5665": "Workspace board",
           "5c9c7c16aa": "Add a project to create workspaces",
-          "a30e34eb5c": "Close workspace board",
           "views": "Sidebar view",
           "addProject": "Add project"
         },
@@ -5349,9 +5327,6 @@
           "c4f8e1b72a": "X"
         },
         "SidebarToolbar": {
-          "87d0064026": "Workspace board moved to the bottom bar",
-          "a30e34eb5c": "Close workspace board",
-          "49f62c5665": "Workspace board",
           "19e32d0e5f": "Open folder picker to add a project",
           "abc62b6328": "Add Project"
         },
@@ -5438,35 +5413,6 @@
         "SshTargetRow": {
           "4677394048": "Connecting…",
           "75ad429b5d": "Connect"
-        },
-        "WorkspaceKanbanCard": {
-          "cefae8983e": "Pinned"
-        },
-        "WorkspaceKanbanDrawerHeader": {
-          "f369f5c5a3": "Close",
-          "e1a34450fc": "Organize workspaces by status and open workspace cards.",
-          "81870af08f": "selected",
-          "c6a77ab0f4": "Workspace board"
-        },
-        "WorkspaceKanbanPinDropTarget": {
-          "c30151c5ee": "Drop here to pin without changing status.",
-          "8fae2d0862": "Pinned"
-        },
-        "WorkspaceKanbanSettingsMenu": {
-          "79eb990aa4": "Add status",
-          "054cb50df7": "Remove {{value0}}",
-          "b45b350eb0": "Move {{value0}} left",
-          "8ce44af9a8": "Rename {{value0}}",
-          "395e541d5d": "Statuses",
-          "34f03eb0de": "Board settings",
-          "26cbc92150": "Workspace board settings",
-          "87d24a0c2f": "Sync board and issue status",
-          "4c2eaa78cc": "Moving a linked workspace updates its Linear issue status when a matching workflow state exists."
-        },
-        "WorkspaceKanbanStatusLane": {
-          "8ad104642b": "Empty",
-          "3611d1ae7f": "Resize workspace board columns",
-          "2df01a03ff": "No matches"
         },
         "WorkspaceStatusAppearancePopover": {
           "514be2f569": "Set {{value0}} color to {{value1}}",
@@ -6018,19 +5964,6 @@
           "b7e3a91c4f": "Drag project headers to reorder, or switch to",
           "e8c1f4a2b9": "in workspace options."
         },
-        "WorkspaceKanbanDrawer": {
-          "1975a4e480": "Task status sync failed",
-          "e02b0d92ff": "Task status sync skipped",
-          "c1d2e3f4a5": "Linear issue {{value0}} could not be read.",
-          "d2e3f4a5b6": "No matching Linear workflow state for {{value0}}.",
-          "e3f4a5b6c7": "Multiple Linear workflow states match {{value0}}.",
-          "f4a5b6c7d8": "Could not update Linear issue {{value0}}.",
-          "a5b6c7d8e9": "Could not sync Linear issue {{value0}}.",
-          "b6c7d8e9f0": "Task status sync could not finish.",
-          "c7d8e9f0a1": "{{value0}} updated",
-          "d8e9f0a1b2": "{{value0}} skipped",
-          "e9f0a1b2c3": "{{value0}} failed"
-        },
         "WorktreeParentPickerPopover": {
           "failedSetParent": "Failed to set parent worktree",
           "current": "Current",
@@ -6165,14 +6098,6 @@
           "screenshotsHint": "Attach up to {count} screenshots",
           "attachImages": "Attach",
           "removeImage": "Remove {{fileName}}"
-        },
-        "WorkspaceKanbanSearchField": {
-          "bdb753c78d": "No workspaces match",
-          "4d96c209d6": "{{value0}} of {{value1}} workspaces match",
-          "c0cd6bdf6c": "Search workspaces",
-          "3b7ea51793": "Clear search",
-          "7f1c2e94a5": "Search text is too long — the board is unfiltered",
-          "9a4d0f6b21": "Too long"
         },
         "WorktreeIssueLinkField": {
           "25852bfc59": "Linear",
@@ -7045,19 +6970,6 @@
             "modeInWindow": "In-window",
             "modePopout": "Pop-out"
           }
-        },
-        "FloatingWorkspacePane": {
-          "aeaf76fda9": "Status Bar",
-          "9fb225f2d7": "Floating Button",
-          "3c900e26e5": "The keyboard shortcut works regardless of where the toggle is shown.",
-          "5e5a8da236": "Toggle Button Location",
-          "505001823e": "Choose floating workspace directory",
-          "81afb79785": "New floating terminal tabs start here. Markdown notes are saved in Orca's app-owned floating workspace.",
-          "12aa09f10c": "Terminal Directory",
-          "41eb95f7f0": "Shows the floating workspace button and panel.",
-          "5136813663": "Enable Floating Workspace",
-          "37df688d6f": "Enable the floating workspace and choose where new tabs start.",
-          "1f67f39384": "Floating Workspace"
         },
         "AgentCacheTimerSection": {
           "05de84a104": "1 hour",
@@ -8163,8 +8075,6 @@
           "d7a3e635b6": "Input & Editing",
           "6d1a27e193": "Theme, zoom, app and terminal appearance, sidebars, and status bar.",
           "2b4474780a": "Appearance",
-          "3d9adfe6a5": "Global terminal, browser, and markdown tabs.",
-          "3eb22a3ada": "Floating Workspace",
           "01f9d36292": "Configure mobile emulator support for Orca and coding agents.",
           "f75daf1002": "Mobile Emulator",
           "ad9788036f": "Home page, link routing, and session cookies.",
@@ -9465,27 +9375,6 @@
               "board": "board",
               "inWindow": "in-window",
               "worktrees": "worktrees"
-            }
-          }
-        },
-        "floating": {
-          "workspace": {
-            "search": {
-              "94f4d013c8": "status bar",
-              "a452146574": "toggle button",
-              "6765b85e48": "launch directory",
-              "a38bfc3f77": "quick panel",
-              "52db6e3baf": "notes",
-              "156ffeee08": "note",
-              "884e5e6132": "markdown",
-              "49db74a92d": "browser",
-              "6410fe83d8": "terminal",
-              "2b5efa55c9": "global",
-              "ebeedb2f6a": "quick terminal",
-              "6f183fa1b9": "floating terminal",
-              "a08e482f6d": "floating workspace",
-              "b96b5ee6cf": "Enable the floating workspace, choose where new tabs start, and choose where the toggle button appears.",
-              "b2b60e7163": "Floating Workspace"
             }
           }
         },
@@ -13904,61 +13793,6 @@
           }
         }
       },
-      "floating": {
-        "terminal": {
-          "FloatingTerminalIconContextMenu": {
-            "8e7d775287": "Hide Floating Workspace",
-            "763f5fa2c1": "Move to Floating Button",
-            "0ee79e0674": "Move to Status Bar"
-          },
-          "FloatingTerminalOrchestrationDialog": {
-            "f726054620": "Enables agents to hand off context and coordinate work through Orca.",
-            "1cd3f8af64": "Orchestration skill",
-            "6f0aed26b8": "Install the Orca CLI and orchestration skill so agents can coordinate through Orca.",
-            "05d7aabc20": "Not installed",
-            "630c0ac8c8": "Installed",
-            "dfd021ce46": "Checking...",
-            "543f325a14": "Enable orchestration"
-          },
-          "FloatingTerminalPanel": {
-            "fc1042e92b": "Minimize",
-            "8b07759314": "New Browser",
-            "88ffb502e5": "Open Markdown Note",
-            "629528690b": "New Markdown Note",
-            "3215fc73e9": "New Terminal",
-            "da508bd7f5": "Save",
-            "918c2139f3": "Don't Save",
-            "e7bf09d4d4": "Cancel",
-            "690b6fb98a": "Unsaved Changes",
-            "bbc177f98f": "Enable",
-            "adc281394d": "Dismiss",
-            "8cf80db43b": "Set up the Orca CLI and agent skill so agents can coordinate through Orca.",
-            "2a3c5ddf5e": "Enable orchestration",
-            "d6b563ae24": "Loading editor...",
-            "8b14ba6c17": "New Browser Tab",
-            "b085fb58b5": "This file has unsaved changes.",
-            "5ddc688c52": "\"{{value0}}\" has unsaved changes. Do you want to save before closing?",
-            "25d7817f79": "terminal"
-          },
-          "FloatingTerminalToggleButton": {
-            "3b04b065b5": "Show floating workspace",
-            "4cb418b991": "Show floating workspace, new activity",
-            "5785dd9148": "Minimize floating workspace",
-            "bfe7809a70": "{{value0}} floating workspace ({{value1}})"
-          },
-          "FloatingTerminalWindowControls": {
-            "2f6054342c": "Minimize",
-            "1bbaa0302f": "Minimize floating workspace",
-            "3f4ca29961": "Maximize floating workspace",
-            "1c79cba25d": "Restore floating workspace",
-            "648352c51f": "Open {{value0}} in floating workspace",
-            "82da3701e7": "Could not build launch command for {{value0}}.",
-            "109870e023": "Maximize",
-            "b5686fee1e": "Restore",
-            "1e502f1284": "Open"
-          }
-        }
-      },
       "feature": {
         "wall": {
           "AgentCapabilitiesSetupAction": {
@@ -16281,7 +16115,6 @@
           "undo": "Undo"
         },
         "standaloneWorktree": {
-          "floatingTerminal": "Floating terminal",
           "standaloneTerminal": "Standalone terminal"
         },
         "ActivityTitlebarControls": {
@@ -16302,6 +16135,9 @@
         },
         "ActivityThreadRow": {
           "clearNotification": "Clear notification"
+        },
+        "threadSearch": {
+          "clear": "Clear search"
         }
       },
       "confirmation": {

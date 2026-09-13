@@ -40,12 +40,6 @@ export function installMainWindowShortcutRouting(args: {
     }
   ): boolean => {
     const { focusedShortcutContext, isAutoRepeat } = options
-    if (
-      focus.isFloatingTerminalInputFocused() &&
-      (action.type === 'toggleLeftSidebar' || action.type === 'toggleRightSidebar')
-    ) {
-      return false
-    }
 
     const isIndexJump = action.type === 'jumpToWorktreeIndex' || action.type === 'jumpToTabIndex'
     if (isIndexJump && isAutoRepeat) {
@@ -53,12 +47,6 @@ export function installMainWindowShortcutRouting(args: {
       // repeat would leak a raw key to xterm/DOM, and re-firing the jump is never what a hold means.
       event.preventDefault()
       return true
-    }
-
-    // While the floating panel owns the keyboard, yield indexed switch chords to the renderer
-    // so L2 selects a floating tab instead of switching the main workspace behind the panel.
-    if (focus.isFloatingPanelFocused() && isIndexJump) {
-      return false
     }
 
     const capturedTerminalActionId =
@@ -135,10 +123,7 @@ export function installMainWindowShortcutRouting(args: {
 
     const keybindings = opts?.getKeybindings?.()
     const terminalShortcutContext: KeybindingMatchOptions = {
-      context:
-        focus.isTerminalInputFocused() || focus.isFloatingTerminalInputFocused()
-          ? 'terminal'
-          : 'app',
+      context: focus.isTerminalInputFocused() ? 'terminal' : 'app',
       terminalShortcutPolicy: normalizeTerminalShortcutPolicy(
         store?.getSettings().terminalShortcutPolicy
       )
@@ -240,10 +225,7 @@ export function installMainWindowShortcutRouting(args: {
         process.platform,
         opts?.getKeybindings?.(),
         {
-          context:
-            focus.isTerminalInputFocused() || focus.isFloatingTerminalInputFocused()
-              ? 'terminal'
-              : 'app',
+          context: focus.isTerminalInputFocused() ? 'terminal' : 'app',
           terminalShortcutPolicy: normalizeTerminalShortcutPolicy(
             store?.getSettings().terminalShortcutPolicy
           )

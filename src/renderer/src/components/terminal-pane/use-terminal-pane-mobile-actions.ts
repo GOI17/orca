@@ -17,14 +17,11 @@ import { pasteTerminalText } from './terminal-bracketed-paste'
 import { writeTerminalPastePtyInput } from './terminal-pty-paste-writer'
 import { formatTerminalPasteExecutionError } from './terminal-paste-errors'
 import { recordTerminalUserInputForLeaf } from './terminal-input-activity'
-import { splitTerminalPaneWithInheritedCwd } from './terminal-pane-split-with-inherited-cwd'
 import type { TerminalPaneContextController } from './use-terminal-pane-context-actions'
 
 export function useTerminalPaneMobileActions(controller: TerminalPaneContextController) {
   const {
-    cwd,
     managerRef,
-    paneCwdRef,
     paneTransportsRef,
     refreshMobileOverlays,
     setTerminalError,
@@ -205,28 +202,6 @@ export function useTerminalPaneMobileActions(controller: TerminalPaneContextCont
     managerRef.current?.setActivePane(paneId, { focus: false })
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- Preserve the pre-split dependency contract.
   }, [])
-  const splitTerminalPaneFromHeader = useCallback(
-    (pane: ManagedPane, direction: 'vertical' | 'horizontal') => {
-      const manager = managerRef.current
-      if (!manager) {
-        return
-      }
-      splitTerminalPaneWithInheritedCwd({
-        worktreeId,
-        tabId,
-        manager,
-        getManager: () => managerRef.current,
-        paneTransports: paneTransportsRef.current,
-        paneCwdMap: paneCwdRef.current,
-        fallbackCwd: cwd ?? '',
-        pane,
-        direction,
-        source: 'context_menu'
-      })
-    },
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- Preserve the pre-split dependency contract.
-    [cwd]
-  )
   const beginPaneDragFromHeader = useCallback(
     (paneId: number, handle: HTMLElement, event: PointerEvent) => {
       managerRef.current?.beginPaneDragFromPointerDown(paneId, handle, event)
@@ -245,7 +220,6 @@ export function useTerminalPaneMobileActions(controller: TerminalPaneContextCont
     handlePrimarySelectionMiddleMouseDown,
     handlePrimarySelectionAuxClick,
     activatePaneTitleInteraction,
-    splitTerminalPaneFromHeader,
     beginPaneDragFromHeader
   }
 }

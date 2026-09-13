@@ -25,10 +25,7 @@ export function normalizeLoadedGlobalSettings(
     migratedTerminalTuiScrollSensitivity,
     migratedSourceControlAi,
     migratedOptionAsAlt,
-    migratedFloatingTerminalEnabled,
-    migratedOsc52Clipboard,
-    migratedFloatingTerminalCwd,
-    migratedFloatingTerminalTrustedCwds
+    migratedOsc52Clipboard
   } = terminal
   const {
     migratedExperimentalActivity,
@@ -98,11 +95,6 @@ export function normalizeLoadedGlobalSettings(
     localAccountRuntime: migratedLocalAccountRuntime,
     localAccountRuntimeDefaultedToAutoForAllUsers: true,
     ...migratedOsc52Clipboard,
-    floatingTerminalEnabled: migratedFloatingTerminalEnabled,
-    floatingTerminalDefaultedForAllUsers: true,
-    floatingTerminalCwd: migratedFloatingTerminalCwd,
-    floatingTerminalTrustedCwds: migratedFloatingTerminalTrustedCwds,
-    floatingTerminalCwdMigratedToAppWorkspace: true,
     terminalScrollbackRows: migratedTerminalScrollback.rows,
     terminalQuickCommands: normalizeTerminalQuickCommands(parsed.settings?.terminalQuickCommands),
     terminalCustomThemes: normalizeTerminalCustomThemes(parsed.settings?.terminalCustomThemes),

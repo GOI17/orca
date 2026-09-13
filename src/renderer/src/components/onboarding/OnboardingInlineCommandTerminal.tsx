@@ -115,7 +115,7 @@ export function OnboardingInlineCommandTerminal({
 
   useEffect(() => {
     let cancelled = false
-    void window.api.app.getFloatingTerminalCwd({ path: '~' }).then((nextCwd) => {
+    void window.api.app.getHomeDirectory().then((nextCwd) => {
       if (!cancelled) {
         setCwd(nextCwd)
       }
@@ -336,7 +336,6 @@ export function OnboardingInlineCommandTerminal({
               cwd={cwd}
               isActive
               isVisible
-              showSplitButton={false}
               onPtyExit={() => {
                 onTerminalExit?.()
                 closeTab(tabId, { recordInteraction: false, reason: 'pty-exit' })

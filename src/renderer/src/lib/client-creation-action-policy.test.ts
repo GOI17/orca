@@ -1,10 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import type { RuntimeStatus } from '../../../shared/runtime-types'
 import { toRuntimeExecutionHostId, toSshExecutionHostId } from '../../../shared/execution-host'
 import { folderWorkspaceKey } from '../../../shared/workspace-scope'
 import {
-  FLOATING_BROWSER_UNAVAILABLE_MESSAGE,
   LOCAL_BROWSER_UNAVAILABLE_MESSAGE,
   MANAGED_BROWSER_UNAVAILABLE_MESSAGE,
   MOBILE_EMULATOR_UNAVAILABLE_MESSAGE,
@@ -100,23 +98,6 @@ describe('resolveClientCreationActionPolicy', () => {
       })['managed-browser']
     ).toEqual({ state: 'hidden', reason: MANAGED_BROWSER_UNAVAILABLE_MESSAGE })
   })
-
-  it('hides web-client floating browsers and mobile emulators as impossible surfaces', () => {
-    const policy = resolveClientCreationActionPolicy({
-      surface: 'paired-web',
-      runtimeStatus: runtimeStatus(['browser.screencast.v1', 'mobile.tasks.v1']),
-      floatingWorkspace: true
-    })
-
-    expect(policy['managed-browser']).toEqual({
-      state: 'hidden',
-      reason: FLOATING_BROWSER_UNAVAILABLE_MESSAGE
-    })
-    expect(policy['mobile-emulator']).toEqual({
-      state: 'hidden',
-      reason: MOBILE_EMULATOR_UNAVAILABLE_MESSAGE
-    })
-  })
 })
 
 describe('client creation action guards', () => {
@@ -150,22 +131,6 @@ describe('client creation action guards', () => {
     expect(() =>
       assertManagedBrowserMaterializationAllowed(state as never, 'runtime-1')
     ).not.toThrow()
-  })
-
-  it('treats the floating workspace as local even with an active capable runtime', () => {
-    vi.stubGlobal('__ORCA_WEB_CLIENT__', true)
-    const state = {
-      settings: { activeRuntimeEnvironmentId: 'runtime-1' },
-      runtimeStatusByEnvironmentId: new Map([
-        ['runtime-1', { status: runtimeStatus(['browser.screencast.v1']), checkedAt: 1 }]
-      ])
-    }
-
-    expect(
-      getClientCreationActionPolicy(state as never, FLOATING_TERMINAL_WORKTREE_ID)[
-        'managed-browser'
-      ]
-    ).toEqual({ state: 'hidden', reason: FLOATING_BROWSER_UNAVAILABLE_MESSAGE })
   })
 
   it('uses folder and SSH workspace ownership instead of the focused runtime', () => {

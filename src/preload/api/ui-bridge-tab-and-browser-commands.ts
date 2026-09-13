@@ -104,18 +104,6 @@ export const uiTabAndBrowserCommandsApi = {
     ipcRenderer.on('ui:closeActiveTab', listener)
     return () => ipcRenderer.removeListener('ui:closeActiveTab', listener)
   },
-  onCloseFloatingItem: (callback: (payload: { sourceId: string }) => void): (() => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, payload: { sourceId: string }) =>
-      callback(payload)
-    ipcRenderer.on('ui:closeFloatingItem', listener)
-    return () => ipcRenderer.removeListener('ui:closeFloatingItem', listener)
-  },
-  onSelectFloatingIndex: (callback: (payload: { index: number }) => void): (() => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, payload: { index: number }) =>
-      callback(payload)
-    ipcRenderer.on('ui:selectFloatingIndex', listener)
-    return () => ipcRenderer.removeListener('ui:selectFloatingIndex', listener)
-  },
   onSwitchTab: (callback: (direction: 1 | -1) => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent, direction: 1 | -1) => callback(direction)
     ipcRenderer.on('ui:switchTab', listener)

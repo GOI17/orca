@@ -147,13 +147,7 @@ export function buildDefaultSettings(args: {
     ctrlTabOrderMode: 'mru',
     // Why: Orca-first keeps core shortcuts working from a focused terminal; TUI-ownership users opt in.
     terminalShortcutPolicy: 'orca-first',
-    floatingTerminalEnabled: true,
     browserClientHostedRemoteEnabled: true,
-    floatingTerminalDefaultedForAllUsers: true,
-    floatingTerminalCwd: '~',
-    floatingTerminalTrustedCwds: [],
-    floatingTerminalCwdMigratedToAppWorkspace: true,
-    floatingTerminalTriggerLocation: 'floating-button',
     notifications: args.notifications,
     diffDefaultView: 'inline',
     diffWordWrap: false,

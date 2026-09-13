@@ -132,7 +132,6 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 
 - Full keymap — every binding remappable.
 - Toggle Sleeping Workspaces ships unbound; assign it here if you want a direct shortcut for the sidebar sleeping-worktree filter.
-- **Toggle Workspace Board** ships unbound; assign it here to open or close the Workspace Board with one shortcut. Existing bindings for `workspace.openBoard` continue to work.
 - Close all editor tabs defaults to `Cmd+Option+W` on macOS and `Ctrl+Alt+W` on Windows / Linux.
 - **Tab navigation defaults (new installs):** next/previous tab **across all types** is `Cmd+Shift+]` / `Cmd+Shift+[` (Ctrl on Linux/Windows). Same-type next/previous is `Cmd+Option+]` / `Cmd+Option+[`. Previous recent tab is `Ctrl+Tab`. Existing installs keep customized overrides under `~/.orca/keybindings.json`.
 - **Add Review Note** defaults to `Cmd+Shift+A` (macOS) / `Ctrl+Shift+A` (Windows / Linux); remappable.
@@ -146,12 +145,6 @@ Settings are grouped into panes. Everything here is searchable with `Cmd-,` then
 - Repo icons for the sidebar: choose an icon, full searchable emoji picker, uploaded image, website favicon, or GitHub avatar, then pick a preset or custom hex badge color.
 - Source Control AI overrides for commit messages, pull request details, and branch names.
 - **Worktree Shared Paths** — gitignored paths to materialize from the primary checkout into each new worktree (APFS clone-copy on macOS when possible, otherwise symlink). Complements repo-checked-in `worktree.sharedDirectories` in `orca.yaml` and `.worktreeinclude` (see [Worktrees](/docs/model/worktrees)).
-
-## Floating Workspace
-
-- **Enable Floating Workspace** — global surface for terminal, browser, and markdown tabs that are **not** tied to a repo worktree.
-- **Terminal Directory** — start directory for new floating terminal tabs (`~` = home).
-- **Toggle Button Location** — where the floating-workspace toggle appears; the keyboard shortcut works regardless of button placement.
 
 ## Plugins (Experimental)
 

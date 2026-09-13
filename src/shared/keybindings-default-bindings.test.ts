@@ -6,7 +6,6 @@ import {
   findKeybindingConflicts,
   formatKeybindingList,
   getEffectiveKeybindingsForAction,
-  keybindingFromInput,
   LEGACY_TAB_SWITCH_BINDINGS,
   keybindingMatchesAction
 } from './keybindings'
@@ -320,53 +319,6 @@ describe('keybindings', () => {
       binding: 'Mod+W',
       actionIds: expect.arrayContaining(['tab.close', 'tab.closeAll'])
     })
-  })
-
-  it('defines floating workspace panel action metadata', () => {
-    const actionIds = [
-      'floatingWorkspace.maximize' as KeybindingActionId,
-      'floatingWorkspace.minimize' as KeybindingActionId
-    ] as const
-
-    for (const actionId of actionIds) {
-      expect(getKeybindingDefinition(actionId), actionId).toMatchObject({ id: actionId })
-    }
-  })
-
-  it('assigns the floating workspace maximize default only on macOS', () => {
-    const maximizeAction = 'floatingWorkspace.maximize' as KeybindingActionId
-
-    expect(getEffectiveKeybindingsForAction(maximizeAction, 'darwin')).toEqual(['Mod+Alt+Shift+A'])
-    expect(getEffectiveKeybindingsForAction(maximizeAction, 'linux')).toEqual([])
-    expect(getEffectiveKeybindingsForAction(maximizeAction, 'win32')).toEqual([])
-  })
-
-  it('captures and round-trips the macOS Option-composed maximize chord', () => {
-    const maximizeAction = 'floatingWorkspace.maximize' as KeybindingActionId
-
-    // Why: macOS Option+A composes to a glyph (å), so capture must resolve the
-    // chord through the physical-code fallback rather than the composed key,
-    // matching the matcher so a user override round-trips to the same binding.
-    const macComposedMaximize = {
-      key: 'å',
-      code: 'KeyA',
-      meta: true,
-      control: false,
-      alt: true,
-      shift: true
-    }
-    expect(keybindingFromInput(macComposedMaximize, 'darwin')).toEqual({
-      ok: true,
-      value: 'Mod+Alt+Shift+A'
-    })
-    expect(keybindingMatchesAction(maximizeAction, macComposedMaximize, 'darwin')).toBe(true)
-    // The captured override formats back to the same effective shortcut.
-    expect(
-      getEffectiveKeybindingsForAction(maximizeAction, 'darwin', {
-        [maximizeAction]: ['Mod+Alt+Shift+A']
-      })
-    ).toEqual(['Mod+Alt+Shift+A'])
-    expect(formatKeybindingList(['Mod+Alt+Shift+A'], 'darwin')).toBe('⌘⌥⇧A')
   })
 
   it('defines a macOS-only default for the new agent tab shortcut', () => {

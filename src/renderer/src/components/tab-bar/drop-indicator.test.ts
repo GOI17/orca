@@ -61,13 +61,6 @@ describe('getTabStripBorderClasses', () => {
     expect(getTabStripBorderClasses(true)).toBe('border-t border-r border-border')
     expect(getTabStripBorderClasses(false)).toBe('border-t border-border')
   })
-
-  it('can omit the top border for rounded floating panel titlebars', () => {
-    expect(getTabStripBorderClasses(true, { includeTopBorder: false })).toBe(
-      'border-r border-border'
-    )
-    expect(getTabStripBorderClasses(false, { includeTopBorder: false })).toBe('border-border')
-  })
 })
 
 describe('getTabRootStateClasses', () => {

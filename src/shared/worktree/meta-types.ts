@@ -79,7 +79,7 @@ export type WorktreeMeta = {
   orcaCreationSource?: 'desktop' | 'runtime' | 'cli' | 'ssh'
   /** Workspace layout active when Orca created the worktree. */
   orcaCreationWorkspaceLayout?: OrcaWorkspaceLayout
-  /** User-assigned workspace board status for manual sidebar organization. */
+  /** User-assigned workspace status for manual sidebar organization. */
   workspaceStatus?: WorkspaceStatus
   diffComments?: DiffComment[]
   /** Path-derived worktree ids this worktree had before its folder was renamed

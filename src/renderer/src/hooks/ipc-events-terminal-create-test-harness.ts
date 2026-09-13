@@ -12,9 +12,7 @@ import type {
 
 // Why: the terminal-create surfacing scenario is one long ordered assertion run;
 // its store/window/mock wiring lives here so the assertions stay under budget.
-export async function setupTerminalCreateSurfacing(
-  isFloatingPanelFocused: () => boolean
-): Promise<TerminalCreateSurfacingScenario> {
+export async function setupTerminalCreateSurfacing(): Promise<TerminalCreateSurfacingScenario> {
   const createTab = vi.fn(
     (_worktreeId: string, _groupId?: string, _tabType?: string, options?: { id?: string }) => ({
       id: options?.id ?? 'tab-new'
@@ -36,7 +34,6 @@ export async function setupTerminalCreateSurfacing(
   const setTabBarOrder = vi.fn()
   const replyTerminalCreate = vi.fn()
   const dispatchEvent = vi.fn()
-  const createFloatingWorkspaceTerminalTab = vi.fn()
   const createWebRuntimeSessionTerminal = vi.fn().mockResolvedValue({
     status: 'failed',
     message: 'The workspace is not connected to a remote Orca host.'
@@ -172,11 +169,6 @@ export async function setupTerminalCreateSurfacing(
   vi.doMock('@/lib/zoom-events', () => ({
     dispatchZoomLevelChanged: vi.fn()
   }))
-  vi.doMock('@/lib/floating-workspace-terminal-actions', () => ({
-    createFloatingWorkspaceTerminalTab,
-    isEmptyFloatingWorkspacePanelVisible: () => false,
-    isFloatingWorkspacePanelFocused: () => isFloatingPanelFocused()
-  }))
   vi.doMock('@/runtime/web-runtime-session', () => ({
     activateWebRuntimeSessionTab: vi.fn(),
     closeWebRuntimeSessionTab: vi.fn(),
@@ -231,7 +223,6 @@ export async function setupTerminalCreateSurfacing(
     setTabLayout,
     replyTerminalCreate,
     dispatchEvent,
-    createFloatingWorkspaceTerminalTab,
     createWebRuntimeSessionTerminal,
     focusRuntimeTerminalSurface,
     focusTerminalTabSurface,

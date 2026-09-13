@@ -59,7 +59,7 @@ describe('OnboardingInlineCommandTerminal command-finished forwarding', () => {
       configurable: true,
       value: {
         app: {
-          getFloatingTerminalCwd: vi.fn(async () => '/tmp')
+          getHomeDirectory: vi.fn(async () => '/tmp')
         }
       }
     })

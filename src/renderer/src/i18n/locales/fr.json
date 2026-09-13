@@ -165,8 +165,6 @@
       "722d03aa62": "La boîte de dialogue de rapport de plantage a rencontré une erreur.",
       "8a023cea1f": "Réessayez la barre d'état pour remonter ses contrôles.",
       "2e8ff36f94": "La barre d'état a rencontré une erreur.",
-      "7cbfbf622f": "Réessayez l'espace de travail flottant, ou fermez-le et rouvrez-le.",
-      "1b3024bcd6": "L'espace de travail flottant a rencontré une erreur.",
       "8d1e160ed1": "Réessayez la barre latérale ou changez d'onglet pour recharger cette vue.",
       "ed6b168d00": "La barre latérale droite a rencontré une erreur.",
       "03a14f6b5b": "Réessayez la page ou naviguez vers une autre vue Orca.",
@@ -505,15 +503,6 @@
               "9f00d7df0c": "Le prompt de correction des checks est vide. Mettez à jour les paramètres d'IA du contrôle de code source.",
               "2ebf794906": "Aucun agent IA activé n'a été détecté sur l'hôte de cet espace de travail.",
               "4c7f783a7a": "L'agent de checks enregistré n'est pas disponible sur l'hôte de cet espace de travail."
-            }
-          }
-        }
-      },
-      "floating": {
-        "workspace": {
-          "tab": {
-            "creation": {
-              "f3785eddc2": "Nouvel onglet de navigateur"
             }
           }
         }
@@ -861,7 +850,6 @@
         "291c8ed902": "Les onglets de navigateur sont indisponibles tant qu'un runtime distant est actif",
         "f45fa2b03c": "Les profils de navigateur sont indisponibles tant qu'un runtime distant est actif",
         "f000b2ff76": "Aucun worktree actif",
-        "56d3ec4203": "Échec de la création du fichier markdown sans titre.",
         "f6300deb8b": "Nouvel onglet de navigateur",
         "7a64b31991": "La création d'un terminal local est indisponible tant qu'un runtime distant est actif",
         "60428567b4": "L'affichage d'un terminal local est indisponible tant qu'un runtime distant est actif",
@@ -901,8 +889,6 @@
         "0c6ee88a5f": "Saisie & édition",
         "b11a5a48a2": "Thème, zoom, apparence de l'app et du terminal, barres latérales et barre d'état.",
         "93d88d20bf": "Apparence",
-        "2d0659f6f0": "Onglets globaux de terminal, de navigateur et de markdown.",
-        "65b19f5bde": "Espace de travail flottant",
         "3d65d3f1b9": "Configurez la prise en charge des émulateurs mobiles pour Orca et les agents de codage.",
         "1e761cff2b": "Émulateur mobile",
         "e815fd01bd": "Page d'accueil, routage des liens et cookies de session.",
@@ -957,8 +943,7 @@
         "automationsTitle": "Automatisations",
         "automationsDescription": "Planifiez le travail des agents et choisissez si Automatisations apparaît dans la barre latérale.",
         "shareSkillsTitle": "Partage de skills",
-        "shareSkillsDescription": "Partagez vos skills avec un lien non répertorié. Toute personne qui l'a peut les installer.",
-        "floatingWorkspaceWebDescription": "Onglets globaux de terminal et de markdown."
+        "shareSkillsDescription": "Partagez vos skills avec un lien non répertorié. Toute personne qui l'a peut les installer."
       },
       "useAppMenuPaste": {
         "pasteTooLarge": "Le collage est trop volumineux."
@@ -2093,7 +2078,6 @@
         "0037b21794": "Ne pas enregistrer",
         "21295c6b8c": "Modifications non enregistrées",
         "5c1d2a32bb": "Chargement de l'éditeur...",
-        "f0600556b3": "Échec de la création du fichier markdown sans titre.",
         "37da0d736f": "Nouvel onglet de navigateur",
         "a2a279b32a": "L'enregistrement a expiré ou échoué. Corrigez les erreurs avant de fermer.",
         "46e08bc5c8": "Ce fichier contient des modifications non enregistrées.",
@@ -3507,7 +3491,6 @@
             "antigravityUsageDetails": "Ouvrir les détails d'utilisation Antigravity",
             "grokUsageAria": "Ouvrir les détails d'utilisation Grok",
             "grokUsageMenu": "Utilisation Grok",
-            "floatingTerminalNewActivity": "{{label}}, nouvelle activité",
             "codexSignInSuccess": "Connecté à Codex",
             "codexSignInError": "Échec de la connexion à Codex. Veuillez réessayer."
           },
@@ -4958,9 +4941,6 @@
           "removeDescriptionLocal": "Ceci retire uniquement {{name}} d'Orca. Il est toujours sur votre disque.",
           "removeDescriptionVmRecipe": "Ceci retire {{name}} d'Orca. Sa recette de VM détermine si l'environnement et ses fichiers sont définitivement supprimés."
         },
-        "ScrollToCurrentWorkspaceToolbarButton": {
-          "23989bb663": "Révéler l'espace de travail actif"
-        },
         "SetupGuideSidebarEntry": {
           "b0a7bfc34c": "Masquer de la barre latérale",
           "88d402b71d": "Checklist d'intégration"
@@ -5039,9 +5019,7 @@
         },
         "SidebarHeader": {
           "92154beb7e": "Nouvel espace de travail",
-          "49f62c5665": "Tableau des espaces de travail",
           "5c9c7c16aa": "Ajoutez un projet pour créer des espaces de travail",
-          "a30e34eb5c": "Fermer le tableau des espaces de travail",
           "addProject": "Ajouter un projet"
         },
         "SidebarNav": {
@@ -5091,9 +5069,6 @@
           "c4f8e1b72a": "X"
         },
         "SidebarToolbar": {
-          "87d0064026": "Tableau des espaces de travail déplacé dans la barre inférieure",
-          "a30e34eb5c": "Fermer le tableau des espaces de travail",
-          "49f62c5665": "Tableau des espaces de travail",
           "19e32d0e5f": "Ouvrir le sélecteur de dossiers pour ajouter un projet",
           "abc62b6328": "Ajouter un projet"
         },
@@ -5179,35 +5154,6 @@
         "SshTargetRow": {
           "4677394048": "Connexion…",
           "75ad429b5d": "Se connecter"
-        },
-        "WorkspaceKanbanCard": {
-          "cefae8983e": "Épinglés"
-        },
-        "WorkspaceKanbanDrawerHeader": {
-          "f369f5c5a3": "Fermer",
-          "e1a34450fc": "Organisez les espaces de travail par statut et ouvrez les cartes d'espace de travail.",
-          "81870af08f": "sélectionnés",
-          "c6a77ab0f4": "Tableau des espaces de travail"
-        },
-        "WorkspaceKanbanPinDropTarget": {
-          "c30151c5ee": "Déposez ici pour épingler sans changer de statut.",
-          "8fae2d0862": "Épinglés"
-        },
-        "WorkspaceKanbanSettingsMenu": {
-          "79eb990aa4": "Ajouter un statut",
-          "054cb50df7": "Supprimer {{value0}}",
-          "b45b350eb0": "Déplacer {{value0}} vers la gauche",
-          "8ce44af9a8": "Renommer {{value0}}",
-          "395e541d5d": "Statuts",
-          "34f03eb0de": "Paramètres du tableau",
-          "26cbc92150": "Paramètres du tableau des espaces de travail",
-          "87d24a0c2f": "Synchroniser le tableau et le statut des issues",
-          "4c2eaa78cc": "Déplacer un espace de travail lié met à jour le statut de son issue Linear quand un état de workflow correspondant existe."
-        },
-        "WorkspaceKanbanStatusLane": {
-          "8ad104642b": "Vide",
-          "3611d1ae7f": "Redimensionner les colonnes du tableau des espaces de travail",
-          "2df01a03ff": "Aucun résultat"
         },
         "WorkspaceStatusAppearancePopover": {
           "514be2f569": "Définir la couleur de {{value0}} sur {{value1}}",
@@ -5752,19 +5698,6 @@
           "b7e3a91c4f": "Faites glisser les en-têtes de projets pour les réordonner, ou passez à",
           "e8c1f4a2b9": "dans les options de l'espace de travail."
         },
-        "WorkspaceKanbanDrawer": {
-          "1975a4e480": "Échec de la synchronisation du statut des tâches",
-          "e02b0d92ff": "Synchronisation du statut des tâches ignorée",
-          "c1d2e3f4a5": "L'issue Linear {{value0}} n'a pas pu être lue.",
-          "d2e3f4a5b6": "Aucun état de workflow Linear ne correspond à {{value0}}.",
-          "e3f4a5b6c7": "Plusieurs états de workflow Linear correspondent à {{value0}}.",
-          "f4a5b6c7d8": "Impossible de mettre à jour l'issue Linear {{value0}}.",
-          "a5b6c7d8e9": "Impossible de synchroniser l'issue Linear {{value0}}.",
-          "b6c7d8e9f0": "La synchronisation du statut des tâches n'a pas pu aboutir.",
-          "c7d8e9f0a1": "{{value0}} mis à jour",
-          "d8e9f0a1b2": "{{value0}} ignoré",
-          "e9f0a1b2c3": "{{value0}} a échoué"
-        },
         "WorktreeParentPickerPopover": {
           "failedSetParent": "Échec de la définition du worktree parent",
           "current": "Actuel",
@@ -5899,14 +5832,6 @@
           "screenshotsHint": "Joignez jusqu'à {count} captures d'écran",
           "attachImages": "Joindre",
           "removeImage": "Supprimer {{fileName}}"
-        },
-        "WorkspaceKanbanSearchField": {
-          "bdb753c78d": "Aucun espace de travail correspondant",
-          "4d96c209d6": "{{value0}} espaces de travail sur {{value1}} correspondent",
-          "c0cd6bdf6c": "Rechercher des espaces de travail",
-          "3b7ea51793": "Effacer la recherche",
-          "7f1c2e94a5": "Texte de recherche trop long — le tableau n'est pas filtré",
-          "9a4d0f6b21": "Trop long"
         },
         "WorktreeIssueLinkField": {
           "25852bfc59": "Linear",
@@ -6750,19 +6675,6 @@
             "modeInWindow": "Dans la fenêtre",
             "modePopout": "Fenêtre indépendante"
           }
-        },
-        "FloatingWorkspacePane": {
-          "aeaf76fda9": "Barre d'état",
-          "9fb225f2d7": "Bouton flottant",
-          "3c900e26e5": "Le raccourci clavier fonctionne quel que soit l'emplacement du bouton d'activation.",
-          "5e5a8da236": "Emplacement du bouton d'activation",
-          "505001823e": "Choisir le dossier de l'espace de travail flottant",
-          "81afb79785": "C'est ici que démarrent les nouveaux onglets de terminal flottants. Les notes Markdown sont enregistrées dans l'espace de travail flottant propre à l'application Orca.",
-          "12aa09f10c": "Dossier du terminal",
-          "41eb95f7f0": "Affiche le bouton et le panneau de l'espace de travail flottant.",
-          "5136813663": "Activer l'espace de travail flottant",
-          "37df688d6f": "Activez l'espace de travail flottant et choisissez où démarrent les nouveaux onglets.",
-          "1f67f39384": "Espace de travail flottant"
         },
         "AgentCacheTimerSection": {
           "05de84a104": "1 heure",
@@ -7854,8 +7766,6 @@
           "d7a3e635b6": "Saisie & édition",
           "6d1a27e193": "Thème, zoom, apparence de l'app et du terminal, barres latérales et barre d'état.",
           "2b4474780a": "Apparence",
-          "3d9adfe6a5": "Onglets globaux de terminal, de navigateur et de markdown.",
-          "3eb22a3ada": "Espace de travail flottant",
           "01f9d36292": "Configurez la prise en charge des émulateurs mobiles pour Orca et les agents de codage.",
           "f75daf1002": "Émulateur mobile",
           "ad9788036f": "Page d'accueil, routage des liens et cookies de session.",
@@ -9082,27 +8992,6 @@
             "agentDashboard": {
               "title": "Tableau de bord des agents",
               "description": "Tableau Kanban pour surveiller les agents de tous les worktrees, dans la fenêtre ou en fenêtre indépendante."
-            }
-          }
-        },
-        "floating": {
-          "workspace": {
-            "search": {
-              "94f4d013c8": "barre d'état",
-              "a452146574": "bouton de bascule",
-              "6765b85e48": "répertoire de lancement",
-              "a38bfc3f77": "panneau rapide",
-              "52db6e3baf": "notes",
-              "156ffeee08": "note",
-              "884e5e6132": "markdown",
-              "49db74a92d": "navigateur",
-              "6410fe83d8": "terminal",
-              "2b5efa55c9": "global",
-              "ebeedb2f6a": "terminal rapide",
-              "6f183fa1b9": "terminal flottant",
-              "a08e482f6d": "espace de travail flottant",
-              "b96b5ee6cf": "Activer l'espace de travail flottant, choisir où s'ouvrent les nouveaux onglets et où apparaît le bouton de bascule.",
-              "b2b60e7163": "Workspace flottant"
             }
           }
         },
@@ -13371,61 +13260,6 @@
           }
         }
       },
-      "floating": {
-        "terminal": {
-          "FloatingTerminalIconContextMenu": {
-            "8e7d775287": "Masquer l'espace de travail flottant",
-            "763f5fa2c1": "Déplacer vers le bouton flottant",
-            "0ee79e0674": "Déplacer vers la barre d'état"
-          },
-          "FloatingTerminalOrchestrationDialog": {
-            "f726054620": "Permet aux agents de transmettre le contexte et de coordonner le travail via Orca.",
-            "1cd3f8af64": "Skill d'orchestration",
-            "6f0aed26b8": "Installez le CLI Orca et la skill d'orchestration pour que les agents puissent se coordonner via Orca.",
-            "05d7aabc20": "Non installé",
-            "630c0ac8c8": "Installés",
-            "dfd021ce46": "Vérification...",
-            "543f325a14": "Activer l'orchestration"
-          },
-          "FloatingTerminalPanel": {
-            "fc1042e92b": "Réduire",
-            "8b07759314": "Nouveau navigateur",
-            "88ffb502e5": "Ouvrir une note Markdown",
-            "629528690b": "Nouvelle note Markdown",
-            "3215fc73e9": "Nouveau terminal",
-            "da508bd7f5": "Enregistrer",
-            "918c2139f3": "Ne pas enregistrer",
-            "e7bf09d4d4": "Annuler",
-            "690b6fb98a": "Modifications non enregistrées",
-            "bbc177f98f": "Activer",
-            "adc281394d": "Ignorer",
-            "8cf80db43b": "Configurez le CLI Orca et la skill d'agent pour que les agents puissent se coordonner via Orca.",
-            "2a3c5ddf5e": "Activer l'orchestration",
-            "d6b563ae24": "Chargement de l'éditeur...",
-            "8b14ba6c17": "Nouvel onglet de navigateur",
-            "b085fb58b5": "Ce fichier contient des modifications non enregistrées.",
-            "5ddc688c52": "« {{value0}} » contient des modifications non enregistrées. Voulez-vous enregistrer avant de fermer ?",
-            "25d7817f79": "terminal"
-          },
-          "FloatingTerminalToggleButton": {
-            "3b04b065b5": "Afficher l'espace de travail flottant",
-            "4cb418b991": "Afficher l'espace de travail flottant, nouvelle activité",
-            "5785dd9148": "Réduire l'espace de travail flottant",
-            "bfe7809a70": "Espace de travail flottant {{value0}} ({{value1}})"
-          },
-          "FloatingTerminalWindowControls": {
-            "2f6054342c": "Réduire",
-            "1bbaa0302f": "Réduire l'espace de travail flottant",
-            "3f4ca29961": "Agrandir l'espace de travail flottant",
-            "1c79cba25d": "Restaurer l'espace de travail flottant",
-            "648352c51f": "Ouvrir {{value0}} dans l'espace de travail flottant",
-            "82da3701e7": "Impossible de construire la commande de lancement pour {{value0}}.",
-            "109870e023": "Agrandir",
-            "b5686fee1e": "Restaurer",
-            "1e502f1284": "Ouvert"
-          }
-        }
-      },
       "feature": {
         "wall": {
           "AgentCapabilitiesSetupAction": {
@@ -15481,6 +15315,9 @@
           "f915168c8e": "non lu",
           "d6a8de3934": "agents",
           "dc708f3eff": "Fermer les agents"
+        },
+        "threadSearch": {
+          "clear": "Effacer la recherche"
         }
       },
       "confirmation": {

@@ -91,6 +91,7 @@ export type RuntimeStatus = {
   hostPlatform?: NodeJS.Platform
   terminalWindowsShell?: string | null
   deviceScope?: DeviceScope
+  /** Retained for older paired clients; current hosts always publish false. */
   floatingWorkspaceEnabled?: boolean
   // COMPAT(runtimeStatusMobileAliases): added 2026-05-15 for older mobile builds.
   protocolVersion?: number

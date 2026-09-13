@@ -17,11 +17,6 @@ export type LeftSidebarAppearanceMode = 'default' | 'match-terminal' | 'tinted'
 /** Strategy for the prefix prepended to worktree branch names. */
 export type BranchPrefixStrategy = 'git-username' | 'custom' | 'none'
 
-export type FloatingTerminalCwdRequest = {
-  path?: string
-  requireTrusted?: boolean
-}
-
 /** Presentation mode for the experimental Agent Dashboard. */
 export type AgentDashboardMode = 'in-window' | 'popout'
 
@@ -65,7 +60,6 @@ export type StatusBarItem =
   | 'ssh'
   | 'resource-usage'
   | 'ports'
-export type FloatingTerminalTriggerLocation = 'floating-button' | 'status-bar'
 
 export type TaskResumeState = {
   githubMode?: 'items' | 'project'

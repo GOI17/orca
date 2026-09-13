@@ -22,7 +22,6 @@ import {
   selectAppRootSurfaceTelemetryOptedIn,
   selectAppRootSurfaceVoiceEnabled
 } from './app-root-surface-settings'
-import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel'
 import type { OnboardingGate } from './use-onboarding-and-feature-tips'
 
 const QuickOpen = lazy(() => import('../components/QuickOpen'))
@@ -77,11 +76,6 @@ const SetupGuideTelemetryObserver = lazy(() =>
     default: module.SetupGuideTelemetryObserver
   }))
 )
-const FloatingTerminalPanel = lazy(() =>
-  import('../components/floating-terminal/FloatingTerminalPanel').then((module) => ({
-    default: module.FloatingTerminalPanel
-  }))
-)
 // Why: lazy so the WebP asset + overlay module aren't fetched unless the experimental flag is on.
 const PetOverlay = lazy(() => import('../components/pet/PetOverlay'))
 // Why: lazy so onboarding's step modules + assets aren't fetched for users past first-launch.
@@ -125,11 +119,8 @@ function shouldMountUpdateCardForStatus(status: UpdateStatus): boolean {
  * Every overlay and modal hosted at the App root, in a fixed sibling order so stacking stays
  * stable. Each is gated so its chunk is only fetched once the surface can actually appear.
  */
-export function AppRootSurfaces(props: {
-  floatingWorkspace: FloatingWorkspacePanelState
-  onboardingGate: OnboardingGate
-}): React.JSX.Element {
-  const { floatingWorkspace, onboardingGate } = props
+export function AppRootSurfaces(props: { onboardingGate: OnboardingGate }): React.JSX.Element {
+  const { onboardingGate } = props
   const { mountedLazyModalIds, shouldMountAddRepoDialog } = useLazyModalMounts()
   const activeView = useAppStore((s) => s.activeView)
   const activeModal = useAppStore((s) => s.activeModal)
@@ -153,25 +144,6 @@ export function AppRootSurfaces(props: {
 
   return (
     <>
-      {floatingWorkspace.shouldMountPanel ? (
-        <Suspense fallback={null}>
-          <OverlayBoundary
-            boundaryId="overlay.floating-workspace"
-            resetKey={floatingWorkspace.open}
-            title={translate('auto.App.1b3024bcd6', 'The floating workspace hit an error.')}
-            description={translate(
-              'auto.App.7cbfbf622f',
-              'Retry the floating workspace or close and reopen it.'
-            )}
-          >
-            <FloatingTerminalPanel
-              open={floatingWorkspace.open}
-              onOpenChange={floatingWorkspace.setOpenWithFocus}
-              tourInteractionSnapshot={floatingWorkspace.tourInteractionSnapshotRef.current}
-            />
-          </OverlayBoundary>
-        </Suspense>
-      ) : null}
       {statusBarVisible ? (
         <Suspense
           fallback={
@@ -187,7 +159,7 @@ export function AppRootSurfaces(props: {
               'Retry the status bar to remount its controls.'
             )}
           >
-            <StatusBar floatingTerminalOpen={floatingWorkspace.open} />
+            <StatusBar />
           </OverlayBoundary>
         </Suspense>
       ) : null}

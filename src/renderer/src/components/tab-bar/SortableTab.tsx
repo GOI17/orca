@@ -51,7 +51,6 @@ type SortableTabProps = {
   onToggleExpand: (tabId: string) => void
   dragData: TabDragItemData
   dropIndicator?: DropIndicator
-  includeTopTabBorder?: boolean
   /** True when this agent terminal can switch between the terminal and native chat views; surfaces the "Switch view" context-menu item. */
   canToggleViewMode?: boolean
   /** True when the tab is currently showing the native chat view. */
@@ -84,7 +83,6 @@ export default function SortableTab({
   onToggleExpand,
   dragData,
   dropIndicator,
-  includeTopTabBorder = true,
   canToggleViewMode = false,
   isChatView = false,
   onToggleViewMode,
@@ -189,7 +187,7 @@ export default function SortableTab({
       {...attributes}
       {...dragListeners}
       // Why: subtle amber wash flags unread activity at a glance, layered over the active highlight so it still reads selected.
-      className={`group relative flex items-center h-full px-1.5 text-xs cursor-pointer select-none outline-none focus:outline-none focus-visible:outline-none ${getTabStripBorderClasses(hasTabsToRight, { includeTopBorder: includeTopTabBorder })} ${getDropIndicatorClasses(dropIndicator ?? null)} ${getTabRootStateClasses(isActive)}`}
+      className={`group relative flex items-center h-full px-1.5 text-xs cursor-pointer select-none outline-none focus:outline-none focus-visible:outline-none ${getTabStripBorderClasses(hasTabsToRight)} ${getDropIndicatorClasses(dropIndicator ?? null)} ${getTabRootStateClasses(isActive)}`}
       onDoubleClick={(e) => {
         if (isEditing) {
           return

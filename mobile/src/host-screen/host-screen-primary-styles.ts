@@ -136,13 +136,6 @@ export const hostScreenPrimaryStyles = StyleSheet.create({
   toolbarSpacer: {
     flex: 1
   },
-  floatingWorkspaceHeaderButton: {
-    width: 32,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: spacing.xs
-  },
   embeddedToolbarIconButton: {
     flex: 1,
     height: 28,

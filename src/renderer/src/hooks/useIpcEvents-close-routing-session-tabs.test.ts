@@ -22,7 +22,6 @@ describe('useIpcEvents browser tab close routing', () => {
     vi.unstubAllGlobals()
     // Undo a partial mock of this module leaked by an earlier describe so the real
     // resolveFloatingWorkspaceBrowserWorkspaceId (source validation) is used here.
-    vi.doUnmock('@/lib/floating-workspace-terminal-actions')
     closeTerminalTabMock.mockReset()
   })
 

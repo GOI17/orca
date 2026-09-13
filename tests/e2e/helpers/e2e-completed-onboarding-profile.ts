@@ -3,7 +3,6 @@ import { FEATURE_INTERACTION_IDS } from '../../../src/shared/feature-interaction
 import { FEATURE_TIP_IDS } from '../../../src/shared/feature-tips'
 
 const SEEN_FIRST_RUN_CONTEXTUAL_TOUR_IDS = [
-  'workspace-board',
   'browser',
   'tasks',
   'automations',

@@ -1,8 +1,6 @@
 import { ipcRenderer } from 'electron'
 import type { AppIdentity } from '../../shared/app-identity'
-import type { FloatingTerminalCwdRequest } from '../../shared/ui-chrome-types'
 import type { MacCapturedDigitRowChord } from '../../shared/macos-symbolic-hotkeys'
-import type { MarkdownDocument } from '../../shared/filesystem-entry-types'
 import type { WriteTerminalRenderDesyncEvidenceArgs } from '../../shared/terminal-render-desync-evidence'
 import {
   KEYBOARD_LAYOUT_CHANGED_CHANNEL,
@@ -66,14 +64,7 @@ export const appApi = {
   },
   setUnreadDockBadgeCount: (count: number): Promise<void> =>
     ipcRenderer.invoke('app:setUnreadDockBadgeCount', count),
-  getFloatingTerminalCwd: (args?: FloatingTerminalCwdRequest): Promise<string> =>
-    ipcRenderer.invoke('app:getFloatingTerminalCwd', args),
-  getFloatingMarkdownDirectory: (): Promise<string> =>
-    ipcRenderer.invoke('app:getFloatingMarkdownDirectory'),
-  pickFloatingMarkdownDocument: (): Promise<MarkdownDocument | null> =>
-    ipcRenderer.invoke('app:pickFloatingMarkdownDocument'),
-  pickFloatingWorkspaceDirectory: (): Promise<string | null> =>
-    ipcRenderer.invoke('app:pickFloatingWorkspaceDirectory'),
+  getHomeDirectory: (): Promise<string> => ipcRenderer.invoke('app:getHomeDirectory'),
   writeTerminalRenderDesyncEvidence: (args: WriteTerminalRenderDesyncEvidenceArgs) =>
     ipcRenderer.invoke('terminal:writeRenderDesyncEvidence', args)
 } satisfies PreloadApi['app']

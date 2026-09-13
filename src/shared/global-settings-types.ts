@@ -28,7 +28,6 @@ import type { TuiAgent } from './tui-agent'
 import type {
   AgentDashboardMode,
   BranchPrefixStrategy,
-  FloatingTerminalTriggerLocation,
   LeftSidebarAppearanceMode,
   OpenInApplication,
   SourceControlGroupOrder,
@@ -255,8 +254,6 @@ export type GlobalSettings = {
   ctrlTabOrderMode?: CtrlTabOrderMode
   /** Orca-first keeps app shortcuts from TUIs; terminal-first is opt-in to let shell/TUI bindings win. */
   terminalShortcutPolicy?: TerminalShortcutPolicy
-  /** Floating Workspace: global surface for terminal/browser/markdown tabs outside repo/worktree context. */
-  floatingTerminalEnabled: boolean
   /** Main-side new-page kill switch for paired Electron client-hosted browser placement. */
   browserClientHostedRemoteEnabled?: boolean
   /** Routes SSH-workspace browser pages through the workspace's SSH host; off = plain local browsing. */
@@ -265,16 +262,6 @@ export type GlobalSettings = {
   browserSshWorkspaceRoutingDisabledTargetIds?: string[]
   /** Targets whose forwarding preflight the user overrode via "Try anyway" (e.g. PermitOpen allows their sites); skips the probe, never changes egress. */
   browserSshWorkspaceRoutingProbeSkippedTargetIds?: string[]
-  /** One-shot migration flag for the floating-workspace default-on rollout; after migration an explicit off sticks. */
-  floatingTerminalDefaultedForAllUsers?: boolean
-  /** Start dir for new floating-workspace terminal tabs; empty or '~' = home dir. */
-  floatingTerminalCwd: string
-  /** Picker-approved floating-workspace dirs reauthorized across restarts; renderer text alone must not populate this. */
-  floatingTerminalTrustedCwds?: string[]
-  /** One-shot migration marker for legacy floating workspace cwd trust grants. */
-  floatingTerminalCwdMigratedToAppWorkspace?: boolean
-  /** Where the Floating Workspace toggle is shown; defaults to the floating button for discoverability. */
-  floatingTerminalTriggerLocation: FloatingTerminalTriggerLocation
   /** Legacy keyboard-shortcut overrides; new writes go to ~/.orca/keybindings.json, migrated once when present. */
   keybindings?: KeybindingOverrides
   diffDefaultView: 'inline' | 'side-by-side'

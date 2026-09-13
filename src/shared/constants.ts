@@ -102,7 +102,7 @@ export const STAR_NAG_INITIAL_THRESHOLD = 35
 /** Synthetic worktree id for PTYs not tied to any worktree; shared so main and renderer agree on the sentinel. */
 export const ORPHAN_WORKTREE_ID = '__orphan__'
 
-// Why: synthetic local workspace; persistence pruning must classify it without the repo catalog.
+// Legacy session and inline-terminal wire identity; paired clients can outlive the removed UI.
 export const FLOATING_TERMINAL_WORKTREE_ID = 'global-floating-terminal'
 
 export const REPO_COLORS = [
@@ -284,9 +284,6 @@ export function getDefaultUIState(): PersistedUIState {
     _worktreeCardModeDefaulted: true,
     agentActivityDisplayMode: DEFAULT_AGENT_ACTIVITY_DISPLAY_MODE,
     workspaceStatuses: cloneDefaultWorkspaceStatuses(),
-    workspaceBoardOpacity: 1,
-    workspaceBoardColumnWidth: 308,
-    syncTaskStatusFromWorkspaceBoard: false,
     _workspaceStatusesDefaultOrderMigrated: true,
     _workspaceStatusesReorderedDefaultRepaired: true,
     _workspaceStatusesDefaultWorkflowMigrated: true,

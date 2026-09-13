@@ -40,7 +40,6 @@ export function buildTerminalCreateWindow(args: {
         onToggleLeftSidebar: () => () => {},
         onToggleRightSidebar: () => () => {},
         onToggleWorktreePalette: () => () => {},
-        onToggleFloatingTerminal: () => () => {},
         onOpenQuickOpen: () => () => {},
         onToggleQuickCommandsMenu: () => () => {},
         onOpenNewWorkspace: () => () => {},
@@ -136,8 +135,6 @@ export function buildTerminalCreateWindow(args: {
           return () => {}
         },
         onCloseActiveTab: () => () => {},
-        onCloseFloatingItem: () => () => {},
-        onSelectFloatingIndex: () => () => {},
         onSwitchTab: () => () => {},
         onSwitchTabAcrossAllTypes: () => () => {},
         onSwitchRecentTab: () => () => {},

@@ -66,11 +66,6 @@ export const uiStateAndMenuCommandsApi = {
     ipcRenderer.on('ui:toggleWorktreePalette', listener)
     return () => ipcRenderer.removeListener('ui:toggleWorktreePalette', listener)
   },
-  onToggleFloatingTerminal: (callback: () => void): (() => void) => {
-    const listener = (_event: Electron.IpcRendererEvent) => callback()
-    ipcRenderer.on('ui:toggleFloatingTerminal', listener)
-    return () => ipcRenderer.removeListener('ui:toggleFloatingTerminal', listener)
-  },
   onTerminalShortcutCaptured: (
     callback: (data: { actionId: KeybindingActionId }) => void
   ): (() => void) => {
@@ -98,11 +93,6 @@ export const uiStateAndMenuCommandsApi = {
     const listener = (_event: Electron.IpcRendererEvent) => callback()
     ipcRenderer.on('ui:deleteCurrentWorkspace', listener)
     return () => ipcRenderer.removeListener('ui:deleteCurrentWorkspace', listener)
-  },
-  onOpenWorkspaceBoard: (callback: () => void): (() => void) => {
-    const listener = (_event: Electron.IpcRendererEvent) => callback()
-    ipcRenderer.on('ui:openWorkspaceBoard', listener)
-    return () => ipcRenderer.removeListener('ui:openWorkspaceBoard', listener)
   },
   onOpenTasks: (callback: () => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent) => callback()
