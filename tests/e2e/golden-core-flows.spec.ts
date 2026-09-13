@@ -340,7 +340,7 @@ async function requestAgentSessionsTour(page: Page): Promise<void> {
         page.evaluate(() => {
           const state = window.__store?.getState()
           const splitTarget = document.querySelector(
-            '[data-contextual-tour-target="terminal-pane-split-target"], [data-contextual-tour-target="workspace-agent-terminal-tip"]'
+            '[data-contextual-tour-target="workspace-agent-terminal-tip"]'
           )
           const rect = splitTarget?.getBoundingClientRect()
           return {

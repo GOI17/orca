@@ -245,9 +245,7 @@ describe('createUISlice contextual tours', () => {
 
   it('force-starts a tour from an explicit user action even after auto tours are unavailable', () => {
     const store = createUIStore()
-    stubContextualTourTargets([
-      '[data-contextual-tour-target="terminal-pane-split-target"], [data-contextual-tour-target="workspace-agent-terminal-tip"]'
-    ])
+    stubContextualTourTargets(['[data-contextual-tour-target="workspace-agent-terminal-tip"]'])
     store.getState().hydratePersistedUI(
       makePersistedUI({
         contextualToursAutoEligible: false,
@@ -268,9 +266,7 @@ describe('createUISlice contextual tours', () => {
 
   it('preserves the bounded setup-guide parallel-work source on forced tour requests', () => {
     const store = createUIStore()
-    stubContextualTourTargets([
-      '[data-contextual-tour-target="terminal-pane-split-target"], [data-contextual-tour-target="workspace-agent-terminal-tip"]'
-    ])
+    stubContextualTourTargets(['[data-contextual-tour-target="workspace-agent-terminal-tip"]'])
     store.getState().hydratePersistedUI(
       makePersistedUI({
         contextualToursAutoEligible: false,
@@ -351,7 +347,7 @@ describe('createUISlice contextual tours', () => {
     })
     const store = createUIStore()
     stubContextualTourTargets([
-      '[data-contextual-tour-target="terminal-pane-split-target"], [data-contextual-tour-target="workspace-agent-terminal-tip"]',
+      '[data-contextual-tour-target="workspace-agent-terminal-tip"]',
       '[data-contextual-tour-target="workspace-create-control"]'
     ])
     store.getState().hydratePersistedUI(makeAutoTourEligibleUI())
@@ -381,9 +377,7 @@ describe('createUISlice contextual tours', () => {
       }
     })
     const store = createUIStore()
-    stubContextualTourTargets([
-      '[data-contextual-tour-target="terminal-pane-split-target"], [data-contextual-tour-target="workspace-agent-terminal-tip"]'
-    ])
+    stubContextualTourTargets(['[data-contextual-tour-target="workspace-agent-terminal-tip"]'])
     store.setState({ sidebarOpen: false })
     store.getState().hydratePersistedUI(makeAutoTourEligibleUI())
     store

@@ -31,7 +31,6 @@ export function TerminalPaneSurface({
 }): React.JSX.Element {
   const {
     activePane,
-    activePaneCanContinueInNewSession,
     activePaneCanToggleChat,
     activePaneIsChatLeaf,
     activatePaneTitleInteraction,
@@ -98,9 +97,7 @@ export function TerminalPaneSurface({
     setRenameValue,
     setSearchOpen,
     setSessionStateSaveFailureOpen,
-    showSplitButton,
     showSshReconnectOverlay,
-    splitTerminalPaneFromHeader,
     tabId,
     terminalContainerStyle,
     terminalContentVisible,
@@ -299,7 +296,6 @@ export function TerminalPaneSurface({
         worktreeId={worktreeId}
         cwd={cwd ?? ''}
         showAlwaysOnHeaders={isActive && terminalContentVisible}
-        showSplitButton={showSplitButton}
         paneCount={paneCount}
         activePaneId={activePane?.id}
         panes={managedPanes}
@@ -317,11 +313,6 @@ export function TerminalPaneSurface({
         canToggleNativeChat={activePaneCanToggleChat}
         isChatViewMode={activePaneIsChatLeaf}
         onToggleNativeChat={handleToggleNativeChat}
-        canContinueAgentSessionInNewSession={activePaneCanContinueInNewSession}
-        onContinueAgentSessionInNewSession={(pane) =>
-          contextMenu.runForPane(pane.id, contextMenu.onContinueAgentSessionInNewSession)
-        }
-        onSplitPane={splitTerminalPaneFromHeader}
         onBeginPaneDrag={beginPaneDragFromHeader}
         onActivatePaneTitleInteraction={activatePaneTitleInteraction}
         onPaneTitleContextMenu={contextMenu.onPaneTitleContextMenu}

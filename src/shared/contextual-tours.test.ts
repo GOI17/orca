@@ -60,7 +60,7 @@ describe('contextual tour definitions', () => {
       advanceOnFeatureInteraction: 'terminal-pane-split'
     })
     expect(tour?.steps[0]?.body).toContain('{terminal.splitRight}')
-    expect(tour?.steps[0]?.targetSelector).toContain('terminal-pane-split-target')
+    expect(tour?.steps[0]?.targetSelector).toContain('workspace-agent-terminal-tip')
     expect(tour?.steps[0]?.targetSelector).not.toContain('terminal-split-control')
     expect(tour?.steps[0]?.secondaryAction).toBeUndefined()
     // The closing step anchors on the real new-worktree button; the pulse makes

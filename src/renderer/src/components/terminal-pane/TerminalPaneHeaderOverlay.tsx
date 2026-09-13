@@ -1,11 +1,5 @@
 import type { CSSProperties, RefObject } from 'react'
-import {
-  MessageSquare,
-  MessageSquarePlus,
-  SquareSplitVertical,
-  SquareTerminal,
-  X
-} from 'lucide-react'
+import { MessageSquare, SquareTerminal, X } from 'lucide-react'
 import type { ManagedPane, PaneManager } from '@/lib/pane-manager/pane-manager'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -26,8 +20,6 @@ type TerminalPaneHeaderOverlayProps = {
   worktreeId: string
   cwd: string
   showAlwaysOnHeaders: boolean
-  /** Used by ephemeral one-off command terminals that omit the header affordance. */
-  showSplitButton?: boolean
   paneCount: number
   activePaneId: number | null | undefined
   panes: readonly ManagedPane[]
@@ -44,7 +36,7 @@ type TerminalPaneHeaderOverlayProps = {
   paneTransportsRef: RefObject<Map<number, PtyTransport>>
   /** When true, this pane can switch between the terminal and the native chat
    *  view; renders a chat/terminal toggle as the first button in the pane header
-   *  actions row (beside split/close). The caller gates it to the active pane to
+   *  actions row. The caller gates it to the active pane to
    *  avoid duplicating it across splits, and to bridge chat only — a structured
    *  session has no terminal underneath to switch to. */
   canToggleNativeChat?: boolean
@@ -52,9 +44,6 @@ type TerminalPaneHeaderOverlayProps = {
   isChatViewMode?: boolean
   /** Flip the active pane between the terminal and the native chat view. */
   onToggleNativeChat?: () => void
-  canContinueAgentSessionInNewSession?: boolean
-  onContinueAgentSessionInNewSession?: (pane: ManagedPane) => void
-  onSplitPane: (pane: ManagedPane, direction: 'vertical' | 'horizontal') => void
   onBeginPaneDrag: (paneId: number, handle: HTMLElement, event: PointerEvent) => void
   onActivatePaneTitleInteraction: (paneId: number) => void
   onPaneTitleContextMenu: (event: React.MouseEvent<HTMLElement>, paneId: number) => void
@@ -72,7 +61,6 @@ export default function TerminalPaneHeaderOverlay({
   worktreeId,
   cwd,
   showAlwaysOnHeaders,
-  showSplitButton = true,
   paneCount,
   activePaneId,
   panes,
@@ -90,9 +78,6 @@ export default function TerminalPaneHeaderOverlay({
   canToggleNativeChat,
   isChatViewMode,
   onToggleNativeChat,
-  canContinueAgentSessionInNewSession,
-  onContinueAgentSessionInNewSession,
-  onSplitPane,
   onBeginPaneDrag,
   onActivatePaneTitleInteraction,
   onPaneTitleContextMenu,
@@ -104,11 +89,6 @@ export default function TerminalPaneHeaderOverlay({
   onRenameCancel,
   onRenameBlur
 }: TerminalPaneHeaderOverlayProps): React.JSX.Element {
-  const splitRightLabel = translate(
-    'auto.components.terminal.pane.TerminalContextMenu.20e565d865',
-    'Split Terminal Right'
-  )
-
   return (
     <div
       className="pane-title-overlay-layer"
@@ -246,34 +226,6 @@ export default function TerminalPaneHeaderOverlay({
                   </button>
                 ) : null}
                 <div className="pane-title-actions ml-auto flex shrink-0 items-center gap-0">
-                  {canContinueAgentSessionInNewSession && isActivePane ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xs"
-                          className="pane-title-split-trigger"
-                          aria-label={translate(
-                            'components.agentSessionContinuation.continueInNewSession',
-                            'Continue in New Session…'
-                          )}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            onContinueAgentSessionInNewSession?.(pane)
-                          }}
-                        >
-                          <MessageSquarePlus className="size-3" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" sideOffset={4}>
-                        {translate(
-                          'components.agentSessionContinuation.continueInNewSession',
-                          'Continue in New Session…'
-                        )}
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : null}
                   {canToggleNativeChat && isActivePane ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -281,8 +233,6 @@ export default function TerminalPaneHeaderOverlay({
                           type="button"
                           variant="ghost"
                           size="icon-xs"
-                          // Same class as split so it shares the hover/active reveal
-                          // and sits as a peer in the [chat][split][×] cluster.
                           className="pane-title-split-trigger"
                           aria-label={
                             isChatViewMode
@@ -312,31 +262,6 @@ export default function TerminalPaneHeaderOverlay({
                         {isChatViewMode
                           ? translate('components.native-chat.toggle.showTerminal', 'Show terminal')
                           : translate('components.native-chat.toggle.showChat', 'Show chat view')}
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : null}
-                  {showAlwaysOnHeaders && showSplitButton ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xs"
-                          className="pane-title-split-trigger"
-                          data-contextual-tour-target={
-                            isActivePane ? 'terminal-pane-split-target' : undefined
-                          }
-                          aria-label={splitRightLabel}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            onSplitPane(pane, 'vertical')
-                          }}
-                        >
-                          <SquareSplitVertical className="size-3" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" sideOffset={4}>
-                        {splitRightLabel}
                       </TooltipContent>
                     </Tooltip>
                   ) : null}

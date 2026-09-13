@@ -174,9 +174,6 @@ export function useTerminalPaneProjection(controller: TerminalPaneMobileControll
       }) ?? resolveTitleAgentForLeaf(leafId)
     )
   }
-  const activePaneCanContinueInNewSession = canContinueAgentSessionInNewSession(
-    resolveAgentForLeaf(activePane?.leafId ?? null)
-  )
   const contextMenuCanContinueInNewSession = canContinueAgentSessionInNewSession(
     resolveAgentForLeaf(contextMenuLeafId)
   )
@@ -216,7 +213,6 @@ export function useTerminalPaneProjection(controller: TerminalPaneMobileControll
     chatPaneOwnsTabWideLaunchDraft,
     activePaneIsChatLeaf,
     resolveAgentForLeaf,
-    activePaneCanContinueInNewSession,
     contextMenuCanContinueInNewSession,
     activePaneCanToggleChat,
     contextMenuCanToggleChat,
