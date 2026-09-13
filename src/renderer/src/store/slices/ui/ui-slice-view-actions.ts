@@ -3,6 +3,7 @@ import { rewindHistoryIndexPastView } from '../worktree-nav-history'
 
 export function createUiViewActions(set: UISliceSet, get: UISliceGet): Partial<UISlice> {
   return {
+    personalChatDirectory: null,
     openActivityPage: () => {
       set((state) => ({
         activeView: 'activity',

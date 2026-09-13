@@ -1,4 +1,5 @@
 // @ts-nocheck -- mechanically split from OrcaRuntimeService; behavior is covered by AST equivalence and characterization tests.
+import { isPersonalChatsSelector } from '../../shared/personal-chats'
 import { OrcaRuntimeWithStopStructuredSessionProcess } from './orca-runtime-stop-structured-session-process'
 import type { AgentSessionOwnerBinding } from '../../shared/agent-session-host-authority'
 import { agentSessionOwnerBindingsEqual } from '../../shared/claimed-agent-pty-owner-snapshot'
@@ -100,7 +101,8 @@ export class OrcaRuntimeWithResolveRecoveredStructuredTuiTranscript extends Orca
     const target = await this.resolveRuntimeFileTarget(worktreeSelector)
     const repo = this.store?.getRepo(target.worktree.repoId)
     const folderScope = parseWorkspaceKey(target.worktree.id)
-    const folderWorkspace = folderScope?.type === 'folder'
+    const folderWorkspace =
+      folderScope?.type === 'folder' || isPersonalChatsSelector(worktreeSelector)
     // WSL routing describes *this* machine; no remote or runtime host may inherit
     // it. Both branches key on executionHostId: the target no longer carries a
     // connectionId, which used to spell remote, unresolved and local alike.

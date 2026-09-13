@@ -1,3 +1,4 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../../shared/personal-chats'
 import { useAppStore } from '@/store'
 import type { AppState } from '@/store/types'
 import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client'
@@ -22,6 +23,7 @@ export type NativeChatImageRuntimeContext = RuntimeFileOperationArgs | null
 type OwnerState = Pick<
   AppState,
   | 'settings'
+  | 'personalChatDirectory'
   | 'repos'
   | 'worktreesByRepo'
   | 'detectedWorktreesByRepo'
@@ -45,6 +47,7 @@ type OwnerState = Pick<
 export function selectNativeChatImageOwnerState(state: AppState): OwnerState {
   return {
     settings: state.settings,
+    personalChatDirectory: state.personalChatDirectory,
     repos: state.repos,
     worktreesByRepo: state.worktreesByRepo,
     detectedWorktreesByRepo: state.detectedWorktreesByRepo,
@@ -103,6 +106,9 @@ function resolvePath(
   worktreeId: string,
   hostId: ExecutionHostId | null
 ): string | null {
+  if (worktreeId === PERSONAL_CHATS_WORKSPACE_ID) {
+    return state.personalChatDirectory
+  }
   const known = state.getKnownWorktreeById(worktreeId, hostId ?? undefined)
   if (known?.path) {
     return known.path

@@ -1,3 +1,4 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../shared/personal-chats'
 import { getRepoExecutionHostId, parseExecutionHostId } from '../../../shared/execution-host'
 import type { ExecutionHostId } from '../../../shared/execution-host'
 import type { GlobalSettings } from '../../../shared/global-settings-types'
@@ -62,7 +63,7 @@ export function getRuntimeEnvironmentIdForWorktree(
   if (!worktreeId) {
     return null
   }
-  if (worktreeId === FLOATING_TERMINAL_WORKTREE_ID) {
+  if (worktreeId === FLOATING_TERMINAL_WORKTREE_ID || worktreeId === PERSONAL_CHATS_WORKSPACE_ID) {
     return null
   }
   const activeRoute = resolveActiveWorkspaceRoute(state, worktreeId)
@@ -112,6 +113,9 @@ export function getExplicitRuntimeEnvironmentIdForWorktree(
   worktreeId: string | null | undefined
 ): string | null {
   if (!worktreeId) {
+    return null
+  }
+  if (worktreeId === PERSONAL_CHATS_WORKSPACE_ID) {
     return null
   }
   const activeRoute = resolveActiveWorkspaceRoute(state, worktreeId)
@@ -164,7 +168,7 @@ export function getExecutionHostIdForWorktree(
   if (!worktreeId) {
     return 'local'
   }
-  if (worktreeId === FLOATING_TERMINAL_WORKTREE_ID) {
+  if (worktreeId === FLOATING_TERMINAL_WORKTREE_ID || worktreeId === PERSONAL_CHATS_WORKSPACE_ID) {
     return 'local'
   }
   const activeHostId = getActiveWorkspaceExecutionHostId(state, worktreeId)

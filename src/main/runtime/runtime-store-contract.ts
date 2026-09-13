@@ -88,6 +88,7 @@ export type RuntimeStore = {
     agentStatusHooksEnabled?: GlobalSettings['agentStatusHooksEnabled']
     experimentalNativeChat?: GlobalSettings['experimentalNativeChat']
     openAgentTabsInChatByDefault?: GlobalSettings['openAgentTabsInChatByDefault']
+    personalChatsEnabled?: boolean
     experimentalStructuredNativeChat?: GlobalSettings['experimentalStructuredNativeChat']
     defaultTaskSource?: GlobalSettings['defaultTaskSource']
     defaultTaskViewPreset?: GlobalSettings['defaultTaskViewPreset']

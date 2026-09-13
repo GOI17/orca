@@ -59,6 +59,7 @@ export type AppApi = {
   setUnreadDockBadgeCount: (count: number) => Promise<void>
   /** Resolves the local home directory for onboarding commands. */
   getHomeDirectory: () => Promise<string>
+  getPersonalChatDirectory: () => Promise<string>
   /** Persists flag-gated terminal render evidence under app-owned userData. */
   writeTerminalRenderDesyncEvidence: (
     args: WriteTerminalRenderDesyncEvidenceArgs

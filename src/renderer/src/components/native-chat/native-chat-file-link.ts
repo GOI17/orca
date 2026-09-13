@@ -1,3 +1,4 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../../shared/personal-chats'
 import { routeNativeChatHref } from '../../../../shared/native-chat-href-routing'
 import type { Worktree } from '../../../../shared/worktree/types'
 import {
@@ -30,6 +31,7 @@ type NativeChatFileLinkState = Pick<
   | 'tabsByWorktree'
   | 'worktreesByRepo'
 > & {
+  personalChatDirectory?: string | null
   unifiedTabsByWorktree?: AppState['unifiedTabsByWorktree']
 }
 
@@ -83,6 +85,11 @@ export function resolveNativeChatFileLinkContext(
     return null
   }
 
+  if (worktreeId === PERSONAL_CHATS_WORKSPACE_ID) {
+    return state.personalChatDirectory
+      ? { worktreeId, worktreePath: state.personalChatDirectory, runtimeEnvironmentId: null }
+      : null
+  }
   const knownWorktree = state.getKnownWorktreeById(worktreeId)
   const worktree = knownWorktree?.path
     ? knownWorktree

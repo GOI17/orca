@@ -134,6 +134,9 @@ export const AGENT_SESSION_HOST_AUTHORITY_RUNTIME_CAPABILITY =
   'agent-session.host-authority.v1' as const
 export const AGENT_SESSION_OMP_RESUME_PATH_RUNTIME_CAPABILITY =
   'agent-session.omp-resume-path.v1' as const
+// Only desktop clients with the independent personal-chat surface advertise this.
+export const PERSONAL_CHATS_RUNTIME_CAPABILITY = 'personal-chats.v1' as const
+
 // Why: structured sessions are journal-backed, not PTY-backed, so an incapable client must not
 // receive their journal or drive their lifecycle. Mobile may receive a metadata-only placeholder;
 // the host still refuses agentSession.* methods and destructive tab mutations without capability.

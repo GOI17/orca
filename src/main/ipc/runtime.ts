@@ -16,6 +16,7 @@ import {
   AGENT_SESSION_PENDING_SEND_RESULT_RUNTIME_CAPABILITY,
   AGENT_SESSION_TURN_ITEM_CAPABILITY,
   CLAUDE_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
+  PERSONAL_CHATS_RUNTIME_CAPABILITY,
   OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
 } from '../../shared/protocol-version'
@@ -73,7 +74,7 @@ export function registerRuntimeHandlers(runtime: OrcaRuntimeService): void {
       if (event.senderFrame !== event.sender.mainFrame) {
         throw new Error('Runtime RPC call must originate from the current main frame')
       }
-      return (await new RpcDispatcher({ runtime, methods: ALL_RPC_METHODS }).dispatch(
+      return await new RpcDispatcher({ runtime, methods: ALL_RPC_METHODS }).dispatch(
         {
           id: 'desktop-ipc',
           authToken: 'desktop-ipc',
@@ -89,12 +90,13 @@ export function registerRuntimeHandlers(runtime: OrcaRuntimeService): void {
             AGENT_SESSION_PENDING_SEND_RESULT_RUNTIME_CAPABILITY,
             AGENT_SESSION_TURN_ITEM_CAPABILITY,
             AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY,
+            PERSONAL_CHATS_RUNTIME_CAPABILITY,
             STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
             CLAUDE_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
             OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY
           ]
         }
-      )) as RuntimeRpcResponse<unknown>
+      )
     }
   )
 
@@ -142,6 +144,7 @@ export function registerRuntimeHandlers(runtime: OrcaRuntimeService): void {
               AGENT_SESSION_PENDING_SEND_RESULT_RUNTIME_CAPABILITY,
               AGENT_SESSION_TURN_ITEM_CAPABILITY,
               AGENT_SESSION_BACKGROUND_TASK_ROW_STOP_CAPABILITY,
+              PERSONAL_CHATS_RUNTIME_CAPABILITY,
               STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
               CLAUDE_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
               OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY

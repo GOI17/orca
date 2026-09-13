@@ -13,6 +13,7 @@ import { TitlebarLeftControls } from './TitlebarLeftControls'
 import { TitlebarMainStrip } from './TitlebarMainStrip'
 import type { AppChromeLayout } from './use-app-chrome-layout'
 
+const PersonalChatsPage = lazy(() => import('../components/personal-chats/PersonalChatsPage'))
 const Landing = lazy(() => import('../components/Landing'))
 const WorktreeCreationPanel = lazy(
   () => import('../components/worktree-creation/WorktreeCreationPanel')
@@ -69,6 +70,7 @@ function ActivePage({ layout }: { layout: AppChromeLayout }): React.JSX.Element 
   const { activeView, activeWorktreeId, activePendingCreationId, creationLayoutActive } = layout
   return (
     <>
+      {activeView === 'personal-chats' ? <PersonalChatsPage /> : null}
       {activeView === 'settings' ? <Settings /> : null}
       {activeView === 'skills' ? <SkillsPage /> : null}
       {activeView === 'artifacts' ? <ArtifactsPage /> : null}
@@ -162,7 +164,8 @@ export function AppWorkspaceShell(props: { layout: AppChromeLayout }): React.JSX
                 {/* Why: automations/artifacts own their page headers; the stacked titlebar would be an empty 36px stripe. */}
                 {layout.stackedSidebarOpen &&
                 layout.activeView !== 'automations' &&
-                layout.activeView !== 'artifacts' ? (
+                layout.activeView !== 'artifacts' &&
+                layout.activeView !== 'personal-chats' ? (
                   <div className="titlebar">{titlebarMainStrip}</div>
                 ) : null}
                 <div className="relative flex flex-1 min-w-0 min-h-0 overflow-hidden">

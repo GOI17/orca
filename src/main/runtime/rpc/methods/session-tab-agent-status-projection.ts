@@ -1,8 +1,10 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../../shared/personal-chats'
 import {
   AGENT_SESSION_BOUNDARY_RUNTIME_CAPABILITY,
   CLAUDE_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
   OPENCODE2_STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
   STRUCTURED_AGENT_SESSION_RUNTIME_CAPABILITY,
+  PERSONAL_CHATS_RUNTIME_CAPABILITY,
   type RuntimeCapability
 } from '../../../../shared/protocol-version'
 import type {
@@ -62,6 +64,13 @@ export function projectSessionTabAgentStatus<TPayload extends SessionTabsPayload
   clientCapabilities: readonly RuntimeCapability[] | undefined,
   structuredNativeChatEnabled: boolean
 ): TPayload {
+  if (
+    payload.worktree === PERSONAL_CHATS_WORKSPACE_ID &&
+    clientKind !== undefined &&
+    !clientCapabilities?.includes(PERSONAL_CHATS_RUNTIME_CAPABILITY)
+  ) {
+    return projectAgentSessionTabsOut(payload, () => true)
+  }
   const structuredVisible = structuredNativeChatProjectionEnabled({
     clientKind,
     clientCapabilities,

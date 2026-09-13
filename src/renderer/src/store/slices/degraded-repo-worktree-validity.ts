@@ -1,3 +1,4 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../../shared/personal-chats'
 import type { Repo } from '../../../../shared/repo-types'
 import type { WorkspaceSessionState } from '../../../../shared/workspace-session-state-types'
 import type { DetectedWorktreeListResult, Worktree } from '../../../../shared/worktree/types'
@@ -41,6 +42,7 @@ export function buildValidWorktreeIdsForSessionHydration(
       .flat()
       .map((worktree) => worktree.id)
   )
+  validWorktreeIds.add(PERSONAL_CHATS_WORKSPACE_ID)
   const knownRepoIds = new Set(catalog.repos.map((repo) => repo.id))
   const detectedWorktreesByRepo = catalog.detectedWorktreesByRepo ?? {}
   const repoIdsWithLoadedWorktrees = new Set(

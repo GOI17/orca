@@ -46,6 +46,38 @@ function state(): AppState {
 }
 
 describe('resolveNativeChatImageRuntimeContext', () => {
+  it('uses the personal chat directory and local host while a remote runtime is selected', () => {
+    const personal = state()
+    personal.settings = personal.settings
+      ? { ...personal.settings, activeRuntimeEnvironmentId: 'remote-host' }
+      : null
+    personal.personalChatDirectory = '/app-data/personal-chats'
+    personal.unifiedTabsByWorktree = {
+      'personal-chats': [
+        {
+          id: 'chat-tab',
+          entityId: 'codex_1',
+          groupId: 'chat-group',
+          worktreeId: 'personal-chats',
+          contentType: 'agent-session',
+          agentSessionAgent: 'codex',
+          label: 'Chat',
+          customLabel: null,
+          color: null,
+          sortOrder: 0,
+          createdAt: 0
+        }
+      ]
+    }
+    const context = resolveNativeChatImageRuntimeContext(personal, 'chat-tab')
+    expect(context).toMatchObject({
+      worktreeId: 'personal-chats',
+      worktreePath: '/app-data/personal-chats',
+      expectedExecutionHostId: 'local',
+      settings: { activeRuntimeEnvironmentId: null }
+    })
+  })
+
   it('keeps unrelated store writes out of the image-owner selector', () => {
     const storeState = state()
     const first = selectNativeChatImageOwnerState(storeState)

@@ -1,4 +1,6 @@
 // @ts-nocheck -- mechanically split from OrcaRuntimeService; behavior is covered by AST equivalence and characterization tests.
+import { isPersonalChatsSelector } from '../../shared/personal-chats'
+import { resolvePersonalChatFileTarget } from '../personal-chat-directory'
 import { OrcaRuntimeWithMoveHeadlessMobileSessionTab } from './orca-runtime-move-headless-mobile-session-tab'
 import type {
   RuntimeMarkdownReadTabResult,
@@ -197,6 +199,12 @@ export class OrcaRuntimeWithPersistHeadlessTerminalTitle extends OrcaRuntimeWith
     worktree: ResolvedWorktree
     executionHostId: ExecutionHostId
   }> {
+    if (isPersonalChatsSelector(worktreeSelector)) {
+      return {
+        worktree: await resolvePersonalChatFileTarget(),
+        executionHostId: LOCAL_EXECUTION_HOST_ID
+      }
+    }
     const folderScope = await this.resolveFolderWorkspaceLaunchScope(worktreeSelector)
     if (folderScope?.folderWorkspace) {
       // A folder workspace has no repo row to disagree with; its own inference already threw on an

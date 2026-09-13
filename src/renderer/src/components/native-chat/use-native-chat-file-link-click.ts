@@ -1,3 +1,4 @@
+import { PERSONAL_CHATS_WORKSPACE_ID } from '../../../../shared/personal-chats'
 import { useCallback } from 'react'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
 import { openDetectedFilePath } from '@/components/terminal-pane/terminal-file-open-routing'
@@ -18,7 +19,7 @@ export function useNativeChatFileLinkClick(
         worktreeId: context.worktreeId,
         worktreePath: context.worktreePath,
         runtimeEnvironmentId: context.runtimeEnvironmentId,
-        openWithSystemDefault: event.shiftKey
+        openWithSystemDefault: event.shiftKey || context.worktreeId === PERSONAL_CHATS_WORKSPACE_ID
       })
     },
     [context]
