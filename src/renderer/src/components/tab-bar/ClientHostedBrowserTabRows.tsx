@@ -22,14 +22,12 @@ export default function ClientHostedBrowserTabRows({
   rows,
   worktreeId,
   groupId,
-  groupActiveTabId,
-  includeTopTabBorder
+  groupActiveTabId
 }: {
   rows: readonly ClientHostedBrowserRow[]
   worktreeId: string
   groupId: string
   groupActiveTabId: string | null
-  includeTopTabBorder: boolean
 }): React.JSX.Element | null {
   const activeRowId = useActiveClientHostedBrowserRowId({ worktreeId, groupId, groupActiveTabId })
   const focusGroup = useAppStore((state) => state.focusGroup)
@@ -59,7 +57,6 @@ export default function ClientHostedBrowserTabRows({
           row={row}
           isActive={activeRowId === row.browserPageId}
           hasTabsToRight={index < rows.length - 1}
-          includeTopTabBorder={includeTopTabBorder}
           onActivate={() => activate(row.browserPageId)}
           onClose={() => {
             void closeClientHostedBrowserRow({

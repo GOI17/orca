@@ -4,11 +4,7 @@ import {
   normalizeAgentActivityDisplayMode,
   normalizeWorktreeCardProperties
 } from '../../../shared/constants'
-import {
-  normalizeWorkspaceStatuses,
-  clampWorkspaceBoardColumnWidth,
-  clampWorkspaceBoardOpacity
-} from '../../../shared/workspace-statuses'
+import { normalizeWorkspaceStatuses } from '../../../shared/workspace-statuses'
 import { normalizeUsagePercentageDisplay } from '../../../shared/usage-percentage-display'
 import { normalizeStatusBarUsageMode } from '../../../shared/status-bar-usage-mode'
 import { clampMarkdownTocPanelWidth } from '../../../shared/markdown-toc-panel-width'
@@ -51,9 +47,6 @@ export function getPersistedUI(
     worktreeCardProperties: normalizeWorktreeCardProperties(state.ui?.worktreeCardProperties),
     agentActivityDisplayMode: normalizeAgentActivityDisplayMode(state.ui?.agentActivityDisplayMode),
     workspaceStatuses: normalizeWorkspaceStatuses(state.ui?.workspaceStatuses),
-    workspaceBoardOpacity: clampWorkspaceBoardOpacity(state.ui?.workspaceBoardOpacity),
-    workspaceBoardColumnWidth: clampWorkspaceBoardColumnWidth(state.ui?.workspaceBoardColumnWidth),
-    syncTaskStatusFromWorkspaceBoard: state.ui?.syncTaskStatusFromWorkspaceBoard === true,
     usagePercentageDisplay: normalizeUsagePercentageDisplay(state.ui?.usagePercentageDisplay),
     statusBarUsageMode: normalizeStatusBarUsageMode(state.ui?.statusBarUsageMode),
     // Why: strict boolean coercion so a missing/legacy value reads as false (first-run notice still fires).

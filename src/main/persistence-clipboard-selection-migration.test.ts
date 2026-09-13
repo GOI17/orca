@@ -61,39 +61,25 @@ describe('Store', () => {
   afterEach(() => {
     rmSync(testState.dir, { recursive: true, force: true })
   })
-  it('migrates the legacy floating terminal disabled default to enabled', async () => {
-    writeDataFile({
-      schemaVersion: 1,
-      repos: [],
-      worktreeMeta: {},
-      settings: { floatingTerminalEnabled: false },
-      ui: {},
-      githubCache: { pr: {}, issue: {} },
-      workspaceSession: {}
-    })
 
+  it('retires workspace feature preferences on load and on later writes', async () => {
+    const retired = {
+      floatingTerminalEnabled: true,
+      floatingTerminalCwd: '/notes',
+      floatingTerminalTrustedCwds: ['/notes'],
+      floatingTerminalTriggerLocation: 'status-bar'
+    }
+    const board = { workspaceBoardOpacity: 0.5, syncTaskStatusFromWorkspaceBoard: true }
+    writeDataFile({ settings: retired, ui: board })
     const store = await createStore()
-    expect(store.getSettings().floatingTerminalEnabled).toBe(true)
-    expect(store.getSettings().floatingTerminalDefaultedForAllUsers).toBe(true)
-  })
-
-  it('preserves a post-migration floating terminal opt-out', async () => {
-    writeDataFile({
-      schemaVersion: 1,
-      repos: [],
-      worktreeMeta: {},
-      settings: {
-        floatingTerminalEnabled: false,
-        floatingTerminalDefaultedForAllUsers: true
-      },
-      ui: {},
-      githubCache: { pr: {}, issue: {} },
-      workspaceSession: {}
-    })
-
-    const store = await createStore()
-    expect(store.getSettings().floatingTerminalEnabled).toBe(false)
-    expect(store.getSettings().floatingTerminalDefaultedForAllUsers).toBe(true)
+    expect(store.getSettings()).not.toHaveProperty('floatingTerminalEnabled')
+    expect(store.getSettings()).not.toHaveProperty('floatingTerminalTrustedCwds')
+    expect(store.getUI()).not.toHaveProperty('workspaceBoardOpacity')
+    store.updateSettings({ ...store.getSettings(), ...retired })
+    store.updateUI({ ...store.getUI(), ...board })
+    expect(store.getSettings()).not.toHaveProperty('floatingTerminalCwd')
+    expect(store.getUI()).not.toHaveProperty('syncTaskStatusFromWorkspaceBoard')
+    expect(store.getUI().workspaceStatuses).not.toHaveLength(0)
   })
 
   it('migrates the legacy OSC 52 clipboard disabled default to enabled', async () => {

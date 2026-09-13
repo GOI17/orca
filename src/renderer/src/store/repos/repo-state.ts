@@ -193,7 +193,10 @@ export type RepoSlice = {
     runtimeEnvironmentId?: string | null
     mode: 'group' | 'separate'
   }) => Promise<ProjectGroupImportResult | null>
-  createProjectGroup: (name: string) => Promise<ProjectGroup | null>
+  createProjectGroup: (
+    name: string,
+    options?: { activeRuntimeEnvironmentId: string | null }
+  ) => Promise<ProjectGroup | null>
   createFolderWorkspace: (
     args: {
       projectGroupId: string

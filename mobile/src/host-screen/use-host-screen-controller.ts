@@ -58,7 +58,7 @@ export function useHostScreenController({
   const forceReconnectHost = useForceReconnect()
   // One tick drives every visible agent row's relative timestamp.
   const now = useNow(30_000)
-  const { hostCapabilities, floatingWorkspaceEnabled } = useHostProtocolGates()
+  const { hostCapabilities } = useHostProtocolGates()
   const state = useHostScreenState(hostId, action)
   const settings = useHostViewSettings({ client, connState, hostId, state })
 
@@ -139,7 +139,6 @@ export function useHostScreenController({
     displayWorktrees,
     embedded,
     existingWorktreePaths,
-    floatingWorkspaceEnabled,
     forceReconnectHost,
     hostCapabilities,
     hostId,

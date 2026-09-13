@@ -1,3 +1,4 @@
+import { clearRetiredWorkspaceLayout } from '../startup/retired-workspace-layout'
 import { useEffect, useRef } from 'react'
 import { syncZoomCSSVar } from '@/lib/ui-zoom'
 import { installCodexDetachedPaneRestartExecutor } from '@/components/terminal-pane/codex-detached-pane-restart-scheduler'
@@ -67,6 +68,7 @@ export function useAppStartupHydration(onOnboardingLoaded: (state: OnboardingSta
 
   // Fetch initial data + hydrate GitHub cache from disk
   useEffect(() => {
+    clearRetiredWorkspaceLayout()
     let cancelled = false
     // Why: declared outside the async block so cleanup can abort it — under StrictMode the first (unmounted) pass would otherwise keep spawning PTYs.
     const abortController = new AbortController()

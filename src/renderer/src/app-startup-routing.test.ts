@@ -255,21 +255,6 @@ describe('renderer startup runtime routing', () => {
     expect(fullRefreshEffect).toContain('void fetchAllWorktrees()')
   })
 
-  it('does not eagerly import the floating terminal panel on startup', () => {
-    const shellSource = readSource(WORKSPACE_SHELL_PATH)
-    const surfacesSource = readSource(ROOT_SURFACES_PATH)
-
-    expect(shellSource).toContain(
-      "import { FloatingTerminalToggleButton } from '../components/floating-terminal/FloatingTerminalToggleButton'"
-    )
-    expect(surfacesSource).toContain(
-      "import('../components/floating-terminal/FloatingTerminalPanel').then"
-    )
-    for (const source of [shellSource, surfacesSource]) {
-      expect(source).not.toContain("from '../components/floating-terminal/FloatingTerminalPanel'")
-    }
-  })
-
   it('does not eagerly import idle optional overlay surfaces on startup', () => {
     const source = readSource(ROOT_SURFACES_PATH)
 

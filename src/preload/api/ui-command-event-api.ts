@@ -59,7 +59,6 @@ export type UiCommandEventApi = {
   onToggleLeftSidebar: (callback: () => void) => () => void
   onToggleRightSidebar: (callback: () => void) => () => void
   onToggleWorktreePalette: (callback: () => void) => () => void
-  onToggleFloatingTerminal: (callback: () => void) => () => void
   onTerminalShortcutCaptured: (
     callback: (data: { actionId: KeybindingActionId }) => void
   ) => () => void
@@ -67,7 +66,6 @@ export type UiCommandEventApi = {
   onToggleQuickCommandsMenu: (callback: () => void) => () => void
   onOpenNewWorkspace: (callback: () => void) => () => void
   onDeleteCurrentWorkspace: (callback: () => void) => () => void
-  onOpenWorkspaceBoard: (callback: () => void) => () => void
   onOpenTasks: (callback: () => void) => () => void
   onToggleAgentDashboard: (callback: () => void) => () => void
   onJumpToWorktreeIndex: (callback: (index: number) => void) => () => void
@@ -116,8 +114,6 @@ export type UiCommandEventApi = {
   ) => () => void
   onHardReloadBrowserPage: (callback: () => void) => () => void
   onCloseActiveTab: (callback: (payload?: CloseActiveTabPayload) => void) => () => void
-  onCloseFloatingItem: (callback: (payload: { sourceId: string }) => void) => () => void
-  onSelectFloatingIndex: (callback: (payload: { index: number }) => void) => () => void
   onSwitchTab: (callback: (direction: 1 | -1) => void) => () => void
   onSwitchTabAcrossAllTypes: (callback: (direction: 1 | -1) => void) => () => void
   onSwitchRecentTab: (callback: () => void) => () => void

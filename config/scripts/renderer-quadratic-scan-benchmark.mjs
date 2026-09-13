@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Benchmarks four renderer projections that scaled worse than linearly with user data, each on a
+// Benchmarks three renderer projections that scaled worse than linearly with user data, each on a
 // path that reruns per keystroke or per store write.
 //
-// Scenarios 1, 3 and 4 time the production export against a hand-written reproduction of the
-// pre-change shape and assert both agree first. Scenario 2 is MODELLED on both sides: the
+// Scenarios 2 and 3 time the production export against a hand-written reproduction of the
+// pre-change shape and assert both agree first. Scenario 1 is MODELLED on both sides: the
 // projection lives inside the `useTabGroupItemProjections` React hook and cannot be imported
 // without a renderer, so it reproduces the before/after loops rather than driving production.
 import { spawnSync } from 'node:child_process'
@@ -72,8 +72,6 @@ function envInt(name, fallback) {
   return value
 }
 
-const KEYSTROKES = envInt('ORCA_QUADRATIC_BENCH_KEYSTROKES', 12)
-const WORKTREES = envInt('ORCA_QUADRATIC_BENCH_WORKTREES', 300)
 const TABS = envInt('ORCA_QUADRATIC_BENCH_TABS', 60)
 const OPEN_FILES = envInt('ORCA_QUADRATIC_BENCH_OPEN_FILES', 120)
 const CHANGED_FILES = envInt('ORCA_QUADRATIC_BENCH_CHANGED_FILES', 5000)
@@ -113,40 +111,7 @@ function compare({ label, scale, drives, before, after }) {
   results.push({ label, scale, drives, beforeMs: timeRounds(before), afterMs: timeRounds(after) })
 }
 
-// ------------------------------------------------- 1. workspace board search index
-
-const { buildWorkspaceBoardPaletteDocuments, matchWorkspaceBoardWorktrees } = await importRenderer(
-  'components/sidebar/workspace-kanban-search.ts'
-)
-
-const repoMap = new Map([
-  ['repo-1', { id: 'repo-1', name: 'orca', path: '/tmp/orca', branch: 'main' }]
-])
-const boardWorktrees = Array.from({ length: WORKTREES }, (_, index) => ({
-  id: `repo-1::/tmp/worktree-${index}`,
-  repoId: 'repo-1',
-  path: `/tmp/worktree-${index}`,
-  branch: `feature/search-target-${index}`,
-  title: `Workspace ${index} search target`,
-  isMain: false
-}))
-const queries = Array.from({ length: KEYSTROKES }, (_, index) => 'search'.slice(0, (index % 6) + 1))
-const matchAll = (documents) =>
-  queries.map((query) => [
-    ...matchWorkspaceBoardWorktrees({ worktrees: boardWorktrees, query, repoMap, documents })
-  ])
-
-compare({
-  label: 'workspace board filter (per keystroke burst)',
-  scale: `${WORKTREES} worktrees x ${KEYSTROKES} keystrokes`,
-  drives: 'production',
-  // Omitting `documents` is the pre-change shape: the index is rebuilt inside every match.
-  before: () => matchAll(undefined),
-  // The hook memoizes the index on [worktrees, repoMap]; only the match reruns per keystroke.
-  after: () => matchAll(buildWorkspaceBoardPaletteDocuments({ worktrees: boardWorktrees, repoMap }))
-})
-
-// ------------------------------------------------- 2. tab-group projections (modelled)
+// ------------------------------------------------- 1. tab-group projections (modelled)
 
 const groupTabs = Array.from({ length: TABS }, (_, index) => ({
   id: `tab-${index}`,
@@ -189,7 +154,7 @@ compare({
   )
 })
 
-// ------------------------------------------------- 3. source-control tree build
+// ------------------------------------------------- 2. source-control tree build
 
 const { buildSourceControlTree } = await importRenderer(
   'components/right-sidebar/source-control-tree.ts'
@@ -269,7 +234,7 @@ compare({
   after: () => buildSourceControlTree('unstaged', changedEntries)
 })
 
-// ------------------------------------------------- 4. sidebar header boundaries
+// ------------------------------------------------- 3. sidebar header boundaries
 
 const { getRepoHeaderSectionEndByRepoId } = await importRenderer(
   'components/sidebar/worktree-header-section-boundaries.ts'

@@ -3,10 +3,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConfirmationDialogProvider } from '@/components/confirmation-dialog'
-import {
-  requestScrollToCurrentWorkspaceReveal,
-  requestScrollToCurrentWorkspaceRevealAndRename
-} from '@/lib/scroll-to-current-workspace-status'
+import { requestScrollToCurrentWorkspaceRevealAndRename } from '@/lib/scroll-to-current-workspace-status'
 import { folderWorkspaceKey } from '../../../../../../shared/workspace-scope'
 import { useSidebarRevealRequests } from './use-reveal-requests'
 import type { Worktree } from '../../../../../../shared/worktree/types'
@@ -102,7 +99,7 @@ afterEach(async () => {
 describe('revealing a filtered workspace', () => {
   it('explains the filter reset and leaves filters intact when dismissed', async () => {
     await render()
-    await act(async () => requestScrollToCurrentWorkspaceReveal())
+    await act(async () => requestScrollToCurrentWorkspaceRevealAndRename())
     expect(document.body.textContent).toContain('Revealing it will clear your sidebar filters.')
     expect(args.clearFilters).not.toHaveBeenCalled()
     expect(state.revealWorktreeInSidebar).not.toHaveBeenCalled()
@@ -114,15 +111,15 @@ describe('revealing a filtered workspace', () => {
   it('clears filters and reveals on the original execution host only after confirmation', async () => {
     await render()
     await act(async () => {
-      requestScrollToCurrentWorkspaceReveal()
-      requestScrollToCurrentWorkspaceReveal()
+      requestScrollToCurrentWorkspaceRevealAndRename()
+      requestScrollToCurrentWorkspaceRevealAndRename()
     })
     await click('Clear filters and reveal')
     expect(args.clearFilters).toHaveBeenCalledTimes(1)
     expect(state.revealWorktreeInSidebar).toHaveBeenCalledWith('wt-1', {
       behavior: 'smooth',
       highlight: true,
-      beginRename: false,
+      beginRename: true,
       executionHostId: 'ssh:dev'
     })
     expect(document.querySelector('[role="dialog"]')).toBeNull()
@@ -137,7 +134,7 @@ describe('revealing a filtered workspace', () => {
         visibleWorktrees: visible ? args.worktrees : []
       }
       await render()
-      await act(async () => requestScrollToCurrentWorkspaceReveal())
+      await act(async () => requestScrollToCurrentWorkspaceRevealAndRename())
       expect(document.querySelector('[role="dialog"]')).toBeNull()
       expect(args.clearFilters).not.toHaveBeenCalled()
       expect(state.revealWorktreeInSidebar).toHaveBeenCalledTimes(1)
@@ -153,7 +150,7 @@ describe('revealing a filtered workspace', () => {
         visibleWorktrees: args.worktrees
       }
       await render()
-      await act(async () => requestScrollToCurrentWorkspaceReveal())
+      await act(async () => requestScrollToCurrentWorkspaceRevealAndRename())
       expect(document.querySelector('[role="dialog"]')).toBeNull()
       expect(args.clearFilters).not.toHaveBeenCalled()
       expect(state.revealWorktreeInSidebar).toHaveBeenCalledTimes(1)
@@ -163,7 +160,7 @@ describe('revealing a filtered workspace', () => {
   it('does not let a visible same-id workspace on another host bypass confirmation', async () => {
     args = { ...args, visibleWorktrees: [{ ...args.worktrees[0], hostId: 'local' }] }
     await render()
-    await act(async () => requestScrollToCurrentWorkspaceReveal())
+    await act(async () => requestScrollToCurrentWorkspaceRevealAndRename())
     expect(document.querySelector('[role="dialog"]')).not.toBeNull()
     expect(state.revealWorktreeInSidebar).not.toHaveBeenCalled()
     await click('Keep filters')
@@ -171,7 +168,7 @@ describe('revealing a filtered workspace', () => {
 
   it('preserves filters when the target becomes included while confirmation is open', async () => {
     await render()
-    await act(async () => requestScrollToCurrentWorkspaceReveal())
+    await act(async () => requestScrollToCurrentWorkspaceRevealAndRename())
     args = { ...args, visibleWorktrees: args.worktrees }
     await render()
     await click('Clear filters and reveal')
@@ -181,7 +178,7 @@ describe('revealing a filtered workspace', () => {
 
   it('does not apply a stale confirmation after switching workspaces', async () => {
     await render()
-    await act(async () => requestScrollToCurrentWorkspaceReveal())
+    await act(async () => requestScrollToCurrentWorkspaceRevealAndRename())
     args = { ...args, currentSidebarWorktreeId: 'wt-2' }
     await render()
     await click('Clear filters and reveal')

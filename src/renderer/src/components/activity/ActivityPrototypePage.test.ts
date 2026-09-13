@@ -242,7 +242,7 @@ describe('buildActivityEvents', () => {
     })
     expect(threads[0].worktree).toMatchObject({
       id: FLOATING_TERMINAL_WORKTREE_ID,
-      displayName: 'Floating terminal'
+      displayName: 'Standalone terminal'
     })
   })
 

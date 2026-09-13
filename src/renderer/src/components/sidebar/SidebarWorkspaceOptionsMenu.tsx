@@ -14,12 +14,10 @@ import {
 } from './workspace-options-menu-items'
 
 type SidebarWorkspaceOptionsMenuProps = {
-  preserveWorkspaceBoardOpen?: boolean
   onMenuOpenChange?: (open: boolean) => void
 }
 
 const SidebarWorkspaceOptionsMenu = React.memo(function SidebarWorkspaceOptionsMenu({
-  preserveWorkspaceBoardOpen = false,
   onMenuOpenChange
 }: SidebarWorkspaceOptionsMenuProps) {
   const [open, setOpen] = useState(false)
@@ -55,7 +53,6 @@ const SidebarWorkspaceOptionsMenu = React.memo(function SidebarWorkspaceOptionsM
                       'Workspace options'
                     )
               }
-              data-workspace-board-preserve-open={preserveWorkspaceBoardOpen ? '' : undefined}
             >
               <SlidersHorizontal className="size-3.5" strokeWidth={2.25} />
               {hasAnyFilter && (
@@ -84,14 +81,8 @@ const SidebarWorkspaceOptionsMenu = React.memo(function SidebarWorkspaceOptionsM
               )}
         </TooltipContent>
       </Tooltip>
-      <DropdownMenuContent
-        side="right"
-        align="start"
-        sideOffset={8}
-        className="w-72 pb-2"
-        data-workspace-board-preserve-open={preserveWorkspaceBoardOpen ? '' : undefined}
-      >
-        <WorkspaceOptionsMenuItems preserveWorkspaceBoardOpen={preserveWorkspaceBoardOpen} />
+      <DropdownMenuContent side="right" align="start" sideOffset={8} className="w-72 pb-2">
+        <WorkspaceOptionsMenuItems />
       </DropdownMenuContent>
     </DropdownMenu>
   )

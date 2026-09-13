@@ -21,7 +21,6 @@ const SETTINGS_NAV_TARGETS = [
   'tasks',
   'appearance',
   'input',
-  'floating-workspace',
   'terminal',
   'quick-commands',
   'notifications',

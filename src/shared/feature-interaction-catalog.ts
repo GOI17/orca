@@ -1,7 +1,5 @@
 export type FeatureInteractionId =
-  | 'workspace-board'
   | 'workspace-agent-sessions'
-  | 'workspace-board-actions'
   | 'cmd-j'
   | 'cmd-j-workspace-open'
   | 'cmd-j-browser-page-open'
@@ -37,8 +35,6 @@ export type FeatureInteractionId =
   | 'computer-use'
   | 'codex-account-switching'
   | 'cookie-import'
-  | 'floating-workspace'
-  | 'floating-workspace-hidden'
   | 'mobile-pairing'
   | 'notifications'
   | 'ports'
@@ -63,14 +59,9 @@ export type FeatureInteractionDefinition = {
 // Why: these ids become persisted product state; changing them breaks
 // feature-discovery interaction tracking.
 export const FEATURE_INTERACTIONS = [
-  { id: 'workspace-board', interaction: 'workspace board opened' },
   {
     id: 'workspace-agent-sessions',
     interaction: 'workspace agent-session surface opened'
-  },
-  {
-    id: 'workspace-board-actions',
-    interaction: 'workspace board card, lane, density, or status action used'
   },
   { id: 'cmd-j', interaction: 'Cmd+J palette opened' },
   { id: 'cmd-j-workspace-open', interaction: 'workspace opened from Cmd+J' },
@@ -128,11 +119,6 @@ export const FEATURE_INTERACTIONS = [
     interaction: 'Codex managed account added, selected, reauthenticated, or removed'
   },
   { id: 'cookie-import', interaction: 'browser cookies imported or cleared' },
-  { id: 'floating-workspace', interaction: 'Floating Workspace opened or configured' },
-  {
-    id: 'floating-workspace-hidden',
-    interaction: 'Floating Workspace explicitly hidden or disabled'
-  },
   { id: 'mobile-pairing', interaction: 'mobile pairing enabled or QR code generated' },
   { id: 'notifications', interaction: 'desktop notifications enabled or tested' },
   { id: 'ports', interaction: 'Ports popover opened, configured, or port action used' },

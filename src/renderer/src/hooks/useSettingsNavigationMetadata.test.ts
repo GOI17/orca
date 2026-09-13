@@ -163,22 +163,6 @@ describe('settings navigation metadata', () => {
     expect(webIds).not.toContain('advanced')
     expect(webIds).toContain('servers')
     expect(webIds).toContain('repo-repo-1')
-    const floatingWorkspace = webSections.find((section) => section.id === 'floating-workspace')
-    expect(floatingWorkspace?.description).toBe('Global terminal and markdown tabs.')
-    expect(floatingWorkspace?.searchEntries.flatMap((entry) => entry.keywords)).not.toContain(
-      'browser'
-    )
-    const shortcuts = webSections.find((section) => section.id === 'shortcuts')
-    expect(shortcuts?.searchEntries.map((entry) => entry.title)).not.toContain('New browser tab')
-    expect(shortcuts?.searchEntries.map((entry) => entry.title)).not.toContain(
-      'New mobile emulator tab'
-    )
-    const agents = webSections.find((section) => section.id === 'agents')
-    expect(agents?.searchEntries.map((entry) => entry.title)).not.toContain('Nested worker depth')
-    const orchestration = webSections.find((section) => section.id === 'orchestration')
-    expect(orchestration?.searchEntries.map((entry) => entry.title)).not.toContain(
-      'Nested worker depth'
-    )
   })
 
   it('keeps the Browser shortcut searchable for a capable web runtime', () => {

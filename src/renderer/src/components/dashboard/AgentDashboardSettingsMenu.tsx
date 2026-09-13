@@ -16,14 +16,11 @@ type AgentDashboardSettingsMenuProps = {
   /** Called after the mode switches to pop-out so the host can hand the board
    *  over to the pop-out window instead of leaving a stale in-window board. */
   onSwitchToPopout: () => void
-  /** Lets the host keep the companion board open while this menu owns the
-   *  next outside click, matching the workspace board's menu handling. */
+  /** Keep the dashboard open while its menu owns the next outside click. */
   onOpenChange: (open: boolean) => void
 }
 
-/** Board-header settings for the in-window Agent Dashboard, mirroring the
- *  workspace board's settings menu. In-window only — the pop-out renderer has
- *  no store access, so it never mounts this. */
+/** In-window settings; the pop-out renderer has no store access. */
 export function AgentDashboardSettingsMenu({
   onSwitchToPopout,
   onOpenChange

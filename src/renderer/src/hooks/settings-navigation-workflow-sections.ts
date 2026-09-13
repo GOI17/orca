@@ -2,7 +2,6 @@ import { getArtifactsSettingsSearchEntries } from '@/components/settings/artifac
 import { getAutomationsSettingsSearchEntries } from '@/components/settings/automations-settings-search'
 import { getBrowserPaneCombinedSearchEntries } from '@/components/settings/browser-pane-search'
 import { getCommitMessageAiPaneSearchEntries } from '@/components/settings/commit-message-ai-search'
-import { getFloatingWorkspaceSearchEntries } from '@/components/settings/floating-workspace-search'
 import { getGitProviderApiBudgetSearchEntries } from '@/components/settings/git-provider-api-budget-search'
 import { getGitPaneSearchEntries } from '@/components/settings/git-search'
 import { getMobileEmulatorSearchEntries } from '@/components/settings/mobile-emulator-search'
@@ -18,7 +17,6 @@ import {
   GitBranch,
   Globe,
   ListChecks,
-  PanelsTopLeft,
   Play,
   SquareTerminal,
   TabletSmartphone
@@ -153,24 +151,6 @@ export function buildWorkflowSettingsSections(
             group: 'workflows'
           }
         ]
-      : []),
-    {
-      id: 'floating-workspace',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.65b19f5bde', 'Floating Workspace'),
-      description: showDesktopOnlySettings
-        ? translate(
-            'auto.hooks.useSettingsNavigationMetadata.2d0659f6f0',
-            'Global terminal, browser, and markdown tabs.'
-          )
-        : translate(
-            'auto.hooks.useSettingsNavigationMetadata.floatingWorkspaceWebDescription',
-            'Global terminal and markdown tabs.'
-          ),
-      icon: PanelsTopLeft,
-      searchEntries: getFloatingWorkspaceSearchEntries({
-        includeBrowser: showDesktopOnlySettings
-      }),
-      group: 'workflows'
-    }
+      : [])
   ]
 }

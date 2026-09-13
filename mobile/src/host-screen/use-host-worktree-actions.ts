@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { Alert } from 'react-native'
 import type { useRouter } from 'expo-router'
-import { floatingWorkspaceSessionPath } from '../session/floating-workspace'
 import { savePinnedIds } from '../storage/preferences'
 import type { useForgetHostClient } from '../transport/client-context'
 import { removeHostAndCloseClient } from '../transport/host-removal-lifecycle'
@@ -190,18 +189,11 @@ export function useHostWorktreeActions(args: {
     [client, connState, hostId, navigateFromHostList]
   )
 
-  const openFloatingWorkspace = useCallback(() => {
-    // Why: no worktree.activate here — the floating sentinel has no worktree
-    // record; session.tabs.list hydrates its host-owned tabs on open.
-    navigateFromHostList(floatingWorkspaceSessionPath(hostId))
-  }, [hostId, navigateFromHostList])
-
   return {
     handleDeleteWorktree,
     handleRemoveHost,
     leaveHost,
     navigateFromHostList,
-    openFloatingWorkspace,
     openNewWorktreeModal,
     openWorktreeSession,
     setShowNewWorktreeVisible,

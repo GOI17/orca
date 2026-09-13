@@ -6,9 +6,7 @@ import type {
   WriteTerminalRenderDesyncEvidenceResult
 } from '../../shared/terminal-render-desync-evidence'
 import type { MacCapturedDigitRowChord } from '../../shared/macos-symbolic-hotkeys'
-import type { MarkdownDocument } from '../../shared/filesystem-entry-types'
 import type { PersistedUIState } from '../../shared/persisted-ui-state-types'
-import type { FloatingTerminalCwdRequest } from '../../shared/ui-chrome-types'
 import type { WorkspaceSessionState } from '../../shared/workspace-session-state-types'
 import type { KeyboardLayoutSnapshot } from '../../shared/keyboard-layout-snapshot'
 import type { KeyboardLayoutChangeEvent } from '../../shared/keyboard-layout-events'
@@ -59,17 +57,8 @@ export type AppApi = {
   onKeyboardLayoutChanged: (callback: (event: KeyboardLayoutChangeEvent) => void) => () => void
   /** Updates the macOS Dock unread badge. No-op on Windows/Linux. */
   setUnreadDockBadgeCount: (count: number) => Promise<void>
-  /** Resolves the launch directory for global Floating Terminal tabs. */
-  getFloatingTerminalCwd: (args?: FloatingTerminalCwdRequest) => Promise<string>
-  /** Resolves Orca's app-owned directory for auto-created Floating Workspace
-   *  markdown notes. */
-  getFloatingMarkdownDirectory: () => Promise<string>
-  /** Opens a native picker for markdown documents, rooted in the floating
-   *  workspace, and authorizes the selected file for editor reads/writes. */
-  pickFloatingMarkdownDocument: () => Promise<MarkdownDocument | null>
-  /** Opens a native directory picker and authorizes the selected directory
-   *  for Floating Workspace markdown file creation. */
-  pickFloatingWorkspaceDirectory: () => Promise<string | null>
+  /** Resolves the local home directory for onboarding commands. */
+  getHomeDirectory: () => Promise<string>
   /** Persists flag-gated terminal render evidence under app-owned userData. */
   writeTerminalRenderDesyncEvidence: (
     args: WriteTerminalRenderDesyncEvidenceArgs

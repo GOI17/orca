@@ -27,7 +27,6 @@ import {
 } from './settings-git-task-section-renderers'
 import {
   renderBrowserSettingsSection,
-  renderFloatingWorkspaceSettingsSection,
   renderMobileEmulatorSettingsSection,
   renderQuickCommandsSettingsSection,
   renderTerminalSettingsSection
@@ -133,7 +132,6 @@ export function renderSettingsPage(context: SettingsRenderContext): React.JSX.El
                 {renderQuickCommandsSettingsSection(context)}
                 {renderBrowserSettingsSection(context)}
                 {renderMobileEmulatorSettingsSection(context)}
-                {renderFloatingWorkspaceSettingsSection(context)}
                 {renderAppearanceSettingsSection(context)}
                 {renderInputSettingsSection(context)}
                 {renderNotificationsSettingsSection(context)}

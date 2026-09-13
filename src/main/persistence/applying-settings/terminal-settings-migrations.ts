@@ -1,3 +1,4 @@
+import { stripRetiredWorkspacePreferences } from '../../../shared/retired-workspace-preferences'
 import type { GlobalSettings, OrcaWorkspaceLayout } from '../../../shared/global-settings-types'
 import { normalizeRuntimePathForComparison } from '../../../shared/cross-platform-path'
 import {
@@ -74,7 +75,7 @@ export function stripRetiredGlobalSettings(
   void _legacyScrollbackBytes
   void _legacyGitHubAttribution
   void _legacyShowAgentsSidebar
-  return rest
+  return stripRetiredWorkspacePreferences(rest)
 }
 
 export function migrateTerminalScrollbackRows(settings: unknown): {

@@ -1,13 +1,11 @@
 import type { FeatureInteractionId } from './feature-interactions'
 
 export type ContextualTourId =
-  | 'workspace-board'
   | 'workspace-agent-sessions'
   | 'browser'
   | 'client-hosted-browser'
   | 'tasks'
   | 'automations'
-  | 'floating-workspace'
   | 'workspace-creation'
 
 export type ContextualTourStepControl = {
@@ -55,24 +53,6 @@ export type ContextualTour = {
 }
 
 export const CONTEXTUAL_TOURS = [
-  {
-    id: 'workspace-board',
-    steps: [
-      {
-        title: 'Plan work on the board',
-        body: 'Use the board when you want to see workspaces by status instead of by project.',
-        targetSelector: '[data-contextual-tour-target="workspace-board-center"]',
-        requiredForStart: true,
-        preferredPlacement: 'bottom'
-      },
-      {
-        title: 'Move work through lanes',
-        body: 'Drag workspaces between lanes as their status changes.',
-        targetSelector:
-          '[data-contextual-tour-target="workspace-board-done-lane"], [data-contextual-tour-target="workspace-board-lanes"]'
-      }
-    ]
-  },
   {
     id: 'workspace-agent-sessions',
     steps: [
@@ -176,28 +156,6 @@ export const CONTEXTUAL_TOURS = [
         title: 'Find the results',
         body: 'Runs show when automations ran, what happened, and where to inspect their output.',
         targetSelector: '[data-contextual-tour-target="automations-runs"]'
-      }
-    ]
-  },
-  {
-    id: 'floating-workspace',
-    steps: [
-      {
-        title: 'Run an agent across every repo',
-        body: 'Agents here run in any folder you choose. Point one at the directory above your services to work across all your repos at once.',
-        // Why: the per-action anchors only render in the empty state; fall back
-        // to the panel surface when floating tabs already exist.
-        targetSelector:
-          '[data-contextual-tour-target="floating-workspace-new-terminal"], [data-contextual-tour-target="floating-workspace-surface"]',
-        requiredForStart: true,
-        preferredPlacement: 'left'
-      },
-      {
-        title: 'Or use it as a scratchpad',
-        body: 'Open agents, scratch terminals, notes, and browser tabs without cluttering the worktree you’re focused on.',
-        targetSelector:
-          '[data-contextual-tour-target="floating-workspace-new-markdown"], [data-contextual-tour-target="floating-workspace-surface"]',
-        preferredPlacement: 'left'
       }
     ]
   },

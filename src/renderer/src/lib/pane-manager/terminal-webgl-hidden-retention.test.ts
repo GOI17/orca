@@ -58,18 +58,6 @@ describe('terminal-webgl-hidden-retention', () => {
     expect(panes[0].webglAddon).toBeNull()
   })
 
-  it('disposes a floating manager context on hide so reopen cannot reuse a corrupt atlas', () => {
-    const pane = createPane()
-    const addon = pane.webglAddon
-    managerWithPane(pane, { retainHiddenWebgl: false }).suspendRendering()
-    expect(addon?.dispose).toHaveBeenCalledTimes(1)
-    expect(pane.webglAddon).toBeNull()
-    expect(pane.webglAttachmentDeferred).toBe(true)
-    expect(retainedHiddenWebglOwnerCountForTest()).toBe(0)
-  })
-
-  // Why: pins the option's polarity — an inverted default would silently strand
-  // every ordinary worktree on the dispose branch.
   it('retains an ordinary manager context on hide', () => {
     const pane = createPane()
     managerWithPane(pane, {}).suspendRendering()

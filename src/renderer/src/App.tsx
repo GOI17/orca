@@ -25,7 +25,6 @@ import { useAppSessionPersistence } from './app-shell/use-app-session-persistenc
 import { useAppShellServices } from './app-shell/use-app-shell-services'
 import { useAppStartupHydration } from './app-shell/use-app-startup-hydration'
 import { useDocumentAppearance } from './app-shell/use-document-appearance'
-import { useFloatingWorkspacePanel } from './app-shell/use-floating-workspace-panel'
 import { useGlobalKeybindings } from './app-shell/use-global-keybindings'
 import { useOnboardingAndFeatureTips } from './app-shell/use-onboarding-and-feature-tips'
 import { usePersistedUIWriter } from './app-shell/use-persisted-ui-writer'
@@ -34,22 +33,17 @@ import { useWindowVisibilityEffects } from './app-shell/use-window-visibility-ef
 
 function App(): React.JSX.Element {
   const layout = useAppChromeLayout()
-  const floatingWorkspace = useFloatingWorkspacePanel()
   const onboardingGate = useOnboardingAndFeatureTips()
   const clearUnreadDockBadge = useUnreadDockBadge()
 
-  // Why enabled && open: the overlay only renders while the feature is on, and its panel is
-  // aria-hidden while closed — so that pair is what "on screen" means for the floating workspace.
-  useAppShellServices({
-    floatingPanelVisible: floatingWorkspace.enabled && floatingWorkspace.open
-  })
+  useAppShellServices()
   useAppStartupHydration(onboardingGate.applyStartupOnboardingState)
   useAppSessionPersistence()
   useRuntimeGraphSync()
   usePersistedUIWriter()
   useDocumentAppearance()
   useWindowVisibilityEffects()
-  useGlobalKeybindings({ layout, floatingWorkspace })
+  useGlobalKeybindings({ layout })
 
   // Why: the same vars are set inline on .app-layout below, but portaled surfaces
   // (sheets, dialogs) mount outside it and would otherwise fall back to 0px and
@@ -61,16 +55,14 @@ function App(): React.JSX.Element {
     root.setProperty('--mac-traffic-lights-width', MAC_TRAFFIC_LIGHTS_WIDTH)
   }, [])
 
-  const { cancelReturnFocusFrame } = floatingWorkspace
   const setAppRootNode = useCallback(
     (node: HTMLDivElement | null): void => {
       // Why: these best-effort App chrome cleanups share the App root lifetime.
       if (!node) {
-        cancelReturnFocusFrame()
         clearUnreadDockBadge()
       }
     },
-    [cancelReturnFocusFrame, clearUnreadDockBadge]
+    [clearUnreadDockBadge]
   )
 
   return (
@@ -94,11 +86,8 @@ function App(): React.JSX.Element {
           <DocPreviewExternalLinkConfirmation />
           <LinkRoutingPreferenceDialogProvider>
             <AppBackgroundServices />
-            <AppWorkspaceShell layout={layout} floatingWorkspace={floatingWorkspace} />
-            <AppRootSurfaces
-              floatingWorkspace={floatingWorkspace}
-              onboardingGate={onboardingGate}
-            />
+            <AppWorkspaceShell layout={layout} />
+            <AppRootSurfaces onboardingGate={onboardingGate} />
             <BrowserWebAuthnAccountDialog />
           </LinkRoutingPreferenceDialogProvider>
         </ConfirmationDialogProvider>

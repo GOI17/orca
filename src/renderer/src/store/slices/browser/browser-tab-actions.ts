@@ -1,9 +1,6 @@
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { translate } from '@/i18n/i18n'
-import {
-  FLOATING_TERMINAL_WORKTREE_ID,
-  ORCA_BROWSER_BLANK_URL
-} from '../../../../../shared/constants'
+import { ORCA_BROWSER_BLANK_URL } from '../../../../../shared/constants'
 import type { BrowserSlice, BrowserSliceGet, BrowserSliceSet } from './browser-slice-contract'
 import {
   assertManagedBrowserMaterializationAllowed,
@@ -96,10 +93,8 @@ export function createBrowserTabActions(
 
         const shouldActivate = options?.activate ?? true
         const shouldUpdateGlobalActiveSurface = shouldActivate && s.activeWorktreeId === worktreeId
-        const shouldFocusFloatingTab =
-          shouldActivate && worktreeId === FLOATING_TERMINAL_WORKTREE_ID
         const shouldFocusAddressBar =
-          (shouldUpdateGlobalActiveSurface || shouldFocusFloatingTab) &&
+          shouldUpdateGlobalActiveSurface &&
           // Why the doc check and not just the url: a document page is blank by construction, and
           // the blank url is exactly what marks a New Tab as wanting the address bar it does not have.
           !page.docLocation &&

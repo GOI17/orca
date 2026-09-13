@@ -41,7 +41,7 @@ describe('keybindings', () => {
     ).toBe(true)
   })
 
-  it('keeps floating workspace tab shortcuts active in app focus even with terminal-first policy configured', () => {
+  it('keeps tab shortcuts active in app focus even with terminal-first policy configured', () => {
     const panelFocus = {
       context: 'app',
       terminalShortcutPolicy: 'terminal-first'
@@ -77,15 +77,6 @@ describe('keybindings', () => {
       shift: true
     }
 
-    expect(
-      keybindingMatchesAction(
-        'floatingTerminal.toggle',
-        { key: 'a', code: 'KeyA', control: true, meta: false, alt: true, shift: false },
-        'linux',
-        undefined,
-        { context: 'terminal', terminalShortcutPolicy: 'terminal-first' }
-      )
-    ).toBe(true)
     expect(
       keybindingMatchesAction(
         'tab.previousRecent',

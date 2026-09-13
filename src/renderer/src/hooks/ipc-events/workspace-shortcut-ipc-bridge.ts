@@ -1,11 +1,9 @@
 import { TOGGLE_QUICK_COMMANDS_MENU_EVENT } from '@/lib/quick-commands-menu-events'
-import { TOGGLE_WORKSPACE_BOARD_EVENT } from '@/components/sidebar/useWorkspaceBoardPanel'
 import { activateTabNumberShortcut } from '@/lib/tab-number-shortcuts'
 import { emitCmdJRowIndexJump } from '@/lib/cmd-j-row-index-jump'
 import { getVisibleWorktreeShortcutTargets } from '@/components/sidebar/visible-worktrees'
 import { activateAndRevealWorkspace } from '@/lib/worktree-activation'
 import { deleteHoveredWorkspaceImmediately } from '@/components/sidebar/hovered-workspace-delete'
-import { isFloatingWorkspacePanelFocused } from '@/lib/floating-workspace-terminal-actions'
 import { isGitRepoKind } from '../../../../shared/repo-kind'
 import { useAppStore } from '../../store'
 import { toggleAgentDashboardFromShortcut } from './agent-dashboard-command'
@@ -37,23 +35,7 @@ export function registerWorkspaceShortcutIpcBridge(unsubs: (() => void)[]): void
   if (window.api.ui.onDeleteCurrentWorkspace) {
     unsubs.push(
       window.api.ui.onDeleteCurrentWorkspace(() => {
-        if (isFloatingWorkspacePanelFocused()) {
-          return
-        }
         deleteHoveredWorkspaceImmediately(useAppStore.getState())
-      })
-    )
-  }
-
-  if (window.api.ui.onOpenWorkspaceBoard) {
-    unsubs.push(
-      window.api.ui.onOpenWorkspaceBoard(() => {
-        const store = useAppStore.getState()
-        if (store.activeView === 'settings') {
-          return
-        }
-        store.setSidebarOpen(true)
-        window.dispatchEvent(new CustomEvent(TOGGLE_WORKSPACE_BOARD_EVENT))
       })
     )
   }

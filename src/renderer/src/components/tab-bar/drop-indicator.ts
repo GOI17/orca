@@ -34,12 +34,6 @@ export function getTabRootStateClasses(isActive: boolean): string {
     : 'bg-card text-muted-foreground hover:text-foreground'
 }
 
-export function getTabStripBorderClasses(
-  hasTabsToRight: boolean,
-  options?: { includeTopBorder?: boolean }
-): string {
-  const includeTopBorder = options?.includeTopBorder ?? true
-  return [includeTopBorder ? 'border-t' : '', hasTabsToRight ? 'border-r' : '', 'border-border']
-    .filter(Boolean)
-    .join(' ')
+export function getTabStripBorderClasses(hasTabsToRight: boolean): string {
+  return ['border-t', hasTabsToRight ? 'border-r' : '', 'border-border'].filter(Boolean).join(' ')
 }

@@ -22,7 +22,6 @@ import { SidebarWorktreeListEmptyState } from './worktree-list/listing/EmptyStat
 import { VirtualizedWorktreeViewport } from './worktree-list/viewport/VirtualizedWorktreeViewport'
 import { markSidebarWorktreeActiveImmediately } from './worktree-list/rows/option-dom'
 import { EMPTY_PROJECT_GROUPS } from './worktree-list/viewport/viewport-props'
-import { NOOP_WORKSPACE_BOARD_DRAG_PREVIEW_CALLBACK } from './worktree-list/drag/drop-commit-context'
 import { useAgentSendTargetWorktreeId } from './worktree-list/listing/use-agent-send-target'
 import { useEffectiveCollapsedGroups } from './worktree-list/listing/use-collapsed-groups'
 import { useProjectGroupDialogs } from './worktree-list/rows/use-project-group-dialogs'
@@ -41,19 +40,11 @@ import { buildWorktreeManualOrderCatalog } from './worktree-manual-order-catalog
 type WorktreeListProps = {
   scrollOffsetRef: React.MutableRefObject<number>
   scrollAnchorRef: React.MutableRefObject<VirtualizedScrollAnchor>
-  workspaceBoardOpen?: boolean
-  onWorkspaceBoardDragPreviewStart?: () => void
-  onWorkspaceBoardDragPreviewCommit?: () => void
-  onWorkspaceBoardDragPreviewCancel?: () => void
 }
 
 const WorktreeList = React.memo(function WorktreeList({
   scrollOffsetRef,
-  scrollAnchorRef,
-  workspaceBoardOpen = false,
-  onWorkspaceBoardDragPreviewStart = NOOP_WORKSPACE_BOARD_DRAG_PREVIEW_CALLBACK,
-  onWorkspaceBoardDragPreviewCommit = NOOP_WORKSPACE_BOARD_DRAG_PREVIEW_CALLBACK,
-  onWorkspaceBoardDragPreviewCancel = NOOP_WORKSPACE_BOARD_DRAG_PREVIEW_CALLBACK
+  scrollAnchorRef
 }: WorktreeListProps) {
   // ── Granular selectors (each is a primitive or shallow-stable ref) ──
   const allWorktrees = useAllWorktrees()
@@ -344,14 +335,6 @@ const WorktreeList = React.memo(function WorktreeList({
         onMoveWorktreesToStatusAtIndex={statusMutations.moveWorktreesToStatusAtIndex}
         onPinWorktree={statusMutations.pinWorktree}
         onPinWorktrees={statusMutations.pinWorktrees}
-        onDropWorktreesOnWorkspaceBoard={statusMutations.dropWorktreesOnWorkspaceBoard}
-        workspaceBoardOpen={workspaceBoardOpen}
-        onWorkspaceBoardDragPreviewStart={onWorkspaceBoardDragPreviewStart}
-        onWorkspaceBoardDragPreviewCommit={onWorkspaceBoardDragPreviewCommit}
-        onWorkspaceBoardDragPreviewCancel={onWorkspaceBoardDragPreviewCancel}
-        shouldShowWorkspaceBoardDropIndicator={
-          statusMutations.shouldShowWorkspaceBoardDropIndicator
-        }
         onReorderWorktrees={statusMutations.reorderWorktrees}
         scrollOffsetRef={scrollOffsetRef}
         scrollAnchorRef={scrollAnchorRef}

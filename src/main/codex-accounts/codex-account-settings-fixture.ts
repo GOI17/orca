@@ -20,7 +20,6 @@ export function createCodexAccountSettings(
     terminalDividerThicknessPx: 1,
     setupScriptLaunchMode: 'split-vertical',
     localAccountRuntime: 'host',
-    floatingTerminalEnabled: false,
     terminalMacOptionAsAlt: 'false',
     terminalMacOptionAsAltMigrated: true,
     experimentalActivity: true,

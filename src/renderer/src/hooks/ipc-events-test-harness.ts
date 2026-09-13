@@ -118,11 +118,6 @@ export async function loadIpcEventsHarness(
     getVisibleWorktreeShortcutTargets: () =>
       options.visibleWorktreeTargets ?? (options.visibleWorktreeIds ?? []).map((id) => ({ id }))
   }))
-  vi.doMock('@/lib/floating-workspace-terminal-actions', () => ({
-    createFloatingWorkspaceTerminalTab: vi.fn(),
-    isEmptyFloatingWorkspacePanelVisible: () => false,
-    isFloatingWorkspacePanelFocused: () => false
-  }))
   vi.doMock('@/runtime/web-runtime-session', () => ({
     activateWebRuntimeSessionTab: vi.fn(),
     closeWebRuntimeSessionTab: vi.fn(),

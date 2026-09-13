@@ -70,11 +70,10 @@ describe('agent launch routing caller census', () => {
     expect(adopters).toEqual([...VERDICT_ADOPTERS].sort())
   })
 
-  it('keeps non-visible, resume, and floating launchers intentionally outside the route', () => {
+  it('keeps non-visible and resume launchers intentionally outside the route', () => {
     for (const file of [
       'src/renderer/src/lib/launch-agent-background-session.ts',
-      'src/renderer/src/lib/launch-ai-vault-session.ts',
-      'src/renderer/src/components/floating-terminal/FloatingTerminalWindowControls.tsx'
+      'src/renderer/src/lib/launch-ai-vault-session.ts'
     ]) {
       expect(readFileSync(join(REPO_ROOT, file), 'utf8')).not.toContain('resolveAgentLaunchRoute')
     }

@@ -6,9 +6,6 @@ export type DesktopStatus = {
   appVersion?: string
   protocolVersion?: number
   minCompatibleMobileVersion?: number
-  // Why: absent on hosts that predate the mobile Floating Workspace entry;
-  // treat absence as unsupported and hide the entry.
-  floatingWorkspaceEnabled?: boolean
 }
 
 export type RepoSummary = {

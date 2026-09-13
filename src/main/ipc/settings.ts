@@ -10,7 +10,6 @@ import { rebuildAppMenu } from '../menu/register-app-menu'
 import { track } from '../telemetry/client'
 import { SETTINGS_CHANGED_WHITELIST, type SettingsChangedKey } from '../../shared/telemetry-events'
 import type { AgentAwakeService } from '../agent-awake-service'
-import { sanitizeFloatingWorkspaceDirectorySetting } from './floating-workspace-directory'
 import { applyAgentStatusHooksEnabled } from '../agent-hooks/managed-agent-hook-controls'
 import { recordManagedHookInstallFailure } from '../agent-hooks/install-telemetry'
 import { applyElectronProxySettings } from '../network/proxy-settings'
@@ -125,9 +124,6 @@ export function registerSettingsHandlers(
     // Why: connection/navigation code receives the generic settings writer; the
     // durable server preference has a dedicated Advanced-control boundary.
     delete sanitizedArgs.activeRuntimeEnvironmentId
-    // Why: Floating Workspace grants are trusted only when written by the
-    // main-process directory picker, never by renderer-provided settings IPC.
-    delete sanitizedArgs.floatingTerminalTrustedCwds
     if ('computerAwakeMode' in sanitizedArgs) {
       Object.assign(
         sanitizedArgs,
@@ -142,12 +138,6 @@ export function registerSettingsHandlers(
       Object.assign(
         sanitizedArgs,
         computerAwakeSettingsForMode(sanitizedArgs.keepComputerAwakeWhileAgentsRun ? 'auto' : 'off')
-      )
-    }
-    if (typeof args.floatingTerminalCwd === 'string') {
-      sanitizedArgs.floatingTerminalCwd = await sanitizeFloatingWorkspaceDirectorySetting(
-        store,
-        args.floatingTerminalCwd
       )
     }
     if ('httpProxyUrl' in args) {

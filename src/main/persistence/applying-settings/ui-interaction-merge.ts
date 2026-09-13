@@ -1,3 +1,4 @@
+import { stripRetiredWorkspacePreferences } from '../../../shared/retired-workspace-preferences'
 import type { WorkspaceKey } from '../../../shared/folder-workspace-types'
 import type { PersistedState } from '../../../shared/persisted-state-types'
 import type { WorkspaceLineage } from '../../../shared/worktree/lineage-types'
@@ -53,7 +54,7 @@ export function stripMainOwnedTelemetryMarkerFromUI(
     featureInteractionTelemetryBuckets?: unknown
   }
   void _reserved
-  return ui
+  return stripRetiredWorkspacePreferences(ui)
 }
 
 export function normalizeWorkspaceLineageByChildKey(

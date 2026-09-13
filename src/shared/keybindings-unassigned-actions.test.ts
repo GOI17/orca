@@ -5,7 +5,7 @@ import {
   getEffectiveKeybindingsForAction,
   keybindingMatchesAction
 } from './keybindings'
-import type { KeybindingActionId, KeybindingPlatform } from './keybindings'
+import type { KeybindingPlatform } from './keybindings'
 
 describe('keybindings', () => {
   it('keeps equalize pane sizes unassigned until users customize it', () => {
@@ -88,31 +88,6 @@ describe('keybindings', () => {
         'darwin'
       )
     ).toBe(false)
-  })
-
-  it('keeps workspace board unassigned until users customize it', () => {
-    const binding = {
-      key: 'k',
-      code: 'KeyK',
-      control: true,
-      meta: false,
-      alt: true,
-      shift: false
-    }
-
-    expect(getEffectiveKeybindingsForAction('workspace.openBoard', 'linux')).toEqual([])
-    expect(keybindingMatchesAction('workspace.openBoard', binding, 'linux')).toBe(false)
-    expect(
-      keybindingMatchesAction('workspace.openBoard', binding, 'linux', {
-        'workspace.openBoard': ['Mod+Alt+K']
-      })
-    ).toBe(true)
-
-    const definition = getKeybindingDefinition('workspace.openBoard')
-    expect(definition?.title).toBe('Toggle Workspace Board')
-    expect(definition?.searchKeywords).toEqual(
-      expect.arrayContaining(['workspace', 'board', 'kanban', 'toggle', 'open', 'close'])
-    )
   })
 
   it('keeps the agent dashboard toggle unassigned until users customize it', () => {
@@ -213,17 +188,5 @@ describe('keybindings', () => {
     expect(definition?.searchKeywords).toEqual(
       expect.arrayContaining(['sleeping', 'workspaces', 'filter'])
     )
-  })
-
-  it('leaves floating workspace minimize unassigned because floating terminal toggle owns show and hide', () => {
-    const platforms: readonly KeybindingPlatform[] = ['darwin', 'linux', 'win32']
-    const minimizeAction = 'floatingWorkspace.minimize' as KeybindingActionId
-
-    for (const platform of platforms) {
-      expect(getEffectiveKeybindingsForAction(minimizeAction, platform)).toEqual([])
-    }
-    expect(getEffectiveKeybindingsForAction('floatingTerminal.toggle', 'darwin')).toEqual([
-      'Mod+Alt+A'
-    ])
   })
 })

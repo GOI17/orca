@@ -3,7 +3,6 @@ import {
   type WindowShortcutInput
 } from '../../shared/window-shortcut-policy'
 import { keybindingMatchesAction, type KeybindingOverrides } from '../../shared/keybindings'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../shared/constants'
 import type { BrowserPageZoomDirection } from '../../shared/browser-page-zoom'
 import type { BrowserFindTarget } from '../../shared/browser-find-source'
 import type { ResolveRenderer } from './browser-guest-renderer-target'
@@ -18,7 +17,6 @@ export type GuestShortcutForwardContext = {
   shouldForwardDictationShortcut?: ShouldForwardDictationShortcut
   isMobileEmulatorEnabled?: IsMobileEmulatorEnabled
   getKeybindings?: () => KeybindingOverrides | undefined
-  resolveWorktreeId?: (browserTabId: string) => string | null
   resolveWorkspaceId?: (browserTabId: string) => string | null
   forwardBrowserPageZoom: (event: Electron.Event, direction: BrowserPageZoomDirection) => void
 }
@@ -35,7 +33,6 @@ export function forwardGuestShortcutInput(
     shouldForwardDictationShortcut,
     isMobileEmulatorEnabled,
     getKeybindings,
-    resolveWorktreeId,
     resolveWorkspaceId,
     forwardBrowserPageZoom
   } = ctx
@@ -60,13 +57,6 @@ export function forwardGuestShortcutInput(
     event.preventDefault()
     const renderer = resolveRenderer(browserTabId)
     renderer?.send('ui:worktreeHistoryNavigate', action.direction)
-    return true
-  }
-
-  if (action?.type === 'toggleFloatingTerminal') {
-    event.preventDefault()
-    const renderer = resolveRenderer(browserTabId)
-    renderer?.send('ui:toggleFloatingTerminal')
     return true
   }
 
@@ -117,8 +107,6 @@ export function forwardGuestShortcutInput(
   if (!renderer) {
     return false
   }
-  // Why: floating-panel guests route close/index chords to the panel (carrying their source id) so they hit the floating workspace, not the main tab strip.
-  const isFloatingGuest = resolveWorktreeId?.(browserTabId) === FLOATING_TERMINAL_WORKTREE_ID
   if (keybindingMatchesAction('tab.newBrowser', input, process.platform, keybindings)) {
     renderer.send('ui:newBrowserTab')
   } else if (
@@ -157,13 +145,9 @@ export function forwardGuestShortcutInput(
     // Why: same as browser.back; the focused guest cannot call the renderer-owned webview's goForward() directly.
     renderer.send('ui:browserHistoryNavigate', 'forward')
   } else if (keybindingMatchesAction('tab.close', input, process.platform, keybindings)) {
-    if (isFloatingGuest) {
-      renderer.send('ui:closeFloatingItem', { sourceId: browserTabId })
-    } else {
-      // Why: carry the guest's page id — activeTabType/activeBrowserTabId can be stale in split
-      // layouts (guest focus doesn't reach the group's focus-capture), silently dropping the close.
-      renderer.send('ui:closeActiveTab', { sourceId: browserTabId })
-    }
+    // Why: carry the guest's page id — activeTabType/activeBrowserTabId can be stale in split
+    // layouts (guest focus doesn't reach the group's focus-capture), silently dropping the close.
+    renderer.send('ui:closeActiveTab', { sourceId: browserTabId })
   } else if (keybindingMatchesAction('tab.nextSameType', input, process.platform, keybindings)) {
     renderer.send('ui:switchTab', 1)
   } else if (
@@ -180,8 +164,6 @@ export function forwardGuestShortcutInput(
     renderer.send('ui:openNewWorkspace')
   } else if (action?.type === 'deleteCurrentWorkspace') {
     renderer.send('ui:deleteCurrentWorkspace')
-  } else if (action?.type === 'openWorkspaceBoard') {
-    renderer.send('ui:openWorkspaceBoard')
   } else if (action?.type === 'openTasks') {
     renderer.send('ui:openTasks')
   } else if (action?.type === 'toggleAgentDashboard') {
@@ -191,17 +173,9 @@ export function forwardGuestShortcutInput(
   } else if (action?.type === 'forceReload') {
     renderer.reloadIgnoringCache()
   } else if (action?.type === 'jumpToWorktreeIndex') {
-    if (isFloatingGuest) {
-      renderer.send('ui:selectFloatingIndex', { index: action.index })
-    } else {
-      renderer.send('ui:jumpToWorktreeIndex', action.index)
-    }
+    renderer.send('ui:jumpToWorktreeIndex', action.index)
   } else if (action?.type === 'jumpToTabIndex') {
-    if (isFloatingGuest) {
-      renderer.send('ui:selectFloatingIndex', { index: action.index })
-    } else {
-      renderer.send('ui:jumpToTabIndex', action.index)
-    }
+    renderer.send('ui:jumpToTabIndex', action.index)
   } else if (action?.type === 'dictationKeyDown') {
     if (!shouldForwardDictationShortcut?.()) {
       return false

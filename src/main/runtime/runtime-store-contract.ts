@@ -85,7 +85,6 @@ export type RuntimeStore = {
     agentDefaultArgs?: GlobalSettings['agentDefaultArgs']
     agentDefaultEnv?: GlobalSettings['agentDefaultEnv']
     terminalWindowsShell?: GlobalSettings['terminalWindowsShell']
-    floatingTerminalEnabled?: GlobalSettings['floatingTerminalEnabled']
     agentStatusHooksEnabled?: GlobalSettings['agentStatusHooksEnabled']
     experimentalNativeChat?: GlobalSettings['experimentalNativeChat']
     openAgentTabsInChatByDefault?: GlobalSettings['openAgentTabsInChatByDefault']

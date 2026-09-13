@@ -53,6 +53,4 @@ export type TabBarProps = {
   onPinFile?: (fileId: string, tabId?: string) => void
   tabBarOrder?: string[]
   hoveredTabInsertion?: HoveredTabInsertion | null
-  /** Floating workspace panels are rounded; skip tab top borders that clash with the curve. */
-  tabStripChrome?: 'default' | 'floating-panel'
 }

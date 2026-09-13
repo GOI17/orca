@@ -3,7 +3,6 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { MarkdownDocument } from '../../shared/filesystem-entry-types'
 import { authorizeExternalPath } from '../ipc/filesystem-auth'
-import { ensureDefaultFloatingWorkspacePath } from '../ipc/floating-workspace-directory'
 import { isMarkdownDocumentName, markdownDocumentFromFilePath } from '../ipc/markdown-documents'
 
 // Why: a shell can only ever hand over the files the user selected; anything past this is a
@@ -129,8 +128,7 @@ export class OsOpenedMarkdownFileState {
 }
 
 /**
- * Turns OS-handed paths into the same `MarkdownDocument` shape the floating workspace's own
- * file picker produces, authorizing each one for the renderer's later read.
+ * Authorizes OS-opened documents for the renderer's local file route.
  */
 export async function resolveOpenedMarkdownDocuments(
   filePaths: readonly string[]
@@ -138,7 +136,6 @@ export async function resolveOpenedMarkdownDocuments(
   if (filePaths.length === 0) {
     return []
   }
-  const floatingRoot = await ensureDefaultFloatingWorkspacePath()
   const documents: MarkdownDocument[] = []
   for (const filePath of filePaths) {
     try {
@@ -152,7 +149,7 @@ export async function resolveOpenedMarkdownDocuments(
     }
     authorizeExternalPath(filePath)
     documents.push(
-      markdownDocumentFromFilePath(floatingRoot, filePath, {
+      markdownDocumentFromFilePath(path.dirname(filePath), filePath, {
         outsideRootRelativePath: 'basename'
       })
     )

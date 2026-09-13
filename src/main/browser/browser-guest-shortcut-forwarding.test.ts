@@ -847,8 +847,6 @@ describe('setupGuestShortcutForwarding', () => {
     expect(rendererSendMock).not.toHaveBeenCalledWith('ui:openQuickOpen')
   })
 
-  // A floating-workspace-owned guest routes close/index chords to the floating-scoped
-  // IPC *carrying its source id*; a main-owned guest keeps main routing.
   describe('source-aware close/index routing', () => {
     const closeInput = { code: 'KeyW', key: 'w' }
     // workspace.selectByIndex default is Mod+1; tab.selectByIndex default is Ctrl+1 (darwin) / Alt+1 (other).
@@ -858,78 +856,41 @@ describe('setupGuestShortcutForwarding', () => {
         ? { code: 'Digit1', key: '1', control: true, meta: false }
         : { code: 'Digit1', key: '1', alt: true, control: false }
 
-    it('routes tab.close to ui:closeFloatingItem with the source id for a floating guest', () => {
-      setupGuestShortcutForwarding({
-        browserTabId,
-        guest: makeGuest(),
-        resolveRenderer: () => makeRenderer(),
-        resolveWorktreeId: () => 'global-floating-terminal'
-      })
-
-      const preventDefault = triggerBeforeInput(closeInput)
-
-      expect(preventDefault).toHaveBeenCalledTimes(1)
-      expect(rendererSendMock).toHaveBeenCalledWith('ui:closeFloatingItem', {
-        sourceId: browserTabId
-      })
-      expect(rendererSendMock.mock.calls.some(([channel]) => channel === 'ui:closeActiveTab')).toBe(
-        false
-      )
-    })
-
-    it('routes workspace/tab index chords to ui:selectFloatingIndex for a floating guest', () => {
-      setupGuestShortcutForwarding({
-        browserTabId,
-        guest: makeGuest(),
-        resolveRenderer: () => makeRenderer(),
-        resolveWorktreeId: () => 'global-floating-terminal'
-      })
-
-      triggerBeforeInput(workspaceIndexInput)
-      triggerBeforeInput(tabIndexInput)
-
-      expect(rendererSendMock).toHaveBeenCalledWith('ui:selectFloatingIndex', { index: 0 })
-      expect(rendererSendMock).toHaveBeenCalledTimes(2)
-      expect(rendererSendMock).not.toHaveBeenCalledWith('ui:jumpToWorktreeIndex', 0)
-      expect(rendererSendMock).not.toHaveBeenCalledWith('ui:jumpToTabIndex', 0)
-    })
-
-    it('keeps main routing for a non-floating guest', () => {
-      setupGuestShortcutForwarding({
-        browserTabId,
-        guest: makeGuest(),
-        resolveRenderer: () => makeRenderer(),
-        resolveWorktreeId: () => 'some-worktree'
-      })
-
-      triggerBeforeInput(closeInput)
-      triggerBeforeInput(workspaceIndexInput)
-
-      expect(rendererSendMock).toHaveBeenCalledWith('ui:closeActiveTab', { sourceId: browserTabId })
-      expect(rendererSendMock).toHaveBeenCalledWith('ui:jumpToWorktreeIndex', 0)
-      expect(rendererSendMock).not.toHaveBeenCalledWith('ui:closeFloatingItem', expect.anything())
-      expect(rendererSendMock).not.toHaveBeenCalledWith('ui:selectFloatingIndex', expect.anything())
-    })
-
-    it('keeps main routing when no worktree resolver is provided', () => {
+    it('routes tab.close with the guest page id', () => {
       setupGuestShortcutForwarding({
         browserTabId,
         guest: makeGuest(),
         resolveRenderer: () => makeRenderer()
       })
 
-      triggerBeforeInput(closeInput)
+      const preventDefault = triggerBeforeInput(closeInput)
 
-      expect(rendererSendMock).toHaveBeenCalledWith('ui:closeActiveTab', { sourceId: browserTabId })
-      expect(rendererSendMock).not.toHaveBeenCalledWith('ui:closeFloatingItem', expect.anything())
+      expect(preventDefault).toHaveBeenCalledTimes(1)
+      expect(rendererSendMock).toHaveBeenCalledWith('ui:closeActiveTab', {
+        sourceId: browserTabId
+      })
     })
 
-    it('drops auto-repeat index chords at the source for a floating guest', () => {
+    it('routes workspace and tab index chords independently', () => {
       setupGuestShortcutForwarding({
         browserTabId,
         guest: makeGuest(),
-        resolveRenderer: () => makeRenderer(),
-        resolveWorktreeId: () => 'global-floating-terminal'
+        resolveRenderer: () => makeRenderer()
+      })
+
+      triggerBeforeInput(workspaceIndexInput)
+      triggerBeforeInput(tabIndexInput)
+
+      expect(rendererSendMock).toHaveBeenCalledWith('ui:jumpToWorktreeIndex', 0)
+      expect(rendererSendMock).toHaveBeenCalledTimes(2)
+      expect(rendererSendMock).toHaveBeenCalledWith('ui:jumpToTabIndex', 0)
+    })
+
+    it('drops auto-repeat index chords at the guest source', () => {
+      setupGuestShortcutForwarding({
+        browserTabId,
+        guest: makeGuest(),
+        resolveRenderer: () => makeRenderer()
       })
 
       const preventDefault = triggerBeforeInput({ ...workspaceIndexInput, isAutoRepeat: true })

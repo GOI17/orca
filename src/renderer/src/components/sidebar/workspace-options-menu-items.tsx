@@ -83,11 +83,7 @@ export function useWorkspaceOptionsFilterBadge(): {
   }
 }
 
-export function WorkspaceOptionsMenuItems({
-  preserveWorkspaceBoardOpen = false
-}: {
-  preserveWorkspaceBoardOpen?: boolean
-}): JSX.Element {
+export function WorkspaceOptionsMenuItems(): JSX.Element {
   const repos = useAppStore((s) => s.repos)
   const setWorkspaceHostScope = useAppStore((s) => s.setWorkspaceHostScope)
   const visibleWorkspaceHostIds = useAppStore((s) => s.visibleWorkspaceHostIds)
@@ -104,7 +100,6 @@ export function WorkspaceOptionsMenuItems({
   const projectOrderLabel =
     PROJECT_ORDER_OPTIONS.find((opt) => opt.id === projectOrderBy)?.label ?? 'Manual'
   const hostVisibilityLabel = getSidebarHostVisibilityLabel(visibleWorkspaceHostIds, hostOptions)
-  const boardAttr = preserveWorkspaceBoardOpen ? '' : undefined
 
   return (
     <>
@@ -125,13 +120,12 @@ export function WorkspaceOptionsMenuItems({
             <SidebarHostScopeMenuSection
               hostVisibilityLabel={hostVisibilityLabel}
               hostOptions={hostOptions}
-              preserveWorkspaceBoardOpen={preserveWorkspaceBoardOpen}
               setWorkspaceHostScope={setWorkspaceHostScope}
               visibleWorkspaceHostIds={visibleWorkspaceHostIds}
               setVisibleWorkspaceHostIds={setVisibleWorkspaceHostIds}
             />
           )}
-          <SidebarRepositoryFilterSection preserveWorkspaceBoardOpen={preserveWorkspaceBoardOpen} />
+          <SidebarRepositoryFilterSection />
           <DropdownMenuSeparator />
         </>
       )}
@@ -156,7 +150,7 @@ export function WorkspaceOptionsMenuItems({
             <span className="text-[11px] font-medium text-muted-foreground">{sortLabel}</span>
           </span>
         </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="w-44" data-workspace-board-preserve-open={boardAttr}>
+        <DropdownMenuSubContent className="w-44">
           <DropdownMenuRadioGroup
             value={sortBy}
             onValueChange={(v) => setSortBy(v as typeof sortBy)}
@@ -206,7 +200,7 @@ export function WorkspaceOptionsMenuItems({
               </span>
             </span>
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent className="w-44" data-workspace-board-preserve-open={boardAttr}>
+          <DropdownMenuSubContent className="w-44">
             <DropdownMenuRadioGroup
               value={projectOrderBy}
               onValueChange={(v) => setProjectOrderBy(v as typeof projectOrderBy)}
@@ -232,7 +226,7 @@ export function WorkspaceOptionsMenuItems({
         </DropdownMenuSub>
       )}
 
-      <WorktreeCardDisplayMenuSection preserveWorkspaceBoardOpen={preserveWorkspaceBoardOpen} />
+      <WorktreeCardDisplayMenuSection />
       <DropdownMenuSeparator />
       <SidebarWorkspaceFilterSection />
     </>

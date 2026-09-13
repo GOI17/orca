@@ -26,15 +26,13 @@ export default function ClientHostedBrowserTab({
   isActive,
   hasTabsToRight,
   onActivate,
-  onClose,
-  includeTopTabBorder = true
+  onClose
 }: {
   row: ClientHostedBrowserRow
   isActive: boolean
   hasTabsToRight: boolean
   onActivate: () => void
   onClose: () => void
-  includeTopTabBorder?: boolean
 }): React.JSX.Element {
   const loading = row.loading && !row.hostAbsent
   const PageIcon = loading ? Loader2 : Laptop
@@ -47,7 +45,7 @@ export default function ClientHostedBrowserTab({
         <TooltipTrigger asChild>
           <div
             data-client-hosted-browser-row-id={row.browserPageId}
-            className={`group relative flex h-full cursor-pointer select-none items-center px-1.5 text-xs outline-none focus:outline-none focus-visible:outline-none ${getTabStripBorderClasses(hasTabsToRight, { includeTopBorder: includeTopTabBorder })} ${getTabRootStateClasses(isActive)}`}
+            className={`group relative flex h-full cursor-pointer select-none items-center px-1.5 text-xs outline-none focus:outline-none focus-visible:outline-none ${getTabStripBorderClasses(hasTabsToRight)} ${getTabRootStateClasses(isActive)}`}
             onPointerDown={onActivate}
             onMouseDown={(event) => {
               if (event.button === 1) {

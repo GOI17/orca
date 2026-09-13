@@ -137,7 +137,6 @@ export type TerminalCreateSurfacingScenario = Pick<
 > & {
   replyTerminalCreate: SpyMock
   dispatchEvent: SpyMock
-  createFloatingWorkspaceTerminalTab: SpyMock
   createWebRuntimeSessionTerminal: Mock<
     (...args: unknown[]) => Promise<{ status: string; message: string }>
   >

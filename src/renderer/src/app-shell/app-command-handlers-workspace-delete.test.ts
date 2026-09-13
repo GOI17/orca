@@ -18,10 +18,6 @@ vi.mock('../components/sidebar/hovered-workspace-delete', () => ({
   resolveHoveredWorkspaceDeleteTarget: () => mocks.hoveredTarget
 }))
 
-vi.mock('@/lib/floating-workspace-terminal-actions', () => ({
-  isFloatingWorkspacePanelFocused: () => false
-}))
-
 vi.mock('@/lib/terminal-shortcut-capture-notification', () => ({
   showTerminalShortcutCaptureNotification: vi.fn()
 }))
@@ -34,13 +30,8 @@ function shortcutState(overrides: Partial<AppShortcutState> = {}): AppShortcutSt
     activeWorktreeId: 'repo::/feature',
     actions: {} as AppShortcutState['actions'],
     creationLayoutActive: false,
-    floatingTerminalEnabled: false,
-    floatingTerminalOpen: false,
-    floatingVisibleTabCount: 0,
     keybindings: {},
-    openFloatingWorkspaceMaximized: vi.fn(),
     pluginCommands: [],
-    setFloatingTerminalOpen: vi.fn(),
     terminalShortcutPolicy: 'orca-first',
     workspaceChromeActive: true,
     ...overrides

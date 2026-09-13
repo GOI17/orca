@@ -43,10 +43,7 @@ export function createWebAppApi(): Partial<PreloadApi> {
       getKeyboardLayoutSnapshot: () => Promise.resolve(null),
       onKeyboardLayoutChanged: () => () => undefined,
       setUnreadDockBadgeCount: () => Promise.resolve(),
-      getFloatingTerminalCwd: () => Promise.resolve(''),
-      getFloatingMarkdownDirectory: () => Promise.resolve(''),
-      pickFloatingMarkdownDocument: () => Promise.resolve(null),
-      pickFloatingWorkspaceDirectory: () => Promise.resolve(null),
+      getHomeDirectory: () => Promise.resolve(''),
       // Browser fallback has no app-owned userData dir; reject so the sentinel can't claim sensitive evidence was persisted.
       writeTerminalRenderDesyncEvidence: () =>
         Promise.reject(

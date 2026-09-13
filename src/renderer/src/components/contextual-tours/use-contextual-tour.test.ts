@@ -66,9 +66,9 @@ describe('createContextualTourInteractionSnapshot', () => {
     const recordFeatureInteraction = vi.fn(() => Promise.resolve())
 
     const snapshot = createContextualTourInteractionSnapshot({
-      id: 'floating-workspace',
+      id: 'browser',
       featureInteractions: {
-        'floating-workspace': {
+        browser: {
           firstInteractedAt: 1,
           interactionCount: 1
         }
@@ -86,7 +86,7 @@ describe('createContextualTourInteractionSnapshot', () => {
 
   it('marks existing floating workspace users from the explicit pre-open snapshot', () => {
     const snapshot = createContextualTourInteractionSnapshot({
-      id: 'floating-workspace',
+      id: 'browser',
       featureInteractions: {},
       recordFeatureInteraction: vi.fn(() => Promise.resolve()),
       recordFeatureInteractionForTour: false,
@@ -101,9 +101,9 @@ describe('createContextualTourInteractionSnapshot', () => {
     const recordFeatureInteraction = vi.fn(() => persisted)
 
     const snapshot = createContextualTourInteractionSnapshot({
-      id: 'floating-workspace',
+      id: 'browser',
       featureInteractions: {
-        'floating-workspace': {
+        browser: {
           firstInteractedAt: 1,
           interactionCount: 1
         }
@@ -113,7 +113,7 @@ describe('createContextualTourInteractionSnapshot', () => {
       wasFeaturePreviouslyInteracted: false
     })
 
-    expect(recordFeatureInteraction).toHaveBeenCalledWith('floating-workspace')
+    expect(recordFeatureInteraction).toHaveBeenCalledWith('browser')
     expect(snapshot.wasPreviouslyInteracted).toBe(false)
     expect(snapshot.persisted).toBe(persisted)
   })

@@ -12,6 +12,18 @@ import {
 } from './keybindings'
 
 describe('keybindings', () => {
+  it('rejects retired workspace actions while retaining current workspace shortcuts', () => {
+    for (const id of [
+      'workspace.openBoard',
+      'floatingTerminal.toggle',
+      'floatingWorkspace.maximize',
+      'floatingWorkspace.minimize'
+    ]) {
+      expect(isKeybindingActionId(id)).toBe(false)
+    }
+    expect(isKeybindingActionId('workspace.create')).toBe(true)
+  })
+
   it('accepts bounded plugin command action IDs and rejects malformed variants', () => {
     expect(isKeybindingActionId('plugin:orca-samples.tasks/open')).toBe(true)
     expect(isKeybindingActionId('plugin:orca-samples.tasks/task.open-latest')).toBe(true)

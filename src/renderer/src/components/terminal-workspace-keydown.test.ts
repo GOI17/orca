@@ -2,10 +2,8 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { handleSwitchTabAcrossAllTypes } from '../hooks/ipc-tab-switch'
-import { switchFloatingWorkspaceTab } from '@/lib/floating-workspace-terminal-actions'
 import { dispatchWorkspaceTabCommand } from '@/lib/workspace-tab-commands'
 import type { Tab } from '../../../shared/tab-types'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import {
   ORCA_EDITOR_REQUEST_CMD_SAVE_EVENT,
   type EditorRequestCmdSaveDetail
@@ -29,16 +27,6 @@ vi.mock('../hooks/ipc-tab-switch', () => ({
   handleSwitchTab: vi.fn(),
   handleSwitchTabAcrossAllTypes: vi.fn(),
   handleSwitchTerminalTab: vi.fn()
-}))
-vi.mock('@/lib/floating-workspace-terminal-actions', () => ({
-  createFloatingWorkspaceBrowserTab: vi.fn(),
-  createFloatingWorkspaceMarkdownTab: vi.fn(),
-  createFloatingWorkspaceTerminalTab: vi.fn(),
-  handleEmptyFloatingWorkspacePanelCloseShortcut: () => false,
-  isEmptyFloatingWorkspacePanelVisible: () => false,
-  isEventTargetInsideFloatingWorkspacePanel: () => mocks.targetInsideFloatingPanel,
-  isFloatingWorkspacePanelFocused: () => mocks.floatingFocused,
-  switchFloatingWorkspaceTab: vi.fn()
 }))
 vi.mock('@/lib/terminal-shortcut-capture-notification', () => ({
   showTerminalShortcutCaptureNotification: vi.fn()
@@ -103,8 +91,6 @@ function pressCmdS(): (EditorRequestCmdSaveDetail | undefined)[] {
 
 describe('handleTerminalWorkspaceKeyDown editor.save', () => {
   beforeEach(() => {
-    mocks.floatingFocused = false
-    mocks.targetInsideFloatingPanel = false
     mocks.state = {
       activeView: 'terminal',
       activeTabType: 'editor',
@@ -115,15 +101,6 @@ describe('handleTerminalWorkspaceKeyDown editor.save', () => {
 
   it('dispatches the save request with the resolved file id', () => {
     expect(pressCmdS()).toEqual([{ fileId: 'file-1' }])
-  })
-
-  it('resolves the floating panel editor when the panel owns the event', () => {
-    mocks.targetInsideFloatingPanel = true
-    mocks.state.getActiveTab = (worktreeId: string) =>
-      worktreeId === FLOATING_TERMINAL_WORKTREE_ID
-        ? { contentType: 'editor', entityId: 'floating-file' }
-        : null
-    expect(pressCmdS()).toEqual([{ fileId: 'floating-file' }])
   })
 
   it('does not swallow the chord outside the workspace view', () => {
@@ -141,8 +118,6 @@ describe('tab.close uses the unified active tab', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.floatingFocused = false
-    mocks.targetInsideFloatingPanel = false
     tab = {
       id: 'chat-tab',
       entityId: 'chat-session',
@@ -251,12 +226,6 @@ describe('tab.close uses the unified active tab', () => {
     await vi.waitFor(() => expect(closeUnifiedTab).toHaveBeenCalledWith(tab.id))
   })
 
-  it('does not close the main workspace tab while the floating panel owns focus', () => {
-    mocks.floatingFocused = true
-    expect(close().defaultPrevented).toBe(false)
-    expect(mocks.closeStructuredAgentSession).not.toHaveBeenCalled()
-  })
-
   it('preserves pinned tabs during a bulk close without prompting', () => {
     tab.isPinned = true
     dispatchWorkspaceTabCommand({
@@ -302,8 +271,6 @@ describe('tab.close uses the unified active tab', () => {
 describe('shared tab navigation routing', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.floatingFocused = false
-    mocks.targetInsideFloatingPanel = false
     mocks.state = { activeWorktreeId: controller.activeWorktreeId }
   })
 
@@ -325,15 +292,5 @@ describe('shared tab navigation routing', () => {
     dispatchWorkspaceTabCommand({ type: 'switch', direction: 1, scope: 'all-types' })
     expect(handleSwitchTabAcrossAllTypes).toHaveBeenCalledTimes(2)
     expect(handleSwitchTabAcrossAllTypes).toHaveBeenLastCalledWith(1)
-    expect(switchFloatingWorkspaceTab).not.toHaveBeenCalled()
-  })
-
-  it('routes both entry points to the floating panel when it owns focus', () => {
-    mocks.floatingFocused = true
-    nextTab()
-    dispatchWorkspaceTabCommand({ type: 'switch', direction: 1, scope: 'all-types' })
-    expect(switchFloatingWorkspaceTab).toHaveBeenCalledTimes(2)
-    expect(switchFloatingWorkspaceTab).toHaveBeenLastCalledWith(mocks.state, 1, 'all-types')
-    expect(handleSwitchTabAcrossAllTypes).not.toHaveBeenCalled()
   })
 })

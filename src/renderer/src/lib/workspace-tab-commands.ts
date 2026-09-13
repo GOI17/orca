@@ -9,12 +9,6 @@ import {
   handleSwitchTabAcrossAllTypes,
   handleSwitchTerminalTab
 } from '@/hooks/ipc-tab-switch'
-import {
-  isEmptyFloatingWorkspacePanelVisible,
-  isFloatingWorkspacePanelFocused,
-  switchFloatingWorkspaceTab
-} from './floating-workspace-terminal-actions'
-import { TOGGLE_FLOATING_TERMINAL_EVENT } from './floating-terminal'
 import { closeWorkspaceBrowserTab } from './workspace-browser-tab-close'
 import { resolveBrowserWorkspaceOwner } from './browser-workspace-source-resolution'
 
@@ -104,15 +98,6 @@ function resolveCloseTarget(
 export function dispatchWorkspaceTabCommand(command: WorkspaceTabCommand): boolean {
   const state = useAppStore.getState()
   if (command.type === 'close') {
-    if (!command.target) {
-      if (isEmptyFloatingWorkspacePanelVisible()) {
-        window.dispatchEvent(new Event(TOGGLE_FLOATING_TERMINAL_EVENT))
-        return true
-      }
-      if (isFloatingWorkspacePanelFocused()) {
-        return false
-      }
-    }
     const target = resolveCloseTarget(state, command.target)
     if (!target) {
       return false
@@ -163,14 +148,7 @@ export function dispatchWorkspaceTabCommand(command: WorkspaceTabCommand): boole
     return true
   }
   if (command.type === 'previous-recent') {
-    if (isFloatingWorkspacePanelFocused()) {
-      return false
-    }
     return handleSwitchRecentTab()
-  }
-  if (isFloatingWorkspacePanelFocused()) {
-    switchFloatingWorkspaceTab(state, command.direction, command.scope)
-    return true
   }
   switch (command.scope) {
     case 'same-type':

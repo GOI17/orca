@@ -1,27 +1,18 @@
+import { handleTerminalWorkspaceEditorShortcut } from './terminal-workspace-editor-shortcuts'
 import { toast } from 'sonner'
 import { dispatchWorkspaceTabCommand } from '@/lib/workspace-tab-commands'
 import type { KeybindingActionId } from '../../../shared/keybindings'
 import { keybindingMatchesAction } from '../../../shared/keybindings'
 import { matchesRecentTabSwitcherChord } from '../../../shared/window-shortcut-policy'
 import { useAppStore } from '../store'
-import {
-  createFloatingWorkspaceBrowserTab,
-  createFloatingWorkspaceMarkdownTab,
-  createFloatingWorkspaceTerminalTab,
-  handleEmptyFloatingWorkspacePanelCloseShortcut,
-  isEventTargetInsideFloatingWorkspacePanel,
-  isFloatingWorkspacePanelFocused
-} from '@/lib/floating-workspace-terminal-actions'
 import { showTerminalShortcutCaptureNotification } from '@/lib/terminal-shortcut-capture-notification'
 import {
   ensureClientCreationActionAllowed,
   showClientCreationActionError
 } from '@/lib/client-creation-action-error'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { translate } from '@/i18n/i18n'
 import { getKeybindingContext } from './terminal-workspace-model'
 import { resolveTerminalAgentTabShortcut } from './terminal-agent-tab-shortcut'
-import { handleTerminalWorkspaceEditorShortcut } from './terminal-workspace-editor-shortcuts'
 import type { TerminalActivationController } from './use-terminal-activation-actions'
 
 export function handleTerminalWorkspaceKeyDown(
@@ -45,7 +36,6 @@ export function handleTerminalWorkspaceKeyDown(
     return
   }
   const context = getKeybindingContext(event.target)
-  const floatingWorkspaceFocused = isFloatingWorkspacePanelFocused()
   const matchShortcut = (actionId: KeybindingActionId): boolean =>
     keybindingMatchesAction(actionId, event, shortcutPlatform, keybindings, {
       context,
@@ -64,10 +54,6 @@ export function handleTerminalWorkspaceKeyDown(
   if (!event.repeat && matchShortcut('tab.newTerminal')) {
     event.preventDefault()
     notifyTerminalCapture('tab.newTerminal')
-    if (floatingWorkspaceFocused) {
-      void createFloatingWorkspaceTerminalTab(useAppStore.getState())
-      return
-    }
     handleNewTab()
     return
   }
@@ -108,16 +94,8 @@ export function handleTerminalWorkspaceKeyDown(
   if (!event.repeat && matchShortcut('tab.newBrowser')) {
     event.preventDefault()
     notifyTerminalCapture('tab.newBrowser')
-    const browserWorkspaceId = floatingWorkspaceFocused
-      ? FLOATING_TERMINAL_WORKTREE_ID
-      : activeWorktreeId
+    const browserWorkspaceId = activeWorktreeId
     if (!ensureClientCreationActionAllowed(browserWorkspaceId, 'managed-browser')) {
-      return
-    }
-    if (floatingWorkspaceFocused) {
-      void createFloatingWorkspaceBrowserTab(useAppStore.getState()).catch(
-        showClientCreationActionError
-      )
       return
     }
     handleNewBrowserTab()
@@ -129,49 +107,19 @@ export function handleTerminalWorkspaceKeyDown(
     if (!ensureClientCreationActionAllowed(activeWorktreeId, 'mobile-emulator')) {
       return
     }
-    if (!floatingWorkspaceFocused) {
-      handleNewSimulatorTab()
-    }
+    handleNewSimulatorTab()
     return
   }
-  if (
-    handleTerminalWorkspaceEditorShortcut({
-      event,
-      floatingWorkspaceFocused,
-      matchShortcut,
-      notifyTerminalCapture
-    })
-  ) {
+  if (handleTerminalWorkspaceEditorShortcut({ event, matchShortcut, notifyTerminalCapture })) {
     return
   }
   if (!event.repeat && matchShortcut('tab.newMarkdown')) {
     event.preventDefault()
     notifyTerminalCapture('tab.newMarkdown')
-    if (floatingWorkspaceFocused) {
-      void createFloatingWorkspaceMarkdownTab(useAppStore.getState()).catch((error) => {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : translate(
-                'auto.components.Terminal.f0600556b3',
-                'Failed to create untitled markdown file.'
-              )
-        )
-      })
-      return
-    }
     void handleNewFile()
     return
   }
-  if (handleEmptyFloatingWorkspacePanelCloseShortcut(event, shortcutPlatform, keybindings)) {
-    return
-  }
   if (!event.repeat && matchShortcut('tab.close')) {
-    const floatingPanelOwnsEvent =
-      isEventTargetInsideFloatingWorkspacePanel(event.target) || floatingWorkspaceFocused
-    if (floatingPanelOwnsEvent) {
-      return
-    }
     if (dispatchWorkspaceTabCommand({ type: 'close', context })) {
       event.preventDefault()
       notifyTerminalCapture('tab.close')

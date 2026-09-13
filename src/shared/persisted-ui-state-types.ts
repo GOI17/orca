@@ -97,9 +97,6 @@ export type PersistedUIState = {
   _worktreeCardModeDefaulted?: boolean
   agentActivityDisplayMode?: AgentActivityDisplayMode
   workspaceStatuses?: WorkspaceStatusDefinition[]
-  workspaceBoardOpacity?: number
-  workspaceBoardColumnWidth?: number
-  syncTaskStatusFromWorkspaceBoard?: boolean
   /** One-shot migration flag for a short-lived build that persisted default statuses in reverse order; once stamped, ordering is never re-inferred from IDs/labels. */
   _workspaceStatusesDefaultOrderMigrated?: boolean
   /** One-shot repair flag for the exact default payload a short-lived build persisted in reverse workflow order. */

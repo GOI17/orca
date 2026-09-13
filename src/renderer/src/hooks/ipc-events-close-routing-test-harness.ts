@@ -26,8 +26,6 @@ export type TerminalTabCloseRequestListener = (data: {
 
 export async function useIpcEventsForCloseRouting({
   closeActiveTabListenerRef,
-  closeFloatingItemListenerRef,
-  selectFloatingIndexListenerRef,
   closeSessionTabListenerRef,
   sessionTabCloseRequestListenerRef,
   respondSessionTabClose = vi.fn(),
@@ -40,8 +38,6 @@ export async function useIpcEventsForCloseRouting({
   persistWorkspaceSession = vi.fn().mockResolvedValue(undefined)
 }: {
   closeActiveTabListenerRef?: { current: CloseActiveTabListener | null }
-  closeFloatingItemListenerRef?: { current: CloseFloatingItemListener | null }
-  selectFloatingIndexListenerRef?: { current: SelectFloatingIndexListener | null }
   closeSessionTabListenerRef?: { current: CloseSessionTabListener | null }
   sessionTabCloseRequestListenerRef?: { current: SessionTabCloseRequestListener | null }
   respondSessionTabClose?: ReturnType<typeof vi.fn>
@@ -163,7 +159,6 @@ export async function useIpcEventsForCloseRouting({
         onToggleLeftSidebar: () => () => {},
         onToggleRightSidebar: () => () => {},
         onToggleWorktreePalette: () => () => {},
-        onToggleFloatingTerminal: () => () => {},
         onOpenQuickOpen: () => () => {},
         onToggleQuickCommandsMenu: () => () => {},
         onOpenNewWorkspace: () => () => {},
@@ -228,18 +223,6 @@ export async function useIpcEventsForCloseRouting({
         onCloseActiveTab: (listener: CloseActiveTabListener) => {
           if (closeActiveTabListenerRef) {
             closeActiveTabListenerRef.current = listener
-          }
-          return () => {}
-        },
-        onCloseFloatingItem: (listener: CloseFloatingItemListener) => {
-          if (closeFloatingItemListenerRef) {
-            closeFloatingItemListenerRef.current = listener
-          }
-          return () => {}
-        },
-        onSelectFloatingIndex: (listener: SelectFloatingIndexListener) => {
-          if (selectFloatingIndexListenerRef) {
-            selectFloatingIndexListenerRef.current = listener
           }
           return () => {}
         },

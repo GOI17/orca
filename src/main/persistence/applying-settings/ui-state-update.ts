@@ -4,11 +4,7 @@ import {
   normalizeAgentActivityDisplayMode,
   normalizeWorktreeCardProperties
 } from '../../../shared/constants'
-import {
-  normalizeWorkspaceStatuses,
-  clampWorkspaceBoardColumnWidth,
-  clampWorkspaceBoardOpacity
-} from '../../../shared/workspace-statuses'
+import { normalizeWorkspaceStatuses } from '../../../shared/workspace-statuses'
 import { normalizeUsagePercentageDisplay } from '../../../shared/usage-percentage-display'
 import { normalizeStatusBarUsageMode } from '../../../shared/status-bar-usage-mode'
 import { clampMarkdownTocPanelWidth } from '../../../shared/markdown-toc-panel-width'
@@ -126,16 +122,6 @@ export function updatePersistedUI(
       sanitizedUpdates.workspaceStatuses !== undefined
         ? normalizeWorkspaceStatuses(sanitizedUpdates.workspaceStatuses)
         : normalizeWorkspaceStatuses(operations.state.ui?.workspaceStatuses),
-    workspaceBoardOpacity: clampWorkspaceBoardOpacity(
-      sanitizedUpdates.workspaceBoardOpacity ?? operations.state.ui?.workspaceBoardOpacity
-    ),
-    workspaceBoardColumnWidth: clampWorkspaceBoardColumnWidth(
-      sanitizedUpdates.workspaceBoardColumnWidth ?? operations.state.ui?.workspaceBoardColumnWidth
-    ),
-    syncTaskStatusFromWorkspaceBoard:
-      sanitizedUpdates.syncTaskStatusFromWorkspaceBoard !== undefined
-        ? sanitizedUpdates.syncTaskStatusFromWorkspaceBoard === true
-        : operations.state.ui?.syncTaskStatusFromWorkspaceBoard === true,
     usagePercentageDisplay: normalizeUsagePercentageDisplay(
       sanitizedUpdates.usagePercentageDisplay ?? operations.state.ui?.usagePercentageDisplay
     ),

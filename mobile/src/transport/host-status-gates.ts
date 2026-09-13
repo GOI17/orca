@@ -7,7 +7,6 @@ import { normalizeHostAppVersion, recordHostAppVersion } from './host-app-versio
 
 export type HostStatusGates = {
   hostCapabilities: string[]
-  floatingWorkspaceEnabled: boolean
   desktopAppVersion: string | null
   compatVerdict: CompatVerdict
   statusPending: boolean
@@ -54,7 +53,6 @@ export function useHostStatusGates(args: {
         if (!response.ok) {
           settle({
             hostCapabilities: [],
-            floatingWorkspaceEnabled: false,
             desktopAppVersion: null,
             compatVerdict: { kind: 'ok' }
           })
@@ -73,7 +71,6 @@ export function useHostStatusGates(args: {
         }
         settle({
           hostCapabilities: status.capabilities ?? [],
-          floatingWorkspaceEnabled: status.floatingWorkspaceEnabled === true,
           desktopAppVersion,
           compatVerdict: verdict
         })
@@ -91,7 +88,6 @@ export function useHostStatusGates(args: {
         if (!cancelled) {
           settle({
             hostCapabilities: [],
-            floatingWorkspaceEnabled: false,
             desktopAppVersion: null,
             compatVerdict: { kind: 'ok' }
           })
@@ -108,7 +104,6 @@ export function useHostStatusGates(args: {
   if (!proven) {
     return {
       hostCapabilities: EMPTY_HOST_CAPABILITIES,
-      floatingWorkspaceEnabled: false,
       desktopAppVersion: null,
       compatVerdict: { kind: 'ok' },
       statusPending: connState === 'connected' && client !== null
@@ -116,7 +111,6 @@ export function useHostStatusGates(args: {
   }
   return {
     hostCapabilities: proven.hostCapabilities,
-    floatingWorkspaceEnabled: proven.floatingWorkspaceEnabled,
     desktopAppVersion: proven.desktopAppVersion,
     compatVerdict: proven.compatVerdict,
     // Why (F10): unchanged pending timing — the reconnect refetch is still "unknown", it just no

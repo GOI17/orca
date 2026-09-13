@@ -52,8 +52,7 @@ export function renderTabBarSurface({
     terminalOnly = false,
     showAgentLaunchItems = true,
     onNewTerminalTab,
-    onOpenEntry,
-    tabStripChrome = 'default'
+    onOpenEntry
   } = props
   const {
     resolvedGroupId,
@@ -89,13 +88,11 @@ export function renderTabBarSurface({
   const { orderedItems, sortableIds, dropIndicatorByVisibleId } = itemProjection
   const clientHostedBrowserRows = props.clientHostedBrowserRows ?? EMPTY_CLIENT_HOSTED_ROWS
   const { tabStripRef, tabStripOverflowState, scrollTabStrip } = tabStripNavigation
-  const includeTopTabBorder = tabStripChrome !== 'floating-panel'
   const renderedItems = renderTabBarItems({
     items: orderedItems,
     props,
     runtime,
     dropIndicatorByVisibleId,
-    includeTopTabBorder,
     activeClientHostedBrowserRowId,
     togglePinned
   })
@@ -177,7 +174,6 @@ export function renderTabBarSurface({
                 worktreeId={worktreeId}
                 groupId={resolvedGroupId}
                 groupActiveTabId={props.groupActiveTabId ?? null}
-                includeTopTabBorder={includeTopTabBorder}
               />
             ) : null}
           </div>

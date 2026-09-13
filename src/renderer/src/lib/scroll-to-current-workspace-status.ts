@@ -22,10 +22,6 @@ function dispatchScrollToCurrentWorkspaceReveal(
   )
 }
 
-export function requestScrollToCurrentWorkspaceReveal(): void {
-  dispatchScrollToCurrentWorkspaceReveal()
-}
-
 export function requestScrollToCurrentWorkspaceRevealAndRename(): void {
   dispatchScrollToCurrentWorkspaceReveal({
     target: { type: 'active-workspace' },

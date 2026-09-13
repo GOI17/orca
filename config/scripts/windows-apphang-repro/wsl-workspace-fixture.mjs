@@ -111,13 +111,7 @@ export function createCompletedOnboardingProfile(userDataDir) {
     },
     ui: {
       contextualToursAutoEligible: false,
-      contextualToursSeenIds: [
-        'workspace-board',
-        'browser',
-        'tasks',
-        'automations',
-        'workspace-creation'
-      ],
+      contextualToursSeenIds: ['browser', 'tasks', 'automations', 'workspace-creation'],
       featureTipsSeenIds: [],
       featureInteractions: {},
       projectOrderManualDefaultNoticeDismissed: true

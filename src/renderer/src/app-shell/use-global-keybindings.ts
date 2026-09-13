@@ -7,12 +7,6 @@ import { getSelectedTextForFileSearch } from '../lib/file-search-selection'
 import { registerAppCommandDispatcher } from '@/lib/app-command-dispatch'
 import { executePluginCommand } from '@/lib/plugin-command-execution'
 import { findPluginCommandForKeybinding } from '@/lib/plugin-command-keybindings'
-import {
-  isFloatingWorkspacePanelFocused,
-  isFloatingWorkspaceTerminalInputTarget,
-  matchFloatingWorkspacePanelChord,
-  shouldMinimizeFloatingWorkspacePanelOnCloseShortcut
-} from '@/lib/floating-workspace-terminal-actions'
 import { showTerminalShortcutCaptureNotification } from '@/lib/terminal-shortcut-capture-notification'
 import {
   folderRelativePathToIncludeGlob,
@@ -20,11 +14,7 @@ import {
 } from '../components/right-sidebar/file-search-include-pattern'
 import { usePluginCommands } from '@/store/plugin-panels'
 import { useAppStore } from '../store'
-import {
-  keybindingMatchesAction,
-  type KeybindingActionId,
-  type KeybindingMatchOptions
-} from '../../../shared/keybindings'
+import { keybindingMatchesAction, type KeybindingActionId } from '../../../shared/keybindings'
 import { PLUGIN_COMMAND_ALIAS_ACTION_IDS } from '../../../shared/plugins/plugin-command-actions'
 import {
   ModifierDoubleTapDetector,
@@ -39,7 +29,6 @@ import {
   type ShortcutDispatchInput
 } from './app-command-handlers'
 import type { AppChromeLayout } from './use-app-chrome-layout'
-import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel'
 
 /**
  * Registers the window-level shortcut listeners and the app command dispatcher.
@@ -47,11 +36,8 @@ import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel
  * Window key listeners are global and long-lived: one registration, but the handler reads
  * current shortcut state each key event through a ref.
  */
-export function useGlobalKeybindings(args: {
-  layout: AppChromeLayout
-  floatingWorkspace: FloatingWorkspacePanelState
-}): void {
-  const { layout, floatingWorkspace } = args
+export function useGlobalKeybindings(args: { layout: AppChromeLayout }): void {
+  const { layout } = args
   const actions = useAppShortcutActions()
   const keybindings = useAppStore((s) => s.keybindings)
   const terminalShortcutPolicy = useAppStore((s) => s.settings?.terminalShortcutPolicy)
@@ -62,13 +48,8 @@ export function useGlobalKeybindings(args: {
     activeWorktreeId: layout.activeWorktreeId,
     actions,
     creationLayoutActive: layout.creationLayoutActive,
-    floatingTerminalEnabled: floatingWorkspace.enabled,
-    floatingTerminalOpen: floatingWorkspace.open,
-    floatingVisibleTabCount: floatingWorkspace.visibleTabCount,
     keybindings,
-    openFloatingWorkspaceMaximized: floatingWorkspace.openMaximized,
     pluginCommands,
-    setFloatingTerminalOpen: floatingWorkspace.setOpenWithFocus,
     terminalShortcutPolicy,
     workspaceChromeActive: layout.workspaceChromeActive
   }
@@ -94,13 +75,8 @@ export function useGlobalKeybindings(args: {
         activeWorktreeId,
         actions,
         creationLayoutActive,
-        floatingTerminalEnabled,
-        floatingTerminalOpen,
-        floatingVisibleTabCount,
         keybindings,
-        openFloatingWorkspaceMaximized,
         pluginCommands,
-        setFloatingTerminalOpen,
         terminalShortcutPolicy
       } = state
 
@@ -161,56 +137,9 @@ export function useGlobalKeybindings(args: {
         }
       }
 
-      // An empty floating workspace has no tab to close, so Cmd/Ctrl+W hides the overlay before other surfaces act.
-      if (
-        keybindingMatchesAction('tab.close', input, shortcutPlatform, keybindings, {
-          context: 'app'
-        }) &&
-        shouldMinimizeFloatingWorkspacePanelOnCloseShortcut({
-          floatingTerminalOpen,
-          floatingVisibleTabCount
-        })
-      ) {
-        input.preventDefault()
-        setFloatingTerminalOpen(false)
-        return
-      }
-
-      // Floating panel closed → its keydown handler is gone, so honor the maximize chord here by opening it pre-maximized (no-op while it's open).
-      if (
-        !floatingTerminalOpen &&
-        matchShortcut('floatingWorkspace.maximize') &&
-        floatingTerminalEnabled
-      ) {
-        input.preventDefault()
-        openFloatingWorkspaceMaximized()
-        return
-      }
-
       // Skip editable surfaces so TipTap's Cmd+B bold works; this renderer-side fallback covers the blur→press IPC race (docs/markdown-cmd-b-bold-design.md).
       if (isEditableTarget(input.target)) {
         return
-      }
-
-      // Let floating-terminal SSH/tmux control chords reach the terminal (xterm's helper textarea isn't a generic editable target).
-      if (isFloatingWorkspaceTerminalInputTarget(input.target)) {
-        return
-      }
-
-      // Only short-circuit chords the floating panel itself claims; suppressing others here would silently no-op them when focus is in the panel.
-      if (isFloatingWorkspacePanelFocused()) {
-        const floatingMatchOptions: KeybindingMatchOptions = { context, terminalShortcutPolicy }
-        if (
-          matchFloatingWorkspacePanelChord(
-            input,
-            shortcutPlatform,
-            null,
-            keybindings,
-            floatingMatchOptions
-          ) !== null
-        ) {
-          return
-        }
       }
 
       // Plugin chords are user-reviewed instructional content. They win over

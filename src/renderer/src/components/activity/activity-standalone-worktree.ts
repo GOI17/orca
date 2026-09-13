@@ -1,5 +1,4 @@
 import { i18n, translate } from '@/i18n/i18n'
-import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../../shared/constants'
 import type { Worktree } from '../../../../shared/worktree/types'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 
@@ -13,16 +12,10 @@ function buildStandaloneActivityWorktree(
   worktreeId: string,
   executionHostId?: ExecutionHostId
 ): Worktree {
-  const displayName =
-    worktreeId === FLOATING_TERMINAL_WORKTREE_ID
-      ? translate(
-          'auto.components.activity.standaloneWorktree.floatingTerminal',
-          'Floating terminal'
-        )
-      : translate(
-          'auto.components.activity.standaloneWorktree.standaloneTerminal',
-          'Standalone terminal'
-        )
+  const displayName = translate(
+    'auto.components.activity.standaloneWorktree.standaloneTerminal',
+    'Standalone terminal'
+  )
   return {
     id: worktreeId,
     ...(executionHostId ? { hostId: executionHostId } : {}),

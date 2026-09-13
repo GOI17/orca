@@ -50,8 +50,7 @@ export function resolveTerminalStartupCwdForWorkspace(args: {
     return undefined
   }
   if (args.workspaceId === FLOATING_TERMINAL_WORKTREE_ID) {
-    // Why: floating terminals have no worktree root; their cwd was already
-    // resolved against the trusted-directory grants in resolveFloatingTerminalCwd.
+    // Legacy synthetic sessions have no workspace root for relative-path resolution.
     return args.requestedCwd
   }
   const workspacePath = resolveTerminalWorkspacePath(

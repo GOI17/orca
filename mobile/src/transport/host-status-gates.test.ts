@@ -22,8 +22,7 @@ describe('useHostStatusGates', () => {
     const newSendRequest = vi.fn().mockResolvedValue({
       ok: true,
       result: {
-        capabilities: ['terminal.quick-commands.v1'],
-        floatingWorkspaceEnabled: true
+        capabilities: ['terminal.quick-commands.v1']
       }
     })
     const newClient = { sendRequest: newSendRequest } as unknown as RpcClient
@@ -50,27 +49,23 @@ describe('useHostStatusGates', () => {
       })
       expect(firstRenderByHost.get('host-2')).toMatchObject({
         hostCapabilities: [],
-        floatingWorkspaceEnabled: false,
         compatVerdict: { kind: 'ok' }
       })
       expect(gates).toMatchObject({
-        hostCapabilities: ['terminal.quick-commands.v1'],
-        floatingWorkspaceEnabled: true
+        hostCapabilities: ['terminal.quick-commands.v1']
       })
 
       await act(async () => {
         resolveOldStatus?.({
           ok: true,
           result: {
-            capabilities: ['browser.screencast.v1'],
-            floatingWorkspaceEnabled: true
+            capabilities: ['browser.screencast.v1']
           }
         })
         await pendingOldStatus
       })
       expect(gates).toMatchObject({
-        hostCapabilities: ['terminal.quick-commands.v1'],
-        floatingWorkspaceEnabled: true
+        hostCapabilities: ['terminal.quick-commands.v1']
       })
       expect(oldSendRequest).toHaveBeenCalledOnce()
       expect(newSendRequest).toHaveBeenCalledOnce()
@@ -84,8 +79,7 @@ describe('useHostStatusGates', () => {
       ok: true,
       result: {
         appVersion: '1.4.191',
-        capabilities: ['browser.screencast.v1'],
-        floatingWorkspaceEnabled: true
+        capabilities: ['browser.screencast.v1']
       }
     })
     const client = { sendRequest } as unknown as RpcClient
@@ -104,8 +98,7 @@ describe('useHostStatusGates', () => {
       })
       expect(gates).toMatchObject({
         desktopAppVersion: '1.4.191',
-        hostCapabilities: ['browser.screencast.v1'],
-        floatingWorkspaceEnabled: true
+        hostCapabilities: ['browser.screencast.v1']
       })
 
       expect(sendRequest).toHaveBeenCalledOnce()
@@ -124,7 +117,7 @@ describe('useHostStatusGates', () => {
       .fn()
       .mockResolvedValueOnce({
         ok: true,
-        result: { capabilities: ['browser.screencast.v1'], floatingWorkspaceEnabled: true }
+        result: { capabilities: ['browser.screencast.v1'] }
       })
       .mockReturnValueOnce(pendingReconnect)
     const client = { sendRequest } as unknown as RpcClient
@@ -141,7 +134,7 @@ describe('useHostStatusGates', () => {
         renderer = create(createElement(Probe, { connState: 'connected' }))
         await Promise.resolve()
       })
-      expect(gates?.floatingWorkspaceEnabled).toBe(true)
+      expect(gates?.hostCapabilities).toEqual(['browser.screencast.v1'])
 
       await act(async () => {
         renderer?.update(createElement(Probe, { connState: 'disconnected' }))
@@ -149,7 +142,6 @@ describe('useHostStatusGates', () => {
       // Why (F10): the drop invalidates nothing the host already proved — capabilities survive it.
       expect(gates).toMatchObject({
         hostCapabilities: ['browser.screencast.v1'],
-        floatingWorkspaceEnabled: true,
         statusPending: false
       })
 
@@ -158,20 +150,18 @@ describe('useHostStatusGates', () => {
       })
       expect(gates).toMatchObject({
         hostCapabilities: ['browser.screencast.v1'],
-        floatingWorkspaceEnabled: true,
         statusPending: true
       })
 
       await act(async () => {
         resolveReconnect?.({
           ok: true,
-          result: { capabilities: ['terminal.quick-commands.v1'], floatingWorkspaceEnabled: true }
+          result: { capabilities: ['terminal.quick-commands.v1'] }
         })
         await pendingReconnect
       })
       expect(gates).toMatchObject({
         hostCapabilities: ['terminal.quick-commands.v1'],
-        floatingWorkspaceEnabled: true,
         statusPending: false
       })
     } finally {
@@ -180,10 +170,11 @@ describe('useHostStatusGates', () => {
   })
 
   it('fails closed when the same host reconnects on a replaced client', async () => {
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: This hook only reads sendRequest from the client fixture.
     const firstClient = {
       sendRequest: vi.fn().mockResolvedValue({
         ok: true,
-        result: { capabilities: ['browser.screencast.v1'], floatingWorkspaceEnabled: true }
+        result: { capabilities: ['browser.screencast.v1'] }
       })
     } as unknown as RpcClient
     const secondClient = {

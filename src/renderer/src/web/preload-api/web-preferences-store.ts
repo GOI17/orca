@@ -77,7 +77,6 @@ export function getStoredSettings(): GlobalSettings {
   return mergeSettings(
     {
       ...defaults,
-      floatingTerminalEnabled: false,
       rightSidebarOpenByDefault: false,
       activeRuntimeEnvironmentId: null
     },
