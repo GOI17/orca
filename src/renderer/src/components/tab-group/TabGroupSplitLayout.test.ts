@@ -1,6 +1,7 @@
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const dockedGroups = vi.hoisted(() => ({ groupByWorktree: {} as Record<string, string> }))
 const setTabGroupSplitRatioMock = vi.fn()
 const recordFeatureInteractionMock = vi.fn()
 const setDragRootNodeMock = vi.fn()
@@ -46,6 +47,12 @@ vi.mock('./useTabDragSplit', () => ({
   })
 }))
 
+vi.mock('../right-sidebar/sidebar-surface-dock', () => ({
+  useSidebarSurfaceDock: (
+    selector: (state: { groupByWorktree: Record<string, string> }) => unknown
+  ) => selector(dockedGroups)
+}))
+
 import TabGroupSplitLayout from './TabGroupSplitLayout'
 
 type ReactElementLike = {
@@ -70,6 +77,7 @@ describe('TabGroupSplitLayout', () => {
     recordFeatureInteractionMock.mockClear()
     setDragRootNodeMock.mockClear()
     useAppStoreMock.mockClear()
+    dockedGroups.groupByWorktree = {}
   })
 
   function getLayoutWrapper(element: ReturnType<typeof TabGroupSplitLayout>) {
@@ -186,6 +194,29 @@ describe('TabGroupSplitLayout', () => {
         reserveCollapsedSidebarHeaderSpace: false
       })
     )
+  })
+
+  it('keeps resize paths host-relative after projecting a group into the sidebar', () => {
+    dockedGroups.groupByWorktree = { 'wt-1': 'dock-group' }
+    const element = TabGroupSplitLayout({
+      layout: {
+        type: 'split',
+        direction: 'horizontal',
+        first: {
+          type: 'split',
+          direction: 'vertical',
+          first: { type: 'leaf', groupId: 'top-group' },
+          second: { type: 'leaf', groupId: 'bottom-group' }
+        },
+        second: { type: 'leaf', groupId: 'dock-group' }
+      },
+      worktreeId: 'wt-1',
+      isWorktreeActive: true
+    })
+    const projected = asElement(invokeComponent(asElement(getSplitNodeElement(element))))
+    const resizeHandle = asElement((projected.props.children as unknown[])[1])
+    ;(resizeHandle.props.onRatioChange as (ratio: number) => void)(0.6)
+    expect(setTabGroupSplitRatioMock).toHaveBeenCalledWith('wt-1', 'first', 0.6)
   })
 
   it('records pane resizing at the start of the gesture', () => {

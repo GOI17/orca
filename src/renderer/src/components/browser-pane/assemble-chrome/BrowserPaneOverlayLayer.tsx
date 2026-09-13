@@ -1,3 +1,7 @@
+import {
+  useDockedSurfaceStyle,
+  useDockedSurfaceVisibility
+} from '../../right-sidebar/sidebar-surface-dock'
 import { memo, useCallback, useMemo } from 'react'
 import { registerBrowserOverlaySlotViewport } from '../host-guest/browser-page-viewport'
 import { useShallow } from 'zustand/react/shallow'
@@ -44,7 +48,7 @@ const BrowserOverlaySlot = memo(function BrowserOverlaySlot({
   browserTab,
   isWorktreeActive,
   groupId,
-  isActive,
+  isActive: requestedActive,
   chromeShortcutScope,
   onFocusOwningGroup
 }: BrowserOverlaySlotProps): React.JSX.Element {
@@ -55,6 +59,9 @@ const BrowserOverlaySlot = memo(function BrowserOverlaySlot({
     },
     [browserTab.id]
   )
+  const dockVisible = useDockedSurfaceVisibility(groupId)
+  const isActive = requestedActive && dockVisible
+  const dockedStyle = useDockedSurfaceStyle(groupId)
   const anchorName = groupId !== undefined ? tabGroupBodyAnchorName(groupId) : undefined
   const browserPageIds =
     browserTab.pageIds && browserTab.pageIds.length > 0
@@ -98,7 +105,7 @@ const BrowserOverlaySlot = memo(function BrowserOverlaySlot({
 
   return (
     <div
-      style={style}
+      style={dockedStyle ? { ...style, ...dockedStyle } : style}
       className="relative flex min-h-0 flex-1 flex-col"
       data-browser-overlay-tab-id={browserTab.id}
       onPointerDown={handleFocus}
@@ -110,7 +117,7 @@ const BrowserOverlaySlot = memo(function BrowserOverlaySlot({
           browserTab={browserTab}
           isWorktreeActive={isWorktreeActive}
           isActive={isActive}
-          chromeShortcutScope={chromeShortcutScope}
+          chromeShortcutScope={isActive ? chromeShortcutScope : 'inactive'}
         />
       </DeferredBrowserContent>
     </div>

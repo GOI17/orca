@@ -5,6 +5,24 @@
       "description": "The active workspace is hidden in the sidebar. Revealing it will clear your sidebar filters.",
       "confirm": "Clear filters and reveal",
       "cancel": "Keep filters"
+    },
+    "surfaces": {
+      "open": "Open a surface",
+      "restore": "Restore panel size",
+      "expand": "Expand panel",
+      "dockBottom": "Dock panel at bottom",
+      "dockRight": "Dock panel at right",
+      "close": "Close panel",
+      "resize": "Resize surface panel",
+      "workspace": "Workspace surfaces",
+      "browser": "Browser",
+      "terminal": "Terminal",
+      "files": "Files",
+      "diff": "Diff",
+      "review": "Review",
+      "linkedReviews": "Linked reviews",
+      "agents": "Agents",
+      "device": "Device"
     }
   },
   "app": {

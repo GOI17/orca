@@ -1,4 +1,5 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useDockedSurfaceStyle } from '../right-sidebar/sidebar-surface-dock'
 import { SYNC_FIT_PANES_EVENT } from '@/constants/terminal'
 import { tabGroupBodyAnchorName } from './tab-group-body-anchor'
 
@@ -45,6 +46,7 @@ export function RetainedPaneHost({
   children,
   ...identity
 }: RetainedPaneHostProps): React.JSX.Element {
+  const dockedStyle = useDockedSurfaceStyle(groupId)
   const anchorName = groupId !== undefined ? tabGroupBodyAnchorName(groupId) : undefined
   const overlayRef = useRef<HTMLDivElement | null>(null)
   const [measuredFallbackRect, setMeasuredFallbackRect] = useState<MeasuredFallbackRect | null>(
@@ -192,7 +194,7 @@ export function RetainedPaneHost({
   return (
     <div
       ref={overlayRef}
-      style={style}
+      style={dockedStyle ? { ...style, ...dockedStyle } : style}
       // Pane-local layers cannot compete with app notifications or escape their split rectangle.
       className="isolate z-10 min-h-0 min-w-0 overflow-hidden"
       data-retained-pane-host=""

@@ -1,3 +1,4 @@
+import { useDockedSurfaceVisibility } from '../right-sidebar/sidebar-surface-dock'
 import { memo, useLayoutEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppStore } from '../../store'
@@ -32,13 +33,16 @@ export const TerminalOverlaySlot = memo(function TerminalOverlaySlot({
   startupCwd,
   groupId,
   isWorktreeActive,
-  isVisible,
-  isActive,
+  isVisible: requestedVisible,
+  isActive: requestedActive,
   activityTerminalPortal,
   onFocusOwningGroup,
   consumeSuppressedPtyExit,
   leaveWorktreeIfEmpty
 }: TerminalOverlaySlotProps): React.JSX.Element {
+  const dockVisible = useDockedSurfaceVisibility(groupId)
+  const isVisible = requestedVisible && dockVisible
+  const isActive = requestedActive && dockVisible
   const [shouldMeasureHiddenStartup, setShouldMeasureHiddenStartup] = useState(
     () => useAppStore.getState().pendingStartupByTabId[terminalTabId] !== undefined
   )

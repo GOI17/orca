@@ -14768,5 +14768,25 @@
       "stopped": "detenido",
       "finished": "finalizado"
     }
+  },
+  "sidebar": {
+    "surfaces": {
+      "open": "Abrir una superficie",
+      "browser": "Navegador",
+      "terminal": "Terminal",
+      "files": "Archivos",
+      "diff": "Cambios",
+      "review": "Revisión",
+      "linkedReviews": "Revisiones vinculadas",
+      "agents": "Agentes",
+      "device": "Dispositivo",
+      "restore": "Restaurar tamaño del panel",
+      "expand": "Ampliar panel",
+      "dockBottom": "Acoplar panel abajo",
+      "dockRight": "Acoplar panel a la derecha",
+      "close": "Cerrar panel",
+      "resize": "Cambiar tamaño del panel",
+      "workspace": "Superficies del espacio de trabajo"
+    }
   }
 }
