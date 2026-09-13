@@ -4674,6 +4674,7 @@
           "changeParentWorkspace": "更改父工作树...",
           "setParentWorkspace": "设置父工作树...",
           "workspaceSection": "工作区",
+          "worktreeSection": "Worktree",
           "primaryDeleteDisabled": "主工作树不能删除。请改为移除项目。",
           "deleteWorktree": "删除工作树"
         },

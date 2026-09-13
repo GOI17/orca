@@ -130,7 +130,7 @@ describe('Agent Map workspace context menu', () => {
       clientY: 140
     })
 
-    expect(await screen.findByText('Workspace', {}, { timeout: 5_000 })).toBeInTheDocument()
+    expect(await screen.findByText('Worktree', {}, { timeout: 5_000 })).toBeInTheDocument()
     expect(screen.getByText('Update')).toBeInTheDocument()
     expect(screen.getByText('Move to Status')).toBeInTheDocument()
     expect(screen.getByText('Open in')).toBeInTheDocument()
@@ -138,7 +138,7 @@ describe('Agent Map workspace context menu', () => {
     expect(screen.getByText('Pin')).toBeInTheDocument()
     expect(screen.getByText('Mark Unread')).toBeInTheDocument()
     expect(screen.getByText('Sleep')).toBeInTheDocument()
-    expect(screen.getByText('Delete')).toBeInTheDocument()
+    expect(screen.getByText('Delete Worktree')).toBeInTheDocument()
     expect(useWorktreeById).toHaveBeenCalledWith(worktree.id, EXECUTION_HOST_ID)
   })
 
@@ -168,7 +168,7 @@ describe('Agent Map workspace context menu', () => {
 
     fireEvent.contextMenu(screen.getByRole('button', { name: 'Open Agent map worktree details' }))
 
-    expect(await screen.findByText('Workspace', {}, { timeout: 5_000 })).toBeInTheDocument()
+    expect(await screen.findByText('Worktree', {}, { timeout: 5_000 })).toBeInTheDocument()
   })
 
   it('uses explicit SSH ownership instead of the paired hub repo host', async () => {
@@ -188,7 +188,7 @@ describe('Agent Map workspace context menu', () => {
 
     fireEvent.contextMenu(screen.getByRole('button', { name: 'Open Agent map worktree details' }))
 
-    expect(await screen.findByText('Workspace', {}, { timeout: 5_000 })).toBeInTheDocument()
+    expect(await screen.findByText('Worktree', {}, { timeout: 5_000 })).toBeInTheDocument()
   })
 
   it('fails closed when bare-ID actions would span multiple execution hosts', async () => {
@@ -212,12 +212,12 @@ describe('Agent Map workspace context menu', () => {
       expect(useWorktreeById).toHaveBeenCalledWith(worktree.id, EXECUTION_HOST_ID)
     )
     await act(async () => new Promise((resolve) => window.setTimeout(resolve, 0)))
-    expect(screen.queryByText('Workspace')).not.toBeInTheDocument()
+    expect(screen.queryByText('Worktree')).not.toBeInTheDocument()
 
     act(() => {
       useAppStore.setState({ worktreesByRepo: { [repo.id]: [worktree] } })
     })
-    expect(screen.queryByText('Workspace')).not.toBeInTheDocument()
+    expect(screen.queryByText('Worktree')).not.toBeInTheDocument()
   })
 
   it('clears a workspace request whose target disappeared', async () => {
@@ -241,7 +241,7 @@ describe('Agent Map workspace context menu', () => {
       useAppStore.setState({ worktreesByRepo: { [repo.id]: [worktree] } })
     })
 
-    expect(screen.queryByText('Workspace')).not.toBeInTheDocument()
+    expect(screen.queryByText('Worktree')).not.toBeInTheDocument()
   })
 
   it('releases the store-backed workspace menu after an ordinary close', async () => {
@@ -259,9 +259,9 @@ describe('Agent Map workspace context menu', () => {
     )
 
     fireEvent.contextMenu(screen.getByRole('button', { name: 'Open Agent map worktree details' }))
-    expect(await screen.findByText('Workspace', {}, { timeout: 5_000 })).toBeInTheDocument()
+    expect(await screen.findByText('Worktree', {}, { timeout: 5_000 })).toBeInTheDocument()
     fireEvent.keyDown(document, { key: 'Escape' })
-    await waitFor(() => expect(screen.queryByText('Workspace')).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByText('Worktree')).not.toBeInTheDocument())
     await act(async () => new Promise((resolve) => window.setTimeout(resolve, 0)))
 
     getKnownWorktreeById.mockClear()

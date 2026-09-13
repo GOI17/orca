@@ -107,18 +107,15 @@ export function WorktreeCardSurface({ card }: { card: WorktreeCardController }):
 
   return (
     <>
-      {affiliateListMode ? (
-        cardBody
-      ) : (
-        <WorktreeContextMenu
-          worktree={worktree}
-          selectedWorktrees={selectedWorktrees}
-          onContextMenuSelect={handleContextMenuSelect}
-          onAssignWorkspaceStatus={onAssignWorkspaceStatus}
-        >
-          {cardBody}
-        </WorktreeContextMenu>
-      )}
+      {/* Attached cards still need their own action target, even with inline editing disabled. */}
+      <WorktreeContextMenu
+        worktree={worktree}
+        selectedWorktrees={selectedWorktrees}
+        onContextMenuSelect={handleContextMenuSelect}
+        onAssignWorkspaceStatus={onAssignWorkspaceStatus}
+      >
+        {cardBody}
+      </WorktreeContextMenu>
 
       {typeof worktree.firstAgentMessageRenameError === 'string' &&
         worktree.firstAgentMessageRenameError.length > 0 && (

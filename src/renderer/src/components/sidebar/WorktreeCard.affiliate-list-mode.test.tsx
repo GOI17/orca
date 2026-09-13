@@ -84,8 +84,10 @@ vi.mock('./WorktreeCardAgents', () => ({
 }))
 
 vi.mock('./WorktreeContextMenu', () => ({
-  default: ({ children }: { children: ReactNode }) => (
-    <div data-testid="context-menu-wrapper">{children}</div>
+  default: ({ children, worktree }: { children: ReactNode; worktree: Worktree }) => (
+    <div data-testid="context-menu-wrapper" data-menu-worktree-id={worktree.id}>
+      {children}
+    </div>
   ),
   CLOSE_ALL_CONTEXT_MENUS_EVENT: 'orca:test-close-context-menus',
   WORKTREE_CONTEXT_MENU_SCOPE_ATTR: 'data-orca-context-menu-scope',
@@ -163,7 +165,7 @@ describe('WorktreeCard affiliate list mode', () => {
     container.remove()
   })
 
-  it('keeps the card visual surface but disables mutating list interactions', () => {
+  it('keeps its context menu while disabling inline editing and dragging', () => {
     act(() => {
       root.render(
         <WorktreeCard
@@ -186,7 +188,11 @@ describe('WorktreeCard affiliate list mode', () => {
     expect(parentContent?.className).toContain('pl-0')
     const statusSlot = container.querySelector<HTMLElement>('[data-worktree-card-status-slot]')
     expect(statusSlot?.className).toContain('px-1')
-    expect(container.querySelector('[data-testid="context-menu-wrapper"]')).toBeNull()
+    expect(
+      container
+        .querySelector('[data-testid="context-menu-wrapper"]')
+        ?.getAttribute('data-menu-worktree-id')
+    ).toBe(makeWorktree().id)
     expect(surface?.getAttribute('draggable')).toBe('false')
     expect(
       container.querySelector('[data-testid="inline-rename"]')?.getAttribute('data-disabled')

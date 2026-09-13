@@ -145,6 +145,19 @@ export function isContextWorktreeDeletable(
   return repo != null && !worktree.isMainWorktree
 }
 
+export function getWorktreeBatchDeleteLabel(
+  worktrees: readonly Worktree[],
+  repoMap: ReadonlyMap<string, Repo>
+): string {
+  if (worktrees.length === 0) {
+    return 'Delete Selected'
+  }
+  const kind = worktrees.some((item) => repoMap.get(item.repoId)?.kind === 'folder')
+    ? 'Workspace'
+    : 'Worktree'
+  return `Delete ${worktrees.length} ${kind}${worktrees.length === 1 ? '' : 's'}`
+}
+
 function findSidebarVirtualRowByKey(sidebar: Element, rowKey: string): HTMLElement | null {
   return (
     Array.from(sidebar.querySelectorAll<HTMLElement>('[data-worktree-virtual-row]')).find(

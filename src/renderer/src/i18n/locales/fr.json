@@ -5286,6 +5286,7 @@
           "changeParentWorkspace": "Changer le worktree parent...",
           "setParentWorkspace": "Définir le worktree parent...",
           "workspaceSection": "Espace de travail",
+          "worktreeSection": "Worktree",
           "primaryDeleteDisabled": "Worktree principal — impossible à supprimer. Retirez plutôt le projet.",
           "deleteWorktree": "Supprimer le worktree",
           "sleepWithDescendants": "Mettre en veille avec les descendants ({{value0}})",
