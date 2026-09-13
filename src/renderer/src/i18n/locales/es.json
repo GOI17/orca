@@ -4645,6 +4645,7 @@
           "changeParentWorkspace": "Cambiar worktree padre...",
           "setParentWorkspace": "Establecer worktree padre...",
           "workspaceSection": "Espacio de trabajo",
+          "worktreeSection": "Worktree",
           "primaryDeleteDisabled": "El worktree principal no se puede eliminar. Quita el proyecto en su lugar.",
           "deleteWorktree": "Eliminar worktree"
         },

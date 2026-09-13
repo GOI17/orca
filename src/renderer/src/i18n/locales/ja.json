@@ -4626,6 +4626,7 @@
           "changeParentWorkspace": "親ワークツリーを変更…",
           "setParentWorkspace": "親ワークツリーを設定…",
           "workspaceSection": "ワークスペース",
+          "worktreeSection": "Worktree",
           "primaryDeleteDisabled": "プライマリワークツリーは削除できません。代わりにプロジェクトを削除してください。",
           "deleteWorktree": "ワークツリーを削除"
         },

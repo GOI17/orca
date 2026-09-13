@@ -13,6 +13,7 @@ import {
   useWorkspaceLineageMenuActions
 } from './workspace-lineage-menu-actions'
 import { parseWorkspaceKey } from '../../../../shared/workspace-scope'
+import { useWorktreeContextTarget } from './use-worktree-context-target'
 import { getDeleteStateForWorktreeHost } from './worktree-delete-state-host-match'
 import {
   CLOSE_ALL_CONTEXT_MENUS_EVENT,
@@ -24,6 +25,7 @@ import {
   EMPTY_WORKSPACE_LINEAGE_BY_CHILD_KEY,
   EMPTY_WORKTREE_LINEAGE_BY_ID,
   hasWorktreeParentLink,
+  getWorktreeBatchDeleteLabel,
   isContextWorktreeDeletable,
   selectMenuScopedMap,
   shouldRemoveProjectFromContextMenu
@@ -44,7 +46,7 @@ export type WorktreeContextMenuProps = {
 }
 
 export function useWorktreeContextMenuModel({
-  worktree,
+  worktree: rowWorktree,
   children,
   contentClassName,
   selectedWorktrees,
@@ -53,8 +55,9 @@ export function useWorktreeContextMenuModel({
   onOpenChange,
   onLifecycleComplete
 }: WorktreeContextMenuProps) {
-  const defaultSelectedWorktrees = useMemo(() => [worktree], [worktree])
-  const effectiveSelectedWorktrees = selectedWorktrees ?? defaultSelectedWorktrees
+  const [menuOpen, setMenuOpen] = useState(false)
+  const { worktree, activeContextWorktrees, effectiveSelectedWorktrees, captureContextWorktrees } =
+    useWorktreeContextTarget(rowWorktree, selectedWorktrees, menuOpen)
   const updateWorktreeMeta = useAppStore((s) => s.updateWorktreeMeta)
   const setWorktreesPinnedAndReveal = useAppStore((s) => s.setWorktreesPinnedAndReveal)
   const workspaceStatuses = useAppStore((s) => s.workspaceStatuses)
@@ -66,16 +69,12 @@ export function useWorktreeContextMenuModel({
   const deleteState = useAppStore((s) =>
     getDeleteStateForWorktreeHost(worktree, s.deleteStateByWorktreeId)
   )
-  const [menuOpen, setMenuOpen] = useState(false)
   // Why: the Developer submenu is a power-user affordance, so it is revealed by
   // holding Option/Alt at right-click — captured at open time (like the Help
   // menu's admin options) so the submenu can't appear or vanish mid-menu and
   // shift the rows under the pointer.
   const [developerMenuRevealed, setDeveloperMenuRevealed] = useState(false)
   const [menuPoint, setMenuPoint] = useState({ x: 0, y: 0 })
-  const [contextWorktrees, setContextWorktrees] = useState<readonly Worktree[]>(
-    effectiveSelectedWorktrees
-  )
   const [createGroupDialogOpen, setCreateGroupDialogOpen] = useState(false)
   const createGroupDialogActiveRef = useRef(false)
   const [parentPicker, setParentPicker] = useState<{
@@ -125,7 +124,6 @@ export function useWorktreeContextMenuModel({
   )
   const scopeRef = useRef<HTMLDivElement>(null)
   const contextMenuOpenedAtRef = useRef<number | null>(null)
-  const activeContextWorktrees = menuOpen ? contextWorktrees : effectiveSelectedWorktrees
   const isMultiContext = activeContextWorktrees.length > 1
   const workspaceScope = parseWorkspaceKey(worktree.id)
   const folderWorkspaceId =
@@ -184,10 +182,7 @@ export function useWorktreeContextMenuModel({
     isMultiContext && sleepableWorktrees.length > 0
       ? `Sleep ${sleepableWorktrees.length} Workspace${sleepableWorktrees.length === 1 ? '' : 's'}`
       : 'Sleep'
-  const deleteLabel =
-    isMultiContext && batchDeleteWorktrees.length > 0
-      ? `Delete ${batchDeleteWorktrees.length} Workspace${batchDeleteWorktrees.length === 1 ? '' : 's'}`
-      : 'Delete Selected'
+  const deleteLabel = getWorktreeBatchDeleteLabel(batchDeleteWorktrees, repoMap)
   const hasParentLink = hasWorktreeParentLink(
     worktree,
     worktreeLineageById,
@@ -363,6 +358,7 @@ export function useWorktreeContextMenuModel({
     browserTabsByWorktree,
     children,
     contentClassName,
+    captureContextWorktrees,
     contextDeletePending,
     contextMenuOpenedAtRef,
     contextWorkspaceStatus,
@@ -408,7 +404,6 @@ export function useWorktreeContextMenuModel({
     removesProject,
     repo,
     scopeRef,
-    setContextWorktrees,
     setDeveloperMenuRevealed,
     setMenuOpenState,
     setMenuPoint,

@@ -50,6 +50,7 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
   const {
     batchDeleteWorktrees,
     children,
+    captureContextWorktrees,
     contentClassName,
     contextDeletePending,
     contextMenuOpenedAtRef,
@@ -88,7 +89,6 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
     removesProject,
     repo,
     scopeRef,
-    setContextWorktrees,
     setDeveloperMenuRevealed,
     setMenuOpenState,
     setMenuPoint,
@@ -100,6 +100,7 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
     worktree,
     workspaceStatuses
   } = model
+  const isFolderWorkspace = folderWorkspaceId !== null || repo?.kind === 'folder'
   const deleteShortcut = useOptionalShortcutLabel('workspace.delete')
   return (
     <div
@@ -117,10 +118,11 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
           return
         }
         event.preventDefault()
+        event.stopPropagation()
         contextMenuOpenedAtRef.current = Date.now()
         window.dispatchEvent(new Event(CLOSE_ALL_CONTEXT_MENUS_EVENT))
         setDeveloperMenuRevealed(event.altKey)
-        setContextWorktrees(onContextMenuSelect?.(event) ?? effectiveSelectedWorktrees)
+        captureContextWorktrees(onContextMenuSelect?.(event) ?? effectiveSelectedWorktrees)
         const bounds = event.currentTarget.getBoundingClientRect()
         setMenuPoint({ x: event.clientX - bounds.left, y: event.clientY - bounds.top })
         setMenuOpenState(true)
@@ -154,7 +156,15 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
           onCloseAutoFocus={handleCloseAutoFocus}
         >
           <DropdownMenuLabel className="px-2 py-1 text-[11px] font-medium text-muted-foreground">
-            {translate('auto.components.sidebar.WorktreeContextMenu.workspaceSection', 'Workspace')}
+            {isFolderWorkspace
+              ? translate(
+                  'auto.components.sidebar.WorktreeContextMenu.workspaceSection',
+                  'Workspace'
+                )
+              : translate(
+                  'auto.components.sidebar.WorktreeContextMenu.worktreeSection',
+                  'Worktree'
+                )}
           </DropdownMenuLabel>
           {!isMultiContext && (
             <DropdownMenuItem onSelect={handleRename} disabled={isDeleting}>
@@ -370,10 +380,15 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
                           'auto.components.sidebar.WorktreeContextMenu.deleteWithDescendants',
                           'Delete with Descendants…'
                         )
-                      : translate(
-                          'auto.components.sidebar.WorktreeContextMenu.f4475537d8',
-                          'Delete'
-                        )}
+                      : isFolderWorkspace
+                        ? translate(
+                            'auto.components.sidebar.WorktreeContextMenu.f4475537d8',
+                            'Delete'
+                          )
+                        : translate(
+                            'auto.components.sidebar.WorktreeContextMenu.deleteWorktree',
+                            'Delete Worktree'
+                          )}
             {!isMultiContext && !removesProject && deleteShortcut ? (
               <DropdownMenuShortcut>{deleteShortcut}</DropdownMenuShortcut>
             ) : null}
