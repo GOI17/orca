@@ -170,7 +170,6 @@ describe('useHostStatusGates', () => {
   })
 
   it('fails closed when the same host reconnects on a replaced client', async () => {
-    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: This hook only reads sendRequest from the client fixture.
     const firstClient = {
       sendRequest: vi.fn().mockResolvedValue({
         ok: true,
